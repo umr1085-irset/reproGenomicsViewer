@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="container">
+    <h3>Please select a visualization type for the file {{file.name}} </h3>
+    <form id="visu_type" data-url="{% url 'files:get_visualization' file.id %}">
+        <select id="visu_type_select" class="select form-control">
+            <option disabled selected value> -- Select a type -- </option>
+            {% for type in types %}
+                <option value="{{type}}">{{type}}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <br>
+    <div id="visu_params" style="display:none; text-align:center;">
+        <button class='btn btn-info' id='transpose' style="display:none">Transpose</button><br>
+        <div id="data_table" class="table-responsive"></div>
+        <div id="params"></div>
+        <button type="button" class="btn btn-success" id="visualize_button" data-url="{% url 'files:get_visualization' file.id %}">Visualize!</button>
+    </div>
+    <div id="visu_results"></div>
+</div>
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{% static 'js/visualize.js' %}"></script>
+{% endblock %} 

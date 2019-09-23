@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if back_url %}
+    <h3><a href="{{back_url}}">Go back</a></h3>
+{% endif %}
+
+
+{% for folder in folders %}
+    <h3><a href="{% url 'files:subindex' folder.id %}">{{folder.name}}</a></h3>
+{% endfor %}
+
+{% for file in files %}
+     <h3><a href="{% url 'files:view_file' file.id %}">{{file.name}}</a></h3>
+{% endfor %}
+
+{% if not folders and not files %}
+
+    <h3> Nothing is here </h3>
+
+{% endif %}
+
+
+{% endblock %}

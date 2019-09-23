@@ -1,0 +1,182 @@
+{% load static i18n %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}sdap{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <link rel="icon" href="">
+
+    {% block css %}
+    
+    <!-- Latest compiled and minified Bootstrap CSS -->
+    <!--  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
+    
+
+    <!-- Your stuff: Third-party CSS libraries go here -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    
+    <!-- This file stores project-specific CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet">
+    
+    <link href="{% static 'css/project.css' %}" rel="stylesheet">
+    <link href="{% static 'css/login.css' %}" rel="stylesheet">
+    
+    
+    {% endblock %}
+
+  </head>
+
+  <body>
+
+      <!--Navbar -->
+      <nav class="mb-1 navbar navbar-expand-lg navbar-light white scrolling-navbar">
+        <a class="navbar-brand" href="{% url 'home' %}">
+          Irset web base
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-333"
+          aria-controls="navbarSupportedContent-333" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent-333">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'files:index' %}">My files</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-333" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">Tools
+              </a>
+              <div class="dropdown-menu dropdown-default" aria-labelledby="navbarDropdownMenuLink-333">
+                <a class="dropdown-item" href="#">Analysis</a>
+                <a class="dropdown-item" href="#">Pipelines <span class="badge badge-pill badge-default">soon</span></a>
+                <a class="dropdown-item" href="#">Visualization</a>
+              </div>
+            </li>
+          </ul>
+          <ul class="navbar-nav ml-auto nav-flex-icons">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-3334" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">Help
+              </a>
+              <div class="dropdown-menu dropdown-default" aria-labelledby="navbarDropdownMenuLink-3334">
+                <a class="dropdown-item" href="#">FAQ</a>
+                <a class="dropdown-item" href="#">Tutorials</a>
+                <a class="dropdown-item" href="#">Contact</a>
+              </div>
+            </li>
+            {% if request.user.is_authenticated %}
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-333" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user"></i>
+                    {{request.user.username }}
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-right dropdown-default"
+                    aria-labelledby="navbarDropdownMenuLink-333">
+                    <a class="dropdown-item" href="#">Profil</a>
+                    <a class="dropdown-item" href="#">Parameters</a> <!-- TODO Only if admin -->
+                    <a class="dropdown-item" href="" data-toggle="modal" data-target="#logoutModal">Logout</a>
+                  </div>
+                </li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+      <!--/.Navbar -->
+
+      <!--Main Layout-->
+      <main>
+        <div class="container-fluid mt-5">
+          {% if messages %}
+              {% for message in messages %}
+                  <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+              {% endfor %}
+          {% endif %}
+
+          {% block content %}
+            <p>Use this document as a way to quick start any new project.</p>
+          {% endblock content %}
+          
+        </div>
+      </main>
+      <!--Main Layout-->
+
+      
+
+
+    <!-- Footer -->
+    <footer class="page-footer font-small white fixed-bottom">
+
+      <!-- Copyright -->
+      <div class="footer-copyright text-center py-3">© 2019 Copyright:
+        <p> <a href="https://www.irset.org/" target="_blank"> Irset</a> - <a href="https://www.genouest.org/"  target="_blank">GenOuest</a>
+      </div>
+      <!-- Copyright -->
+
+    </footer>
+<!-- Footer -->
+
+   <!-- Modal -->
+   {% block modal %}
+        <!-- Logout Modal-->
+        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+              <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+              <div class="modal-footer">
+                <form method="post" action="{% url 'account_logout' %}">
+                  {% csrf_token %}
+                  {% if redirect_field_value %}
+                  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                  {% endif %}
+                  <button class="btn btn-danger" type="submit">{% trans 'Logout' %}</button>
+                </form>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div> 
+    {% endblock modal %}
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    {% block javascript %}
+      
+      <!-- Bootstrap JS and its dependencies
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>-->
+
+      <!-- Your stuff: Third-party javascript libraries go here -->
+      
+
+      <!-- place project specific Javascript in this file -->
+      
+      <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+      <script src="{% static 'js/popper.min.js' %}"></script>
+      <script src="{% static 'js/bootstrap.min.js' %}"></script>
+      <script src="{% static 'js/mdb.min.js' %}"></script>
+      <script src="{% static 'js/project.js' %}"></script>
+      
+
+    {% endblock javascript %}
+  </body>
+</html>
+ 
