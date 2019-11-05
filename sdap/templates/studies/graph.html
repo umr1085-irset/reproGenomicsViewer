@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <style>
+        #ajax-loader{
+            visibility: hidden;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+    <div class="container">
+
+        <div class="row">
+            <h4 class="header">Visualisation of : {{ study.article }} - {{ document.name }}</h4>
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-content ">
+                        <span class="card-title">Dataset summary</span>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <p class="flow-text center-align">Cell number: <br>{{ data_stat.samples }}</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <p class="flow-text center-align">Classification number: <br>{{ data_stat.class_name |length }}</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <p class="flow-text center-align">Interogated genes: <br>{{ data_stat.gene_number }} ({{ data_stat.gene_type }})</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 center-align">
+                            <canvas id="summary_cluster_classification"></canvas>
+                        </div>
+                        <div class="col-sm-6 center-align">
+                            <canvas id="summary_cell_cluster_classification"></canvas>
+                        </div>
+
+                    </div>
+                    <div class="card-action">
+                        <div class="row">
+                            <h6>Display parameters</h6>
+                            <div class="col-sm-6">
+                                <div class="input-field col-sm-12">
+                                    {% crispy form %}
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="input-field col-sm-12">
+                                    <form id="graph-form">
+                                        <select id="class_select">
+                                            {% for class in classes %}
+                                                <option value="{{class}}">{{class}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 center-align" id="graph-container">
+                                <canvas id="summary_cluster_distribution"></canvas>
+                            </div>
+                            
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 center-align" id="graph_div">
+                                <div id="graph" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" ></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grey-text text-darken-4 card-action">
+
+                            <div class="row">
+                                    <div class="col-sm-12">
+                                      <ul class="tabs">
+                                        <li class="tab col-sm-3 grey-text text-darken-4"><a class="active grey-text text-darken-4" href="#test1">Gene expression</a></li>
+                                        <li class="tab col-sm-3 grey-text text-darken-4"><a class="grey-text text-darken-4" href="#test2">Cluster comparison</a></li>
+                                        <li class="tab col-sm-3 grey-text text-darken-4"><a class="grey-text text-darken-4" href="#test3">Sample information</a></li>
+                                      </ul>
+                                    </div>
+                                    <div id="test1" class="col-sm-12">
+                                        <div class="preloader-wrapper active" id="ajax-loader">
+                                            <div class="spinner-layer spinner-red-only">
+                                                <div class="circle-clipper left">
+                                                <div class="circle"></div>
+                                                </div><div class="gap-patch">
+                                                <div class="circle"></div>
+                                                </div><div class="circle-clipper right">
+                                                <div class="circle"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="card-title" id="info_title"></span>
+                                        <table id="example" class="display" width="100%"></table>
+                                    </div>
+                                    <div id="test2" class="col-sm-12">Test 2</div>
+                                    <div id="test3" class="col-sm-12">Test 3</div>
+                            </div>
+
+
+                        <div class="row">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+
+
+    <script>
+        var summary = "{{ data_stat | safe }}";
+        var summary_data = summary.replace(/'/g, '"');
+        var url_group_info = "{% url 'studies:group_info' %}";
+        var doc_data = '{{ document.id | safe }}'
+        var url_autocomplete = "{% url 'studies:autocomplete_genes' %}"
+        summary_data = JSON.parse(summary_data);
+
+        $(document).ready(function(){
+            $('select').formSelect();
+            $('.tabs').tabs();
+        });
+    </script>
+    <script src="{% static 'js/studies_graph.js' %}"></script>
+{% endblock %}
+

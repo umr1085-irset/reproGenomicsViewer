@@ -15,11 +15,9 @@ from sdap.jobs.models import Job
 from sdap.tools.models import Tool
 
 def HomeView(request):
-    if request.user.is_authenticated :
-        user_files      = File.objects.filter(created_by=request.user.id)
-        user_jobs       = Job.objects.filter(created_by=request.user.id)
-        most_used_tools = Tool.objects.filter(created_at__lte=timezone.now()).order_by('-created_at')[:5]
-        context = {'files':user_files, 'jobs':user_jobs, 'tools':most_used_tools}
-        return render(request, 'pages/home.html',context)
-    else:
-            return HttpResponseRedirect(reverse('account_login'))
+    context = {}
+    return render(request, 'pages/home.html',context)
+
+def index(request):
+    context = {}
+    return render(request, 'pages/index.html', context)
