@@ -44,7 +44,7 @@ class ExpressionStudyFilterForm(forms.Form):
             choices = ((None, "All"),)
             for content in value:
                 choices = choices + ((content,content),)
-            self.fields[key] = forms.ChoiceField(choices=choices, required=False)
+            self.fields[key] = forms.ChoiceField(choices=choices, required=False, widget=forms.Select(attrs={'class':'browser-default custom-select'}))
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'GET'

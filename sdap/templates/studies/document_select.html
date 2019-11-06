@@ -1,4 +1,3 @@
-{% extends "base.html" %}
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
@@ -31,11 +30,7 @@
             </table>
         </div>
         </form>
-        <button type="button" class="btn btn-success" id="graphButton" data-url="{% url 'studies:graph' %}" disabled> Next</button>
+        
     </div>
 {% endblock %}
 
-{% block javascript %}
-    {{ block.super }}
-    <script src="{% static 'js/studies.js' %}"></script>
-{% endblock %}

@@ -13,11 +13,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from sdap.files.models import File
 from sdap.jobs.models import Job
 from sdap.tools.models import Tool
+from sdap.studies.models import ExpressionStudy
 
 def HomeView(request):
     context = {}
     return render(request, 'pages/home.html',context)
 
 def index(request):
-    context = {}
-    return render(request, 'pages/index.html', context)
+    studies = ExpressionStudy.objects.filter(
+            created_at__lte=timezone.now()
+        ).order_by('-created_at')
+    return render(request, 'pages/index.html', {'studies':studies})

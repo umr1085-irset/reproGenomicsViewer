@@ -78,7 +78,6 @@ def get_stud_db(request):
     return JsonResponse(data)
 
 def index(request):
-    """
     columns = [
             "article",
             "pmid",
@@ -100,19 +99,15 @@ def index(request):
     studies = ExpressionStudy.objects.exclude(data=None)
     form = ExpressionStudyFilterForm(studies=studies)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
-    """
-    studies = ExpressionStudy.objects.filter(
-            created_at__lte=timezone.now()
-        ).order_by('-created_at')
-    context = {'studies': studies, 'columns': "columns", 'table': "table"}
-    return render(request, 'studies/index.html', context)
+    context = {'form': form, 'columns': columns, 'table': table}
+    return render(request, 'studies/scatter_plot.html', context)
 
 def document_select(request):
 
-    #if not "id" in request.GET:
-    #    return redirect(reverse("studies:index"))
+    if not "id" in request.GET:
+        return redirect(reverse("studies:index"))
 
-    id_list = request.GET.getlist('db_ids[]')
+    id_list = request.GET.getlist("id")
     # Just in case
     if not all(x.isdigit() for x in id_list):
         return redirect(reverse("studies:index"))
@@ -121,10 +116,11 @@ def document_select(request):
     if studies.count() == 0:
         return redirect(reverse("studies:index"))
 
+    table = render_to_string('studies/document_select.html', {'studies': studies}, request)
+    data = {'table' : table}
     
-    table = render_to_string('studies/partial_document_table.html', {'studies': studies}, request)
-    data = {'table_list' : table}
     return JsonResponse(data)
+    #return render(request, 'studies/document_select.html', {'studies': studies})
 
 def show_graph(request):
 
