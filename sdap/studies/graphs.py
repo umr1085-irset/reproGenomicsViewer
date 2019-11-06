@@ -43,7 +43,6 @@ def getValues(data, selectedvalues):
     return result
 
 def getValuesExpression(data, Class, selection):
-    print(Class, selection)
     dIndex = pickle.load(open(data.file.path + ".pickle", 'rb'))
     fList = data.file.file.open("rb")
     result = {}
@@ -80,20 +79,6 @@ def getClasses(data):
             result.append(index)
     return result
 
-def getGenesNumber(data):
-    dIndex = pickle.load(open(data.file.path + ".pickle", 'rb'))
-    nb_gene = 0
-    type = "Entrez Gene"
-    removed = ["X","Y","Sample"]
-    for index in dIndex :
-        if "Class" not in index and index not in removed and index != '':
-            nb_gene = nb_gene + 1
-            if "ENS" in index :
-                type = "Ensembl"
-    return nb_gene,type
-
-
-    return result
 
 def bw_nrd0(x):
     x = [float(i) for i in x]

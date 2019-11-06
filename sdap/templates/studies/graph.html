@@ -7,106 +7,161 @@
         #ajax-loader{
             visibility: hidden;
         }
+        #mapDrawerActivateButtonContainer{
+        position: fixed;
+        padding: 2em;
+        top: 150px;
+        right: -10px;
+        overflow-y: scroll;
+        z-index: 99;
+        }
+
     </style>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
-    <div class="container">
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#fullHeightModalRight" id="mapDrawerActivateButtonContainer">
+    <
+    </button>
+    <!-- Full Height Modal Right -->
+    <div class="modal fade right" id="fullHeightModalRight" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
 
-        <div class="row">
-            <h4 class="header">Visualisation of : {{ study.article }} - {{ document.name }}</h4>
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-content ">
-                        <span class="card-title">Dataset summary</span>
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <p class="flow-text center-align">Cell number: <br>{{ data_stat.samples }}</p>
-                            </div>
-                            <div class="col-sm-4">
-                                <p class="flow-text center-align">Classification number: <br>{{ data_stat.class_name |length }}</p>
-                            </div>
-                            <div class="col-sm-4">
-                                <p class="flow-text center-align">Interogated genes: <br>{{ data_stat.gene_number }} ({{ data_stat.gene_type }})</p>
-                            </div>
+        <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+        <div class="modal-dialog modal-full-height modal-right modal-lg" role="document">
+
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title w-100" id="myModalLabel">Visualization parameters</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row my-5">
+                        <div class="col-md-12 mb-5">
+                            <h2>Dataset summary</h2>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Cell number</th>
+                                        <td>{{document.cell_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Number of class</th>
+                                        <td>{{ document.class_name |length }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Interogated genes</th>
+                                        <td>{{ document.gene_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Gene type</th>
+                                        <td>{{ document.gene_type }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-6 center-align">
-                            <canvas id="summary_cluster_classification"></canvas>
-                        </div>
-                        <div class="col-sm-6 center-align">
-                            <canvas id="summary_cell_cluster_classification"></canvas>
-                        </div>
-
-                    </div>
-                    <div class="card-action">
-                        <div class="row">
-                            <h6>Display parameters</h6>
-                            <div class="col-sm-6">
-                                <div class="input-field col-sm-12">
-                                    {% crispy form %}
-                                </div>
+                    <div class="row my-5">
+                        <div class="col-md-12 mb-5">
+                            <h2>Display parameters</h2>
+                            <hr>
+                            <div class="md-form md-bg">
+                                <input type="text" id="formBg1" class="form-control">
+                                <label for="formBg1">Example label</label>
                             </div>
-                            <div class="col-sm-6">
-                                <div class="input-field col-sm-12">
-                                    <form id="graph-form">
-                                        <select id="class_select">
-                                            {% for class in classes %}
-                                                <option value="{{class}}">{{class}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </form>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-6 center-align" id="graph-container">
-                                <canvas id="summary_cluster_distribution"></canvas>
-                            </div>
-                            
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-12 center-align" id="graph_div">
-                                <div id="graph" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" ></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grey-text text-darken-4 card-action">
-
-                            <div class="row">
-                                    <div class="col-sm-12">
-                                      <ul class="tabs">
-                                        <li class="tab col-sm-3 grey-text text-darken-4"><a class="active grey-text text-darken-4" href="#test1">Gene expression</a></li>
-                                        <li class="tab col-sm-3 grey-text text-darken-4"><a class="grey-text text-darken-4" href="#test2">Cluster comparison</a></li>
-                                        <li class="tab col-sm-3 grey-text text-darken-4"><a class="grey-text text-darken-4" href="#test3">Sample information</a></li>
-                                      </ul>
-                                    </div>
-                                    <div id="test1" class="col-sm-12">
-                                        <div class="preloader-wrapper active" id="ajax-loader">
-                                            <div class="spinner-layer spinner-red-only">
-                                                <div class="circle-clipper left">
-                                                <div class="circle"></div>
-                                                </div><div class="gap-patch">
-                                                <div class="circle"></div>
-                                                </div><div class="circle-clipper right">
-                                                <div class="circle"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <span class="card-title" id="info_title"></span>
-                                        <table id="example" class="display" width="100%"></table>
-                                    </div>
-                                    <div id="test2" class="col-sm-12">Test 2</div>
-                                    <div id="test3" class="col-sm-12">Test 3</div>
-                            </div>
-
-
-                        <div class="row">
-                            
+                            <form id="graph-form">
+                                <select class="browser-default custom-select" id="class_select">
+                                    {% for class in classes %}
+                                        <option value="{{class}}">{{class}}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
                         </div>
                     </div>
                 </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- Full Height Modal Right -->
+    <div class="container">
+        <div class="row my-5">
+            <div class="col-md-10 mb-3">
+                <h2>{{ study.article }} - {{ document.name }}</h2>
+                <hr>
+            </div>
+        </div>
+        <div class="row my-5">
+            <div class="col-md-6">
+                <!-- Card -->
+                <div class="card">
+
+                    <!-- Card image -->
+                    <div class="view overlay">
+                        <canvas id="summary_cluster_distribution"></canvas>
+                        <a href="#!">
+                        <div class="mask rgba-white-slight"></div>
+                        </a>
+                    </div>
+
+                    <!-- Card content -->
+                    <div class="card-body">
+                        <!-- Title -->
+                        <h4 class="card-title">Cell repartition across clusters</h4>
+                    </div>
+
+                    </div>
+                    <!-- Card -->
+            </div>
+            <div class="col-md-6">
+                <!-- Card -->
+                <div class="card">
+
+                    <!-- Card image -->
+                    <div class="view overlay">
+                        <canvas id="summary_cluster_distribution"></canvas>
+                        <a href="#!">
+                        <div class="mask rgba-white-slight"></div>
+                        </a>
+                    </div>
+
+                    <!-- Card content -->
+                    <div class="card-body">
+                        <!-- Title -->
+                        <h4 class="card-title">Gene expression across clusters</h4>
+                    </div>
+
+                    </div>
+                    <!-- Card -->
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-10">
+                <h2>TSNE visualization</h2>
+                <hr>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 center-align" id="graph_div">
+                <div id="graph" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" ></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="test1" class="col-sm-12">
+                <div class="preloader-wrapper active" id="ajax-loader">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <span class="card-title" id="info_title"></span>
+                <table id="example" class="display" width="100%"></table>
             </div>
         </div>
     </div>

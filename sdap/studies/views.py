@@ -34,7 +34,7 @@ import uuid
 import shutil
 from .models import ExpressionStudy, ExpressionData, Gene, Database
 from .forms import *
-from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getGenesNumber, getValues, getValuesExpression
+from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression
 
 class GeneAutocomplete(autocomplete.Select2QuerySetView):
 
@@ -140,35 +140,12 @@ def show_graph(request):
     data = get_object_or_404(ExpressionData, id=document_id)
 
     data_stat = {}
-    gene_info = getGenesNumber(data)
-    classes = getClasses(data)
-    samples =  getValues(data,['Sample'])
-    data_stat["samples"] = len(samples['Sample'])
-    samples = np.array(samples['Sample'])
-    data_stat["class_name"] = []
-    data_stat["gene_number"] = gene_info[0]
-    data_stat["gene_type"] = gene_info[1]
-    data_stat["class_cluster"] = []
-    data_stat["mean_cell_cluster"] = []
-    for class_ in classes :
-        name = class_.replace('Class:','')
-        data_stat["class_name"].append(name)
-        groups = getValues(data, [class_])
-        groups = np.array(groups[class_])
-        _, idx = np.unique(groups, return_index=True)
-        cells_cluster = []
-        uniq_groups = groups[np.sort(idx)[::-1]] #
-        data_stat["class_cluster"].append(len(uniq_groups))
-        for cond in uniq_groups :
-            val_= len(samples[np.where(groups == str(cond))[0]])
-            cells_cluster.append(val_)
-        mean_cell_cluster = statistics.median(cells_cluster)
-        data_stat["mean_cell_cluster"].append(mean_cell_cluster)
+
         
     study = get_object_or_404(ExpressionStudy, id=study_id)
     form = GeneFilterForm()
     classes = getClasses(data)
-    context = {'study': study, 'document': data, 'classes': classes, 'form': form, 'data_stat':data_stat}
+    context = {'study': study, 'document': data, 'classes': classes, 'form': form}
     return render(request, 'studies/graph.html', context)
 
 def get_graph_data(request):
