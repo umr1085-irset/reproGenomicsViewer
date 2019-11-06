@@ -18,11 +18,12 @@ class ExpressionStudyAdmin(admin.ModelAdmin, DynamicArrayMixin):
 
 class ExpressionDataAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['name', 'file',
+        (None,               {'fields': ['name', 'file','gene_type','gene_number','species','cell_number'
                                         ]
                              }
         ),
     ]
+    list_display = ['name', 'class_name']
 
 class GeneAdmin(admin.ModelAdmin):
     fieldsets = [

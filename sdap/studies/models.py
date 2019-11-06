@@ -24,12 +24,14 @@ class ExpressionData(models.Model):
     )
 
     name = models.CharField(max_length=200)
+    gene_type = models.CharField(max_length=200,null=True, blank=True)
+    gene_number = models.IntegerField(null=True, blank=True)
     file = models.FileField(upload_to='files/')
     species = models.CharField(max_length=50, choices=SPECIES_TYPE, default="9606")
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     cell_number = models.IntegerField(null=True, blank=True)
-    class_name = ArrayField(models.CharField(max_length=50, blank=True), default=list)
+    class_name = ArrayField(models.CharField(max_length=50, blank=True, null=True), default=list)
     data = JSONField(null=True, blank=True)
 
 
@@ -39,15 +41,39 @@ class ExpressionData(models.Model):
     def save(self, *args, **kwargs):
         super(ExpressionData, self).save(*args, **kwargs)
         dIndex={'Sample':0}
+        gene_type = "Entrez Gene"
+        removed = ["X","Y","Sample"]
         pointer_list = []
+        array_class = []
         f =  open(self.file.path)
+        cell_number = 0
+        nb_gene = 0
+
         while f.readline() != '':
             pointer_list.append(f.tell())
+            
+        
+        
         for pointer in pointer_list:
             f.seek(pointer)
             sIdList = f.readline().rstrip().split("\t")[0]
+            if cell_number == 0 :
+                cell_number = len(f.readline().rstrip().split("\t"))-1
+             
+            
+            if "Class:" in sIdList:
+                array_class.append(sIdList.replace('Class:',''))
+            if "Class" not in sIdList and sIdList not in removed and sIdList != '':
+                nb_gene = nb_gene + 1
+                if "ENS" in sIdList :
+                    type = "Ensembl"
             dIndex[sIdList] = pointer
         pickle.dump(dIndex, open(self.file.path +".pickle","wb"))
+        self.class_name = array_class
+        self.gene_type = gene_type
+        self.gene_number = nb_gene
+        self.cell_number = cell_number 
+        super(ExpressionData, self).save(*args, **kwargs)
 
 class Database(models.Model):
 
