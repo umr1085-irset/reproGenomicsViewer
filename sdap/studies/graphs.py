@@ -192,11 +192,21 @@ def get_graph_data_genes(file, gene, selected_class=None):
     chart['description'] = ""
     chart['name'] = "Expression of: %s " % (gene_name)
     chart['title'] = ""
-    chart['layout'] = {'width':1180 ,'height':800,'yaxis':{'autorange': True,'showgrid': True,'showticklabels': True,'zeroline': True,'showline': False,'autotick': True},'xaxis':{'showticklabels': False,'autorange': True,'showgrid': False,'zeroline': True,'showline': False,'autotick': True},'autoexpand': True,'showlegend': False, 'legend': {'yanchor':'bottom','orientation':'h','traceorder':'reversed'},"title":'', 'hovermode': 'closest'}
+    chart['layout'] = { #'autosize': True,
+                        'width':"",
+                        'height':"",
+                        'yaxis':{'autorange': True,'showgrid': True,'showticklabels': True,'zeroline': False,'showline': True, 'autotick': True},
+                        'xaxis':{'showticklabels': True,'autorange': True,'showgrid': True,'zeroline': False,'showline': True,'autotick': True},
+                        'autoexpand': True,
+                        'showlegend': True,
+                        'title':'',
+                        'hovermode':'closest'
+                      }
     chart['gene'] = gene_name
     chart['msg'] = ""
     chart['distribution_values'] = []
     chart['distribution_labels'] = []
+    chart['colors'] = random_color(len(uniq_groups))
 
     max_val = 0
     min_val = 0
@@ -221,7 +231,7 @@ def get_graph_data_genes(file, gene, selected_class=None):
         chart['distribution_labels'].append(cond)
         if len(val_gene) != 0 :
             val = val_gene[np.where(groups == cond)[0]]
-            chart['distribution_values'].append(len(val))
+            chart['distribution_values'].append(np.mean(val))
             val_x= x[np.where(groups == cond)[0]]
             val_y= y[np.where(groups == cond)[0]]
             text = samples[np.where(groups == cond)[0]]
@@ -240,7 +250,7 @@ def get_graph_data_genes(file, gene, selected_class=None):
             data_chart['marker']['color'].extend(val)
             chart['data'].append(data_chart)
         elif len(val_gene_ensembl) != 0 :
-            chart['distribution_values'].append(len(val))
+            chart['distribution_values'].append(np.mean(val))
             val = val_gene_ensembl[np.where(groups == cond)[0]]
             val_x= x[np.where(groups == cond)[0]]
             val_y= y[np.where(groups == cond)[0]]

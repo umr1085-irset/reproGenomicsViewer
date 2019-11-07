@@ -159,11 +159,14 @@ def get_graph_data(request):
         return redirect(reverse("studies:index"))
 
     data = get_object_or_404(ExpressionData, id=document_id)
+    
 
     selected_class = request.GET.get('selected_class', None)
 
     if "gene_id" in request.GET:
-        data = get_graph_data_genes(data, selected_class, request.GET['gene_id'])
+        gene = get_object_or_404(Gene, id=request.GET['gene_id'])
+        print(gene)
+        data = get_graph_data_genes(data,gene, selected_class)
     else:
         data = get_graph_data_full(data, selected_class)
     return JsonResponse(data)
@@ -207,19 +210,20 @@ def render_table(request):
     data['table'] = table
     return JsonResponse(data)
 
-def autocomplete_genes(request):
+def autocomplete_genes(request,taxonid):
+
     if request.is_ajax():
         query = request.GET.get('term','')
         qs = Gene.objects.all()
-        qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query))
+        qs = qs.filter(Q(tax_id__exact=int(taxonid)))
+        qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query) & Q(tax_id__exact=int(taxonid)))
         results = []
         for gene in qs :
-            results.append({gene.symbol:""})
-        print(results)
-        data = json.dumps(results)
+            results.append({'label' : gene.symbol, 'value':gene.symbol+" ("+str(gene.id)+")"})
+        data = json.dumps(results[:10])
     else:
         data="fail"
-
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
     
-    return JsonResponse(data)
 

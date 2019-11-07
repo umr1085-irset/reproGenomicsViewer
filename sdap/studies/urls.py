@@ -13,5 +13,5 @@ urlpatterns = [
     path('gene/<int:gene_id>', views.get_gene, name="get_gene"),
     path('ajax/get_stud_db', views.get_stud_db, name="get_stud_db"),
     path('ajax/group_info', views.get_group_info, name="group_info"),
-    path('ajax/autocomplete_gene', views.autocomplete_genes, name="autocomplete_genes"),
+    path('ajax/autocomplete_genes/<str:taxonid>', views.autocomplete_genes, name="autocomplete_genes"),
 ]
