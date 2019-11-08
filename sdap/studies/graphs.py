@@ -338,3 +338,148 @@ def get_graph_data_genes(file, gene, selected_class=None):
     interval = time.time() - start_time
     result['time'] = interval
     return result
+
+
+def get_density_graph_data_full(file, selected_class=None):
+
+    result = {'charts':[],'warning':[],'time':''}
+    start_time = time.time()
+    chart = {}
+    # Should not happen. We select the class before
+    chart['classes'] = getClasses(file)
+    if not selected_class:
+        selected_class = chart['classes'][0]
+    groups = getValues(file, [selected_class])
+    groups = np.array(groups[selected_class])
+    _, idx = np.unique(groups, return_index=True)
+    uniq_groups = groups[np.sort(idx)[::-1]]
+    # Maybe we should have done this at the previous step
+    samples = getValues(file,['Sample'])
+    samples = np.array(samples['Sample'])
+
+    x = np.array(getValues(file, ['X'])['X'])
+    y = np.array(getValues(file, ['Y'])['Y'])
+    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['toImage','zoom2d','pan2d','lasso2d','resetScale2d']}
+    chart['data']=[]
+    chart['description'] = ""
+    chart['name'] = "Classification by: %s" % (selected_class)
+    chart['distribution_values'] = []
+    chart['distribution_labels'] = []
+    chart['colors'] = random_color(len(uniq_groups))
+
+    chart['layout'] = { #'autosize': True,
+                        'width':"",
+                        'height':"",
+                        'yaxis':{'autorange': True,'showgrid': True,'showticklabels': True,'zeroline': False,'showline': True, 'autotick': True},
+                        'xaxis':{'showticklabels': True,'autorange': True,'showgrid': True,'zeroline': False,'showline': True,'autotick': True},
+                        'autoexpand': True,
+                        'showlegend': True,
+                        'title':'',
+                        'hovermode':'closest'
+                      }
+    chart['msg'] = []
+    color = 0
+    for cond in uniq_groups :
+        cond_color = chart['colors'][color]
+        color = color + 1
+        chart['distribution_labels'].append(cond)
+        val_x= x[np.where(groups == str(cond))[0]]
+        val_y= y[np.where(groups == cond)[0]]
+        text = samples[np.where(groups == cond)[0]]
+        chart['distribution_values'].append(len(val_x))
+        data_chart = {}
+        data_chart['type'] = 'histogram2dcontour'
+        data_chart['ncontours'] = 20
+        data_chart['name'] = cond
+        data_chart['x'] = []
+        data_chart['x'].extend(val_x)
+        data_chart['y'] = []
+        data_chart['y'].extend(val_y)
+
+        data_chart['legendgroup'] = cond
+        data_chart['hoverinfo'] = 'none'
+        
+
+        data_chart['line'] = {'color':cond_color}
+        data_chart['contours'] = {'coloring':'none'}
+        data_chart['reversescale'] = False
+        chart['data'].append(data_chart)
+
+
+
+    result['chart'] = chart
+    interval = time.time() - start_time
+    result['time'] = interval
+    return result
+
+def get_density_graph_gene_data_full(file, selected_class=None):
+
+    result = {'charts':[],'warning':[],'time':''}
+    start_time = time.time()
+    chart = {}
+    # Should not happen. We select the class before
+    chart['classes'] = getClasses(file)
+    if not selected_class:
+        selected_class = chart['classes'][0]
+    groups = getValues(file, [selected_class])
+    groups = np.array(groups[selected_class])
+    _, idx = np.unique(groups, return_index=True)
+    uniq_groups = groups[np.sort(idx)[::-1]]
+    # Maybe we should have done this at the previous step
+    samples = getValues(file,['Sample'])
+    samples = np.array(samples['Sample'])
+
+    x = np.array(getValues(file, ['X'])['X'])
+    y = np.array(getValues(file, ['Y'])['Y'])
+    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['toImage','zoom2d','pan2d','lasso2d','resetScale2d']}
+    chart['data']=[]
+    chart['description'] = ""
+    chart['name'] = "Classification by: %s" % (selected_class)
+    chart['distribution_values'] = []
+    chart['distribution_labels'] = []
+    chart['colors'] = random_color(len(uniq_groups))
+
+    chart['layout'] = { #'autosize': True,
+                        'width':"",
+                        'height':"",
+                        'yaxis':{'autorange': True,'showgrid': True,'showticklabels': True,'zeroline': False,'showline': True, 'autotick': True},
+                        'xaxis':{'showticklabels': True,'autorange': True,'showgrid': True,'zeroline': False,'showline': True,'autotick': True},
+                        'autoexpand': True,
+                        'showlegend': True,
+                        'title':'',
+                        'hovermode':'closest'
+                      }
+    chart['msg'] = []
+    color = 0
+    for cond in uniq_groups :
+        cond_color = chart['colors'][color]
+        color = color + 1
+        chart['distribution_labels'].append(cond)
+        val_x= x[np.where(groups == str(cond))[0]]
+        val_y= y[np.where(groups == cond)[0]]
+        text = samples[np.where(groups == cond)[0]]
+        chart['distribution_values'].append(len(val_x))
+        data_chart = {}
+        data_chart['type'] = 'histogram2dcontour'
+        data_chart['ncontours'] = 20
+        data_chart['name'] = cond
+        data_chart['x'] = []
+        data_chart['x'].extend(val_x)
+        data_chart['y'] = []
+        data_chart['y'].extend(val_y)
+
+        data_chart['legendgroup'] = cond
+        data_chart['hoverinfo'] = 'none'
+        
+
+        data_chart['line'] = {'color':cond_color}
+        data_chart['contours'] = {'coloring':'none'}
+        data_chart['reversescale'] = False
+        chart['data'].append(data_chart)
+
+
+
+    result['chart'] = chart
+    interval = time.time() - start_time
+    result['time'] = interval
+    return result

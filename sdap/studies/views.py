@@ -34,7 +34,7 @@ import uuid
 import shutil
 from .models import ExpressionStudy, ExpressionData, Gene, Database
 from .forms import *
-from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression
+from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full
 
 class GeneAutocomplete(autocomplete.Select2QuerySetView):
 
@@ -150,6 +150,12 @@ def show_graph(request):
 
 def get_graph_data(request):
     
+    display_mode = "scatter"
+
+    if "mode" in request.GET:
+        display_mode = request.GET["mode"]
+    
+
     if not "document_id" in request.GET:
         return redirect(reverse("studies:index"))
 
@@ -168,7 +174,10 @@ def get_graph_data(request):
         print(gene)
         data = get_graph_data_genes(data,gene, selected_class)
     else:
-        data = get_graph_data_full(data, selected_class)
+        if display_mode =="scatter" :
+            data = get_graph_data_full(data, selected_class)
+        if display_mode =="density" :
+            data = get_density_graph_data_full(data, selected_class)
     return JsonResponse(data)
 
 def get_group_info(request):

@@ -31,8 +31,15 @@ $(function () {
       var gene_id = selected_gene.split("(")[1].replace(")","")
       var div = $("#graph")
       var selected_class = $("#class_select").val();
+
+      var display_mode = "scatter"
+      if (chkBox.checked)
+      {
+        display_mode = "density"
+      }
+
       $.ajax({
-        url: div.attr("data-url") + "&selected_class=" + selected_class + "&gene_id=" + gene_id,
+        url: div.attr("data-url")+ "&mode=" + display_mode + "&selected_class=" + selected_class + "&gene_id=" + gene_id,
         type: 'get',
         dataType: 'json',
         success: function (data) {
@@ -51,6 +58,7 @@ $(function () {
           }
           $("#table_info").html('');
           $("#info_title").html('');
+          $("#genemessage").html('');
           
           var myNewChart = Chart.Bar('summary_gene_distribution', {
             data: {
@@ -128,8 +136,15 @@ $(function () {
   var loadGraph = function () {
     var div = $("#graph")
     var selected_class = $("#class_select").val();
+    var chkBox = document.getElementById('densitycheck');
+
+    var display_mode = "scatter"
+    if (chkBox.checked)
+    {
+      display_mode = "density"
+    }
     $.ajax({
-      url: div.attr("data-url") + "&selected_class=" + selected_class,
+      url: div.attr("data-url") + "&mode=" + display_mode + "&selected_class=" + selected_class,
       type: 'get',
       dataType: 'json',
       success: function (data) {
@@ -148,7 +163,11 @@ $(function () {
         }
         $("#table_info").html('');
         $("#info_title").html('');
-        
+        $("#genemessage").html('Please select a gene');
+        var geneChart = Chart.Bar('summary_gene_distribution')
+
+        geneChart.destroy();
+
         var myNewChart = Chart.Bar('summary_cluster_distribution', {
           data: {
               labels: chart.distribution_labels,
@@ -227,6 +246,7 @@ $(function () {
 
   $("#graph-form").on("change", "select", loadGraph);
   $("#select_gene_unselect").on("click", loadGraph);
+  $("#densitycheck").on("click", loadGraph);
 
 
 
