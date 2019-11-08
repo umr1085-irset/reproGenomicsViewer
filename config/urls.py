@@ -8,8 +8,27 @@ from . import views
 
 urlpatterns = [
     path("", views.HomeView, name="home"),
+    path("index/", views.index, name="index"),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
+    ),
+    path(
+        "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
+    ),
+    path(
+        "tutorial/", TemplateView.as_view(template_name="pages/tutorial.html"), name="tutorial"
+    ),
+    path(
+        "tech_corner/", TemplateView.as_view(template_name="pages/tech_corner.html"), name="tech_corner"
+    ),
+    path(
+        "statistics/", TemplateView.as_view(template_name="pages/statistics.html"), name="statistics"
+    ),
+    path(
+        "download/", TemplateView.as_view(template_name="pages/download.html"), name="download"
+    ),
+    path(
+        "help/", TemplateView.as_view(template_name="pages/help.html"), name="help"
     ),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
@@ -19,6 +38,7 @@ urlpatterns = [
     path("files/", include("sdap.files.urls", namespace="files")),
     path("tools/", include("sdap.tools.urls", namespace="tools")),
     path("jobs/", include("sdap.jobs.urls", namespace="jobs")),
+    path("studies/", include("sdap.studies.urls", namespace="studies")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

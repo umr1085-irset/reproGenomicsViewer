@@ -1,0 +1,30 @@
+<table>
+    <thead>
+        <tr>
+            <th>Selection</th>
+            <th>Database</th>
+            <th>Article</th>
+            <th>Dataset</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for study in studies %}
+            {% for file in study.data.all %}
+                <tr>
+                    <td>
+                        <label>
+                            <input type="checkbox" id="dataset" class="dataset" value="{{ file.id }}" name="{{ study.id }}" />
+                            <span> </span>
+                        </label>
+                    </td>
+                    <td>{{ study.database }}</td>
+                    <td>{{ study.article }}</td>
+                    <td>{{ file.name }}</td>
+                    <td><i class="material-icons">file_download</i></td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>  

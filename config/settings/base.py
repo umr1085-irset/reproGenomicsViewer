@@ -60,6 +60,8 @@ DJANGO_APPS = [
     "django.contrib.sites",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "dal",
+    "dal_select2",
     # "django.contrib.humanize", # Handy template tags
     "django.contrib.admin",
 ]
@@ -71,6 +73,7 @@ THIRD_PARTY_APPS = [
     'guardian',
     "rest_framework",
     "django_celery_beat",
+    "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
 ]
 
 LOCAL_APPS = [
@@ -78,7 +81,8 @@ LOCAL_APPS = [
     "sdap.groups.apps.GroupsAppConfig",
     "sdap.files.apps.FilesAppConfig",
     "sdap.tools.apps.ToolsAppConfig",
-    "sdap.jobs.apps.JobsAppConfig"
+    "sdap.jobs.apps.JobsAppConfig",
+    "sdap.studies.apps.StudiesAppConfig"
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
