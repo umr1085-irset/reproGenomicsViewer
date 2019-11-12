@@ -123,15 +123,6 @@
                                         {% endif %}
                                         <td>View density (single cell only)</td>
                                     </tr>
-                                    <tr>
-                                        <th scope="row">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="violincheck">
-                                                <label class="custom-control-label" for="violincheck"></label>
-                                            </div>
-                                        </th>
-                                        <td>Display violin plot for selected gene</td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -177,8 +168,8 @@
                                         <label for="formBg1">Display gene</label>
                                     </div>
                                     <div id="autogeneresponse"></div>
-                                    <button id="select_gene_" type="button" class="btn btn-default" data-dismiss="modal">Display</button>
-                                    <button id="select_gene_unselect" type="button" class="btn btn-warning" data-dismiss="modal">Unselect</button>
+                                    <button id="select_gene_" type="button" class="btn btn-default">Display</button>
+                                    <button id="select_gene_unselect" type="button" class="btn btn-warning">Unselect</button>
                                 </form>
                             </div>
                         </div>
@@ -202,6 +193,8 @@
                         </div>
                     </div>
                 </div>
+
+
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
@@ -225,6 +218,73 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                            aria-selected="true">Select multiple</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
+                            aria-selected="false">DEG</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact"
+                            aria-selected="false">More</a>
+                        </li>
+                    </ul>
+                    
+
+                    <div class="tab-content" id="myTabContent">
+                        <!-- Select multiple content -->
+                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                            <div class="row my-5">
+                                <div class="col-md-8 mb-5">
+                                    <h2>Select your visualisation</h2>
+                                    <hr>
+                                    <form id="graph-form md-form md-bg">
+                                        <select class="browser-default custom-select" id="display_selection_a">
+                                                <option value="">Select</option>
+                                                <option value="density">Density plot</option>
+                                                <option value="violin">Violin plot</option>
+                                                <option value="table">Table</option>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row my-5">
+                                <div class="col-md-8 mb-5">
+                                    <h2>Genes selection</h2>
+                                    <hr>
+                                    <div id="autogene" data-url="{% url 'studies:autocomplete_genes' document.species %}">   
+                                        <form id="modaltest">
+                                            <div class="md-form md-bg">
+                                                <input type="text" id="formBg2" class="form-control">
+                                                <label for="formBg1">Display gene</label>
+                                            </div>
+                                            <div id="autogeneresponse2"></div>
+                                            <button id="select_gene_a" type="button" class="btn btn-default">Add</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                            </div>       
+                        </div>
+                        <!-- Select multiple content -->
+
+                        <!-- DEG content -->
+                        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                            DEG
+                        </div>
+                        <!-- DEG content -->
+
+                        <!-- More content -->
+                        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                            More
+                        </div>
+                        <!-- More content -->
+                    </div>
                 </div>
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -272,10 +332,11 @@
 
     <script>
         var summary = "{{ data_stat | safe }}";
-        var summary_data = summary.replace(/'/g, '"');
         var url_group_info = "{% url 'studies:group_info' %}";
         var doc_data = '{{ document.id | safe }}'
-        summary_data = JSON.parse(summary_data);
+        var pic1 = '{% static "/images/home_density.png" %}'
+        var pic2 = '{% static "/images/home_violin.png" %}'
+        var pic3 = '{% static "/images/home_violin.png" %}'
 
         $(document).ready(function(){
             $('select').formSelect();
@@ -283,5 +344,6 @@
         });
     </script>
     <script src="{% static 'js/studies_graph.js' %}"></script>
+    <script src="{% static 'js/studies_graph_analyse.js' %}"></script>
 {% endblock %}
 

@@ -25,12 +25,22 @@ $(function () {
       minLength: 2,
     });
 
+    $("#formBg2").autocomplete({
+      appendTo : "#autogeneresponse2",
+      source: divauto.attr("data-url"),
+      minLength: 2,
+    });
+
     
-    $("#select_gene_").click(function(e) {
+    
+
+  var loadGraphGene = function() {
       var selected_gene = $("#formBg1").val();
       var gene_id = selected_gene.split("(")[1].replace(")","")
+      var name_gene = selected_gene.split(" ")[0]
       var div = $("#graph")
       var selected_class = $("#class_select").val();
+      var chkBox = document.getElementById('densitycheck');
 
       var display_mode = "scatter"
       if (chkBox.checked)
@@ -59,12 +69,15 @@ $(function () {
           $("#table_info").html('');
           $("#info_title").html('');
           $("#genemessage").html('');
+          var geneChart = Chart.Bar('summary_gene_distribution')
+
+          geneChart.destroy();
           
           var myNewChart = Chart.Bar('summary_gene_distribution', {
             data: {
                 labels: chart.distribution_labels,
                     datasets: [{
-                        label: "Gene expression distribution",
+                        label: name_gene + " expression (mean)",
                         data: chart.distribution_values,
                         backgroundColor: chart.colors,
                         borderWidth: 2,
@@ -129,14 +142,13 @@ $(function () {
           });
         }
       });
-
-    });
-
+  };
 
   var loadGraph = function () {
     var div = $("#graph")
     var selected_class = $("#class_select").val();
     var chkBox = document.getElementById('densitycheck');
+    $("#formBg1").val('');
 
     var display_mode = "scatter"
     if (chkBox.checked)
@@ -165,6 +177,9 @@ $(function () {
         $("#info_title").html('');
         $("#genemessage").html('Please select a gene');
         var geneChart = Chart.Bar('summary_gene_distribution')
+
+        geneChart.destroy();
+        var geneChart = Chart.Bar('summary_cluster_distribution')
 
         geneChart.destroy();
 
@@ -241,18 +256,40 @@ $(function () {
 
   $(document).ready(function() {
     loadGraph();
-    loadSummaryClass();
   });
 
-  $("#graph-form").on("change", "select", loadGraph);
+  $("#class_select").change(function() {
+    var selected_gene = $("#formBg1").val();
+    if(selected_gene == null || selected_gene == ""){
+      loadGraph();
+    } else {
+      loadGraphGene();
+    }
+  });
+  
   $("#select_gene_unselect").on("click", loadGraph);
-  $("#densitycheck").on("click", loadGraph);
+  $("#densitycheck").click(function() {
+    var selected_gene = $("#formBg1").val();
+    if(selected_gene == null || selected_gene == ""){
+      console.log("COUCOU")
+      loadGraph();
+    } else {
+      loadGraphGene();
+    }
+  });
+  $("#select_gene_").on("click", loadGraphGene);
 
 
 
   $("#menu-toggle").click(function(e) {
     e.preventDefault();
     $("#wrapper").toggleClass("toggled");
+  });
+
+  $("#display_selection_a").change(function() {
+
+    var display_class = $("#display_selection_a").val()
+
   });
 
   

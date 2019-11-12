@@ -378,6 +378,9 @@ def get_density_graph_data_full(file, selected_class=None):
                         'hovermode':'closest'
                       }
     chart['msg'] = []
+    
+
+
     color = 0
     for cond in uniq_groups :
         cond_color = chart['colors'][color]
@@ -412,7 +415,11 @@ def get_density_graph_data_full(file, selected_class=None):
     result['time'] = interval
     return result
 
-def get_density_graph_gene_data_full(file, selected_class=None):
+def get_density_graph_gene_data_full(file, gene, selected_class=None):
+
+    ensemblgene = gene.ensemble_id
+    genes = getValues(file, [gene.gene_id])
+    ensembl_genes = getValues(file, [ensemblgene])
 
     result = {'charts':[],'warning':[],'time':''}
     start_time = time.time()
@@ -439,6 +446,22 @@ def get_density_graph_gene_data_full(file, selected_class=None):
     chart['distribution_labels'] = []
     chart['colors'] = random_color(len(uniq_groups))
 
+
+    max_val = 0
+    min_val = 0
+    #EntrezGenes
+    val_gene = np.array(genes[gene.gene_id])
+    val_gene = val_gene.astype(np.float)
+    if len(val_gene) != 0 :
+        max_val =  np.max(val_gene.astype(np.float))
+        min_val =  np.min(val_gene.astype(np.float))
+
+    #Ensembl IDs
+    val_gene_ensembl = np.array(ensembl_genes[ensemblgene])
+    if len(val_gene_ensembl) != 0 :
+        max_val =  np.max(val_gene_ensembl.astype(np.float))
+        min_val =  np.min(val_gene_ensembl.astype(np.float))
+
     chart['layout'] = { #'autosize': True,
                         'width':"",
                         'height':"",
@@ -450,15 +473,14 @@ def get_density_graph_gene_data_full(file, selected_class=None):
                         'hovermode':'closest'
                       }
     chart['msg'] = []
+
     color = 0
     for cond in uniq_groups :
         cond_color = chart['colors'][color]
         color = color + 1
-        chart['distribution_labels'].append(cond)
         val_x= x[np.where(groups == str(cond))[0]]
         val_y= y[np.where(groups == cond)[0]]
         text = samples[np.where(groups == cond)[0]]
-        chart['distribution_values'].append(len(val_x))
         data_chart = {}
         data_chart['type'] = 'histogram2dcontour'
         data_chart['ncontours'] = 20
@@ -480,6 +502,45 @@ def get_density_graph_gene_data_full(file, selected_class=None):
 
 
     result['chart'] = chart
+
+    
+    # Gene value
+    ListOfColorsGenes = ['rgba(239,4,4,1)','rgba(239, 122, 4,1)','rgba(239, 239, 4,1)','rgba(122, 239, 4,1)','rgba(4, 239, 239,1)','rgba(4, 122, 239,1)','rgba(122, 4, 239,1)','rgba(239, 4, 239,1)','rgba(239, 4, 122,1)','rgba(4, 239, 4,1)']
+    gene_color = ListOfColorsGenes[0]
+    data_chart1 = {}
+    data_chart1['type'] = 'histogram2dcontour'
+    data_chart1['ncontours'] = 20
+    data_chart1['x'] = []
+    data_chart1['y'] = []
+    data_chart1['z'] = []
+    data_chart1['showscale'] = False
+    data_chart1['histfunc'] = 'sum'
+    data_chart1['colorscale'] = [[0,'rgba(255,255,255,0)'],[1,gene_color]]
+    data_chart1['contours'] = {'showlines':False}
+    data_chart1['histnorm'] = 'density'
+    data_chart1['reversescale'] = False
+    data_chart1['hoverinfo'] = 'none'
+
+    for cond in uniq_groups :
+        chart['distribution_labels'].append(cond)
+        val =""
+        if len(val_gene) != 0 :
+            val = val_gene[np.where(groups == cond)[0]]
+        elif len(val_gene_ensembl) != 0 :
+            val = val_gene_ensembl[np.where(groups == cond)[0]]
+
+        chart['distribution_values'].append(np.mean(val))
+        val = val_gene[np.where(groups == cond)[0]]
+        val_x= x[np.where(groups == cond)[0]]
+        val_y= y[np.where(groups == cond)[0]]
+
+        data_chart1['x'].extend(val_x)
+        data_chart1['y'].extend(val_y)
+        data_chart1['z'].extend(val)
+    
+    chart['data'].insert(0,data_chart1)
+
+    
     interval = time.time() - start_time
     result['time'] = interval
     return result
