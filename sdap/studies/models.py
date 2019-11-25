@@ -23,11 +23,17 @@ class ExpressionData(models.Model):
         ('7955','Danio rerio'),
     )
 
+    FILE_TYPE = (
+        ('2D', '2D'),
+        ('3D', '3D'),
+    )
+
     name = models.CharField(max_length=200)
     gene_type = models.CharField(max_length=200,null=True, blank=True)
     gene_number = models.IntegerField(null=True, blank=True)
     file = models.FileField(upload_to='files/')
     species = models.CharField(max_length=50, choices=SPECIES_TYPE, default="9606")
+    type = models.CharField(max_length=50, choices=FILE_TYPE, default="2D")
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     cell_number = models.IntegerField(null=True, blank=True)
@@ -106,8 +112,14 @@ class Database(models.Model):
 
 class ExpressionStudy(models.Model):
 
+    STATUS = (
+        ('PUBLIC', 'Public'),
+        ('PRIVATE', 'Private'),
+    )
+
     article = models.CharField(max_length=200)
     pmid = models.CharField(max_length=20)
+    status = models.CharField(max_length=50, choices=STATUS, default="PRIVATE")
     ome = ArrayField(models.CharField(max_length=50, blank=True), default=list)
     technology = ArrayField(models.CharField(max_length=50, blank=True), default=list)
     species = ArrayField(models.CharField(max_length=50, blank=True), default=list)
