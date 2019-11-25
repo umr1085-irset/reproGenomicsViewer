@@ -1,3 +1,5 @@
+var selected_gene_list_to_display = [];
+
 $(function () {
 
   /* Functions */
@@ -30,6 +32,61 @@ $(function () {
       source: divauto.attr("data-url"),
       minLength: 2,
     });
+
+    var loadGraphGeneMultiple = function() {
+      var selected_class = $("#class_select").val();
+      var selected_gene_list = selected_gene_list_to_display;
+      var gene_id_list = []
+
+      for (var i=0; i<selected_gene_list.length;i++){
+        var gene_id = selected_gene_list[i].split("(")[1].replace(")","")
+        gene_id_list.push(gene_id);
+        
+      }
+      
+
+
+      var div = $("#graph")
+      var display_mode = $("#display_selection_a").val();
+      
+      $.ajax({
+        url: div.attr("data-url")+ "&mode=" + display_mode + "&selected_class=" + selected_class + "&gene_id=" + gene_id_list.join('|'),
+        type: 'get',
+        dataType: 'json',
+        success: function (data) {
+
+          if(display_mode =="density"){
+            var chart = data.chart;
+            data = chart.data
+    
+            var clientWidth = document.getElementById('graph_div').offsetWidth;
+            chart.layout.width = (clientWidth - 50);
+            chart.layout.height = 800;
+            Plotly.newPlot('graph', chart.data, chart.layout, chart.config);
+            if (typeof myNewChart != 'undefined') {
+              myNewChart.destroy();
+            }
+          }
+
+          if(display_mode =="violin"){
+            var charts = data.charts
+            for(var i=0; i< charts.length;i++ ){
+              var chart = charts[i];
+              var div_id = 'chart_violin_'+i
+              var clientWidth = document.getElementById(div_id).offsetWidth;
+              chart.layout.width = (clientWidth - 50);
+              chart.layout.height = 800;
+              Plotly.newPlot(div_id, chart.data, chart.layout, chart.config);
+              if (typeof myNewChart != 'undefined') {
+                myNewChart.destroy();
+              }
+            }
+          }
+          
+
+        }
+      });
+  };
 
     
     
@@ -278,6 +335,7 @@ $(function () {
     }
   });
   $("#select_gene_").on("click", loadGraphGene);
+  $("#select_gene_a_display").on("click", loadGraphGeneMultiple);
 
 
 
@@ -286,10 +344,48 @@ $(function () {
     $("#wrapper").toggleClass("toggled");
   });
 
+  
+  $("#select_gene_a").click(function(e) {
+    var selected_gene = $("#formBg2").val();
+    if (selected_gene_list_to_display.indexOf(selected_gene) == -1 && selected_gene_list_to_display.length <= 4) {
+      selected_gene_list_to_display.push(selected_gene);
+    } else {
+      $("#messagegene").html('<div class="alert alert-warning alert-dismissible fade show" role="alert">Your gene is already selected or selection is too long (5 genes max)<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>')
+    }
+    $('#select_gene_a_display').prop("disabled", false);
+    var html = "<table class='table align-middle'><tbody>"
+    
+    $("#graphviolin").html('');
+    var htmlviolin = '';
+    for(var i=0; i<selected_gene_list_to_display.length; i++){
+      html = html + "<tr class='align-middle'><td class='align-middle'>"+selected_gene_list_to_display[i]+"</td><td class='align-middle'><a class='btn btn-danger'  onclick='removegeneoflist(\""+selected_gene_list_to_display[i]+"\")'><i class='far fa-trash-alt'></i></a></td></tr>"
+      htmlviolin = htmlviolin + "<div class='col-md-6 center-align' id='chart_violin_"+i+"'></div>";
+    }
+    html = html +'</tbody></table>'
+    
+    $("#selectedgeneslist").html(html);
+    $("#graphviolin").html(htmlviolin); 
+   
+  });
+
+  $("#removegeneoflist").click(function(e) {
+   var index = selected_gene_list_to_display.indexOf(selected_gene)
+  });
+
+
+
   $("#display_selection_a").change(function() {
 
     var display_class = $("#display_selection_a").val()
-
+    
+    if (display_class == "density" || display_class == "violin"){
+        $("#div_table_select").removeClass( "visible" ).addClass("invisible");
+        $("#div_gene_select").removeClass( "invisible" ).addClass("visible");
+    }
+    if (display_class =="table"){
+      $("#div_gene_select").removeClass( "visible" ).addClass("invisible");
+      $("#div_table_select").removeClass( "invisible" ).addClass("visible");
+    }
   });
 
   
@@ -309,3 +405,26 @@ $(function () {
   });
 
 });
+
+function removegeneoflist(gene){
+  var index = selected_gene_list_to_display.indexOf(gene)
+  if(index >=0){
+    selected_gene_list_to_display.splice(index,1)
+  }
+
+  if(selected_gene_list_to_display.length == 0){
+    $('#select_gene_a_display').prop("disabled", true);
+  }
+
+  $("#selectedgeneslist").html('');
+  $("#graphviolin").html('');
+  var htmlviolin = '';
+  var html = "<table class='table align-middle'><tbody>"
+  for(var i=0; i<selected_gene_list_to_display.length; i++){
+    html = html + "<tr class='align-middle'><td class='align-middle'>"+selected_gene_list_to_display[i]+"</td><td class='align-middle'><a class='btn btn-danger'  onclick='removegeneoflist(\""+selected_gene_list_to_display[i]+"\")'><i class='far fa-trash-alt'></i></a></td></tr>"
+    htmlviolin = htmlviolin + "<div class='col-md-6 center-align' id='chart_violin_"+i+"'></div>";
+  }
+  html = html +'</tbody></table>'
+  $("#selectedgeneslist").html(html);
+  $("#graphviolin").html(htmlviolin); 
+}

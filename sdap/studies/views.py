@@ -34,7 +34,7 @@ import uuid
 import shutil
 from .models import ExpressionStudy, ExpressionData, Gene, Database
 from .forms import *
-from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full
+from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full
 
 class GeneAutocomplete(autocomplete.Select2QuerySetView):
 
@@ -170,11 +170,22 @@ def get_graph_data(request):
     selected_class = request.GET.get('selected_class', None)
 
     if "gene_id" in request.GET:
-        gene = get_object_or_404(Gene, id=request.GET['gene_id'])
+
+        exp_list = []
+        if "|" in request.GET['gene_id']:
+            list_gene = request.GET['gene_id'].split("|")
+            for g_ in list_gene :
+                gene = get_object_or_404(Gene, id=g_)
+                exp_list.append(gene)
+        else :
+            gene = get_object_or_404(Gene, id=request.GET['gene_id'])
+            exp_list.append(gene)
         if display_mode =="scatter" :
-            data = get_graph_data_genes(data,gene, selected_class)
+            data = get_graph_data_genes(data,exp_list, selected_class)
         if display_mode =="density" :
-            data = get_density_graph_gene_data_full(data,gene, selected_class)
+            data = get_density_graph_gene_data_full(data,exp_list, selected_class)
+        if display_mode =="violin" :
+            data = get_violin_graph_gene_data_full(data,exp_list, selected_class)
     else:
         if display_mode =="scatter" :
             data = get_graph_data_full(data, selected_class)
