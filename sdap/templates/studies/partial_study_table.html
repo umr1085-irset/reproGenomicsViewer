@@ -1,10 +1,12 @@
+{% load custom %}
+
 {% for study in studies %}
 <tr study_id="{{study.id}}">
 <td>{{study.article}}</td>
 <td>{{study.pmid}}</td>
 <td>{{study.ome | join:","}}</td>
-<td>{{study.technology | join:","}}</td>
-<td>{{study.species | join:","}}</td>
+<td>{% val_to_set study "technology" %}</td>
+<td>{% val_to_set study "species" %}</td>
 <td>{{study.experimental_design | join:","}}</td>
 <td>{{study.topics | join:","}}</td>
 <td>{{study.tissues | join:","}}</td>
