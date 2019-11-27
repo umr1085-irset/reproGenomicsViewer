@@ -51,5 +51,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(insertCollections)
+        #migrations.RunPython(insertCollections)
     ]

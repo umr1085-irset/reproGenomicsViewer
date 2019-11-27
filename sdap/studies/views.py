@@ -222,7 +222,7 @@ def render_table(request):
     for key, value in request.GET.items():
         if value:
             if key == "article":
-                kwargs[key + "__icontains"] = [value]
+                kwargs[key + "__icontains"] = value
             else:
                 kwargs[key + "__contains"] = [value]
 
