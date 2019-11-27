@@ -208,7 +208,7 @@ $(function () {
     $("#formBg1").val('');
 
     var display_mode = "scatter"
-    if (chkBox.checked)
+    if (chkBox != null && chkBox.checked)
     {
       display_mode = "density"
     }
