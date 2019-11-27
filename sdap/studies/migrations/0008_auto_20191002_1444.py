@@ -194,5 +194,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        #migrations.RunPython(setup),
+        migrations.RunPython(setup),
     ]
