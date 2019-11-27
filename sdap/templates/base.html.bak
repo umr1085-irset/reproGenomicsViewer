@@ -13,21 +13,7 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
     <![endif]-->
 
-    <link rel="icon" href="{% static 'images/favicons/hudeca/' %}">
-    <link rel="apple-touch-icon" sizes="57x57" href="{% static 'images/favicons/hudeca/apple-icon-57x57.png' %}">
-    <link rel="apple-touch-icon" sizes="60x60" href="{% static 'images/favicons/hudeca/apple-icon-60x60.png' %}">
-    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'images/favicons/hudeca/apple-icon-72x72.png' %}">
-    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'images/favicons/hudeca/apple-icon-76x76.png' %}">
-    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'images/favicons/hudeca/apple-icon-114x114.png' %}">
-    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'images/favicons/hudeca/apple-icon-120x120.png' %}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'images/favicons/hudeca/apple-icon-144x144.png' %}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/favicons/hudeca/apple-icon-152x152.png' %}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicons/hudeca/apple-icon-180x180.png' %}">
-    <link rel="icon" type="image/png" sizes="192x192"  href="{% static 'images/favicons/hudeca/android-icon-192x192.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicons/hudeca/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'images/favicons/hudeca/favicon-96x96.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicons/hudeca/favicon-16x16.png' %}">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="{% static 'images/favicons/preFav.png' %}">
 
     {% block css %}
     
@@ -55,8 +41,8 @@
 
       <!--Navbar -->
       <nav class="mb-1 navbar navbar-expand-lg navbar-light white scrolling-navbar">
-        <a class="navbar-brand" href="{% url 'home' %}" style="color:#1bb0ce;">
-          HuDeCa scViewer
+        <a class="navbar-brand" href="{% url 'home' %}">
+          <img src="{% static 'images/logo/RGVLogo_tiny.png' %}" title="The ReproGenomics Viewer" width="70">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-333"
           aria-controls="navbarSupportedContent-333" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,11 +51,23 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent-333">
           <!-- Left -->
           <ul class="navbar-nav mr-auto">
-            
+            <li class="nav-item dropdown {% if request.resolver_match.url_name == 'tools' %} active {% endif %}">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-tools"></i> Visualization tools
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="">Genome Browser</a>
+                <a class="dropdown-item" href="">Violin Plot</a>
+                <a class="dropdown-item" href="{% url 'studies:index' %}">Scatter Plot</a>
+                <a class="dropdown-item" href="">Density <span class="badge badge-pill badge-default">beta</span></a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item disabled" href="" disabled>Genes level <span class="badge badge-pill badge-default">soon</span></a>
+              </div>
+            </li>
             
             <li class="nav-item dropdown {% if request.resolver_match.url_name == 'tutorial' or request.resolver_match.url_name == 'download' or request.resolver_match.url_name == 'tech_corner' %} active {% endif %}">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Help
+                <i class="far fa-question-circle"></i> Help
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="{% url 'tutorial' %}">Tutorials</a>
@@ -80,7 +78,7 @@
 
             <li class="nav-item dropdown {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'studies' or request.resolver_match.url_name == 'statistics' or request.resolver_match.url_name == 'citing' or request.resolver_match.url_name == 'contact' %} active {% endif %}">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                 About
+                <i class="fas fa-info"></i> About
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="{% url 'about' %}">About</a>
@@ -88,7 +86,7 @@
                 <a class="dropdown-item" href="{% url 'statistics' %}">Statistics</a>
                 <a class="dropdown-item" href="">Institutions and funders</a>
                 <a class="dropdown-item" href="">Other resources</a>
-                <a class="dropdown-item" href="">Citing HuDeCA</a>
+                <a class="dropdown-item" href="">Citing RGV</a>
                 <a class="dropdown-item" href="">Contact</a>
               </div>
             </li>
