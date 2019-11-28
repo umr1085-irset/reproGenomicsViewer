@@ -96,8 +96,9 @@ def index(request):
             "keywords",
     ]
 
-    studies = paginate(ExpressionStudy.objects.exclude(data=None))
-    form = ExpressionStudyFilterForm(studies=studies)
+    all_studies = ExpressionStudy.objects.exclude(data=None)
+    studies = paginate(all_studies)
+    form = ExpressionStudyFilterForm(studies=all_studies)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination}
