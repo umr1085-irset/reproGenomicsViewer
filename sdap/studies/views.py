@@ -228,7 +228,7 @@ def render_table(request):
             else:
                 kwargs[key + "__contains"] = [value]
 
-    studies = studies.filter(**kwargs)
+    studies = studies.filter(**kwargs).distinct()
     # Filter here
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     data['table'] = table
