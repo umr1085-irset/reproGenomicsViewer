@@ -14,20 +14,33 @@ $(function () {
     }
   }
 */
-  selectRows = []
+  selectRows = [];
+  currentPage = 1;
 
   var loadTable = function () {
     var form = $("#study-form")
+    var search_data = form.serialize() + '&page=' + currentPage;
     $.ajax({
       url: form.attr("data-url"),
       type: 'get',
       dataType: 'json',
-      data: form.serialize(),
+      data: search_data,
       success: function (data) {
         $("#table").html(data['table']);
+        $(".partial_paginate").html(data['pagination']);
       }
     });
   };
+  // Reset pagination if search
+  var search = function(){
+    currentPage = 1;
+    loadTable()
+  }
+
+  var paginate = function(){
+    currentPage = $(this).attr("target");
+    loadTable()
+  }
 
   var selectMe = function () {
     var row = $(this);
@@ -97,10 +110,11 @@ $(function () {
   }
 
   /* Binding */
-    $("#filter").on("change", "select", loadTable);
-    $("#filter").on("keyup", "input", loadTable);
+    $("#filter").on("change", "select", search);
+    $("#filter").on("keyup", "input", search);
     $("#table").on("click", "tr", selectMe);
     $("#nextButton").on("click", goToDocuments);
     $("#table_analyse").on("change", "select", checkSelect);
     $("#graphButton").on("click", graphMe);
+    $(".partial_paginate").on('click', ".page-action", paginate);
 });

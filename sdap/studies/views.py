@@ -96,10 +96,11 @@ def index(request):
             "keywords",
     ]
 
-    studies = ExpressionStudy.objects.exclude(data=None)
+    studies = paginate(ExpressionStudy.objects.exclude(data=None))
     form = ExpressionStudyFilterForm(studies=studies)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
-    context = {'form': form, 'columns': columns, 'table': table}
+    pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
+    context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination}
     return render(request, 'studies/scatter_plot.html', context)
 
 def document_select(request):
@@ -224,14 +225,18 @@ def render_table(request):
             if key == "article":
                 kwargs[key + "__icontains"] = value
             elif key == "technology" or key == "species":
-                 kwargs["data__" + key] = value
+                kwargs["data__" + key] = value
+            elif key == "page":
+                continue
             else:
                 kwargs[key + "__contains"] = [value]
 
-    studies = studies.filter(**kwargs).distinct()
+    studies = paginate(studies.filter(**kwargs).distinct(), request.GET.get('page'))
     # Filter here
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     data['table'] = table
+    data['pagination'] = pagination
     return JsonResponse(data)
 
 def autocomplete_genes(request,taxonid):
@@ -249,5 +254,17 @@ def autocomplete_genes(request,taxonid):
         data="fail"
     mimetype = 'application/json'
     return HttpResponse(data, mimetype)
-    
+
+def paginate(values, query=None, count=5, is_ES=False):
+
+    paginator = Paginator(values, count)
+
+    try:
+        val = paginator.page(query)
+    except PageNotAnInteger:
+        val = paginator.page(1)
+    except EmptyPage:
+        val = paginator.page(paginator.num_pages)
+
+    return val
 

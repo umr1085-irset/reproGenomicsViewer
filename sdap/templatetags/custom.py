@@ -7,6 +7,9 @@ register = template.Library()
 def val_to_set(study, key):
     set_val = set()
     for data in study.data.all():
-        set_val.add(getattr(data, key))
-    return ", ".join(set_val)
+        if key == "species":
+            set_val.add(data.get_species_display())
+        else:
+            set_val.add(getattr(data, key))
+    return ",<br>".join(set_val)
 

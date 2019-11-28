@@ -4,18 +4,18 @@
 <tr study_id="{{study.id}}">
 <td>{{study.article}}</td>
 <td>{{study.pmid}}</td>
-<td>{{study.ome | join:","}}</td>
+<td>{{study.ome | join:",<br>"}}</td>
 <td>{% val_to_set study "technology" %}</td>
 <td>{% val_to_set study "species" %}</td>
 <td>{{study.experimental_design | join:","}}</td>
-<td>{{study.topics | join:","}}</td>
-<td>{{study.tissues | join:","}}</td>
-<td>{{study.sex | join:","}}</td>
-<td>{{study.dev_stage | join:","}}</td>
-<td>{{study.age | join:","}}</td>
-<td>{{study.antibody | join:","}}</td>
-<td>{{study.mutant | join:","}}</td>
-<td>{{study.cell_sorted | join:","}}</td>
-<td>{{study.keywords | join:","}}</td>
+<td>{{study.topics | join:",<br>"}}</td>
+<td>{{study.tissues | join:",<br>"}}</td>
+<td>{{study.sex | join:",<br>"}}</td>
+<td>{{study.dev_stage | join:",<br>"}}</td>
+<td>{{study.age | join:",<br>"}}</td>
+<td>{{study.antibody | join:",<br>"}}</td>
+<td>{{study.mutant | join:",<br>"}}</td>
+<td>{{study.cell_sorted | join:",<br>"}}</td>
+<td>{{study.keywords | join:",<br>"}}</td>
 </tr>
 {% endfor %}

@@ -46,6 +46,9 @@
                         </table>
                     </div>
                     </form>
+                    <div class="partial_paginate">
+                        {{ pagination }}
+                    </div>
                     <div class="row mt-3"></div>
                         <p id="summary"> Please select one study. </p>
                         <button type="button" class="btn btn-default" id="nextButton" data-url="{% url 'studies:select_documents' %}" disabled> Next</button>
