@@ -7,9 +7,30 @@ from django.contrib.postgres.fields import JSONField
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.apps import apps
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
+
+from guardian.shortcuts import assign_perm, remove_perm, get_group_perms, get_user_perms
 
 import sys
 import pickle, os
+import requests
+from xml.etree import ElementTree as ET
+
+def get_pubmed_info(pmid):
+    abstract = ""
+    title = ""
+    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id={}&rettype=abstract".format(pmid)
+    response = requests.get(url)
+    if response.status_code == 200:
+        root = ET.fromstring(response.content)
+        elem = root.find('.//AbstractText')
+        if elem is not None:
+            abstract = elem.text
+        elem = root.find('.//ArticleTitle')
+        if elem is not None:
+            title = elem.text
+    return abstract, title
 
 def get_upload_path(instance, filename):
 
@@ -31,6 +52,22 @@ def get_upload_path(instance, filename):
 
     path =  os.path.join("studies/{}/{}/{}/{}/".format(user_type, instance.study.pmid, instance.technology, orga_dict[instance.species]), filename)
     return path
+
+def change_permission_owner(self):
+    owner_permissions = ['view_expressionstudy', 'change_expressionstudy', 'delete_expressionstudy']
+
+    if self.initial_owner:
+        # If update, remove permission, else do nothing
+        if self.initial_owner != self.created_by:
+            initial_owner_permission = get_user_perms(self.initial_owner, self)
+            for permission in owner_permissions:
+                if permission in initial_owner_permission:
+                    remove_perm(permission, self.initial_owner, self)
+
+    user_permissions = get_user_perms(self.created_by, self)
+    for permission in owner_permissions:
+        if permission not in user_permissions:
+            assign_perm(permission, self.created_by, self)
 
 class Database(models.Model):
 
@@ -67,8 +104,12 @@ class ExpressionStudy(models.Model):
 
     article = models.CharField(max_length=200)
     pmid = models.CharField(max_length=20)
+    title = models.CharField(max_length=200, blank=True)
+    abstract = models.TextField(blank=True, default='', verbose_name='Abstract')
     status = models.CharField(max_length=50, choices=STATUS, default="PRIVATE")
     ome = ArrayField(models.CharField(max_length=50, blank=True), default=list)
+    technology = ArrayField(models.CharField(max_length=50, blank=True), default=list)
+    species = ArrayField(models.CharField(max_length=50, blank=True), default=list)
     experimental_design = ArrayField(models.CharField(max_length=50, blank=True), default=list)
     topics = ArrayField(models.CharField(max_length=50, blank=True), default=list)
     tissues = ArrayField(models.CharField(max_length=50, blank=True), default=list)
@@ -83,9 +124,52 @@ class ExpressionStudy(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     database = models.ForeignKey(Database, blank=True, null=True, on_delete=models.CASCADE, related_name='from_database')
+    read_groups = models.ManyToManyField(Group, blank=True, related_name='read_access_to')
+    edit_groups = models.ManyToManyField(Group, blank=True, related_name='edit_access_to')
+
+    class Meta:
+        permissions = (('view_expressionstudy', 'View study'),)
+        default_permissions = ('add', 'change', 'delete')
+
+    def __init__(self, *args, **kwargs):
+        super(ExpressionStudy, self).__init__(*args, **kwargs)
+        self.initial_owner = self.created_by
+        self.initial_status = self.status
+
+    def save(self, *args, **kwargs):
+        super(ExpressionStudy, self).save(*args, **kwargs)
+        self.abstract, self.title = get_pubmed_info(self.pmid)
+        super(ExpressionStudy, self).save(*args, **kwargs)
+        change_permission_owner(self)
 
     def __str__(self):
         return self.pmid
+
+
+@receiver(m2m_changed, sender=ExpressionStudy.read_groups.through)
+def update__permissions_read(sender, instance, action, **kwargs):
+    if instance.read_groups.all():
+        if action == 'pre_remove':
+            for group in instance.read_groups.all():
+                if 'view_expressionstudy' in get_group_perms(group, instance):
+                    remove_perm('view_expressionstudy', group, instance)
+        if action == 'post_add':
+            for group in instance.read_groups.all():
+                if 'view_project' not in get_group_perms(group, instance):
+                    assign_perm('view_expressionstudy', group, instance)
+
+@receiver(m2m_changed, sender=ExpressionStudy.edit_groups.through)
+def update__permissions_write(sender, instance, action, **kwargs):
+    if instance.edit_groups.all():
+        if action == 'pre_remove':
+            for group in instance.edit_groups.all():
+                if 'change_project' in get_group_perms(group, instance):
+                    remove_perm('change_expressionstudy', group, instance)
+        if action == 'post_add':
+            for group in instance.edit_groups.all():
+                if 'change_expressionstudy' not in get_group_perms(group, instance):
+                    assign_perm('change_expressionstudy', group, instance)
+
 
 class ExpressionData(models.Model):
     SPECIES_TYPE = (

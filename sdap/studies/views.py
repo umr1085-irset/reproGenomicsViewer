@@ -19,11 +19,10 @@ from django.contrib import messages
 from django.template.loader import render_to_string
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
-
 from django.views.generic import CreateView
 from django.core import serializers
 
+from guardian.shortcuts import get_perms
 
 import pandas as pd
 import numpy as np
@@ -96,7 +95,7 @@ def index(request):
             "keywords",
     ]
 
-    all_studies = ExpressionStudy.objects.exclude(data=None)
+    all_studies = [study for study in ExpressionStudy.objects.exclude(data=None) if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)
     form = ExpressionStudyFilterForm(studies=all_studies)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
@@ -232,7 +231,8 @@ def render_table(request):
             else:
                 kwargs[key + "__contains"] = [value]
 
-    studies = paginate(studies.filter(**kwargs).distinct(), request.GET.get('page'))
+    
+    studies = paginate([study for study in studies.filter(**kwargs).distinct() if check_view_permissions(request.user, study)], request.GET.get('page'))
     # Filter here
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
@@ -269,3 +269,13 @@ def paginate(values, query=None, count=5, is_ES=False):
 
     return val
 
+def check_view_permissions(user, study, strict=False):
+    has_access = False
+    if study.status == "PUBLIC" and not strict:
+        has_access = True
+    elif user.is_superuser:
+        has_access = True
+    elif user.is_authenticated and 'view_expressionstudy' in get_perms(user, study):
+        has_access = True
+
+    return has_access

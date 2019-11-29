@@ -11,14 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='expressionstudy',
-            name='species',
-        ),
-        migrations.RemoveField(
-            model_name='expressionstudy',
-            name='technology',
-        ),
         migrations.AddField(
             model_name='expressiondata',
             name='technology',

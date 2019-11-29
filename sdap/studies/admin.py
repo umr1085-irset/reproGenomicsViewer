@@ -9,8 +9,8 @@ from django.apps import apps
 
 class ExpressionStudyAdmin(admin.ModelAdmin, DynamicArrayMixin):
     fieldsets = [
-        (None,               {'fields': ['database','article', 'pmid', 'ome', 'technology', 'species', 'experimental_design', 'topics', 'tissues', 'sex',
-                                        'dev_stage', 'age', 'antibody', 'mutant', 'cell_sorted', 'keywords', 'samples_count', 'data'
+        (None,               {'fields': ['database','article', 'pmid', 'status', 'ome', 'experimental_design', 'topics', 'tissues', 'sex',
+                                        'dev_stage', 'age', 'antibody', 'mutant', 'cell_sorted', 'keywords', 'samples_count', 'read_groups', 'edit_groups',
                                         ]
                              }
         ),
@@ -18,7 +18,7 @@ class ExpressionStudyAdmin(admin.ModelAdmin, DynamicArrayMixin):
 
 class ExpressionDataAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['name', 'file','gene_type','gene_number','species','cell_number'
+        (None,               {'fields': ['name', 'file','gene_type','gene_number', 'technology', 'species' ,'cell_number', 'study'
                                         ]
                              }
         ),

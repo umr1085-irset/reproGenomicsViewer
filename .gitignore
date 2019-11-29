@@ -340,3 +340,5 @@ Session.vim
 tags
 
 sdap/media/
+
+celerybeat.pid
