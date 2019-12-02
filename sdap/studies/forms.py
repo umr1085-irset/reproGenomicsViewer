@@ -29,7 +29,6 @@ class ExpressionStudyFilterForm(forms.Form):
             "tissues": set(),
             "sex": set(),
             "dev_stage": set(),
-            "age": set(),
             "antibody": set(),
             "mutant": set(),
             "cell_sorted": set(),

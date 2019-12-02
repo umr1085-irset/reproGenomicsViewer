@@ -57,7 +57,7 @@ def get_gene(request, gene_id):
     return JsonResponse(data)
 
 def get_stud_db(request):
-    db_ids  = request.GET.getlist('db_ids[]')    
+    db_ids  = request.GET.getlist('db_ids[]')
     print (db_ids)
     db_ids = list(map(int, db_ids))
     print (db_ids)
@@ -88,11 +88,11 @@ def index(request):
             "tissues",
             "sex",
             "dev_stage",
-            "age",
             "antibody",
             "mutant",
             "cell_sorted",
             "keywords",
+            "Select"
     ]
 
     all_studies = [study for study in ExpressionStudy.objects.exclude(data=None) if check_view_permissions(request.user, study)]
@@ -119,7 +119,7 @@ def document_select(request):
 
     table = render_to_string('studies/document_select.html', {'studies': studies}, request)
     data = {'table' : table}
-    
+
     return JsonResponse(data)
     #return render(request, 'studies/document_select.html', {'studies': studies})
 
@@ -142,7 +142,7 @@ def show_graph(request):
 
     data_stat = {}
 
-        
+
     study = get_object_or_404(ExpressionStudy, id=study_id)
     form = GeneFilterForm()
     classes = getClasses(data)
@@ -150,12 +150,12 @@ def show_graph(request):
     return render(request, 'studies/graph.html', context)
 
 def get_graph_data(request):
-    
+
     display_mode = "scatter"
 
     if "mode" in request.GET:
         display_mode = request.GET["mode"]
-    
+
 
     if not "document_id" in request.GET:
         return redirect(reverse("studies:index"))
@@ -166,7 +166,7 @@ def get_graph_data(request):
         return redirect(reverse("studies:index"))
 
     data = get_object_or_404(ExpressionData, id=document_id)
-    
+
 
     selected_class = request.GET.get('selected_class', None)
 
@@ -199,7 +199,7 @@ def get_group_info(request):
     group = request.GET.get('group',None)
     sample = request.GET.get('sample',None)
     document_id = request.GET.get('document',None)
-    
+
     data = get_object_or_404(ExpressionData, id=document_id)
 
     selected_class = request.GET.get('selected_class', None)
@@ -231,7 +231,7 @@ def render_table(request):
             else:
                 kwargs[key + "__contains"] = [value]
 
-    
+
     studies = paginate([study for study in studies.filter(**kwargs).distinct() if check_view_permissions(request.user, study)], request.GET.get('page'))
     # Filter here
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)

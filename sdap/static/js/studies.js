@@ -42,44 +42,11 @@ $(function () {
     loadTable()
   }
 
-  var selectMe = function () {
-    var row = $(this);
-    var study_id = row.attr("study_id");
-    var index = selectRows.indexOf(study_id);
-    if(index == -1){
-        row.css("background-color", "pink");
-        selectRows.push(study_id);
-    } else {
-        row.css("background-color", "white");
-        selectRows.splice(index, 1);
-        if (selectRows.length ==0 ){
-          $("#table_analyse").html("Select one study");
-        }
-    }
-    summarize()
-  }
-
-  var summarize = function(){
-    var summary = $("#summary");
-    if(selectRows.length == 0){
-        summary.html("Please select one or more studies")
-        $("#nextButton").prop('disabled', true);
-    } else {
-        summary.html(selectRows.length + " studies selected")
-        $("#nextButton").prop('disabled', false);
-    }
-
-  }
-
   var goToDocuments = function () {
-    var button = $("#nextButton");
-    var url = button.attr("data-url");
-    var query_string = "?"
-    for (i = 0; i < selectRows.length; i++){
-        query_string += "id=" + selectRows[i] + "&";
-    }
-    query_string = query_string.slice(0, -1)
-    var url_ref = url + query_string;
+    var btn = $(this);
+    var url = btn.attr("data-url");
+    var study = btn.attr("data-object");
+    var url_ref = url + "?id=" + study;
     $.ajax({
         url: url_ref,
         type: 'GET',
@@ -113,7 +80,7 @@ $(function () {
     $("#filter").on("change", "select", search);
     $("#filter").on("keyup", "input", search);
     $("#table").on("click", "tr", selectMe);
-    $("#nextButton").on("click", goToDocuments);
+    $("#studies").on("click", ".select_study", goToDocuments);
     $("#table_analyse").on("change", "select", checkSelect);
     $("#graphButton").on("click", graphMe);
     $(".partial_paginate").on('click', ".page-action", paginate);
