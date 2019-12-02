@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% block title %}User: {{ object.username }}{% endblock %}
@@ -30,10 +31,13 @@
                 </li>
                 {% if object == request.user %}
                 <li class="nav-item">
-                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notifications | length }})</a>
+                    <a href="" data-target="#notifications" data-toggle="tab" class="nav-link {{in_use.notification}}">Notifications ({{ notifications.paginator.count }})</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#groups" data-toggle="tab" class="nav-link">My groups  ({{ groups | length }})</a>
+                    <a href="" data-target="#groups" data-toggle="tab" class="nav-link {{in_use.group}}">My groups  ({{ groups.paginator.count }})</a>
+                </li>
+                <li class="nav-item">
+                    <a href="" data-target="#studies" data-toggle="tab" class="nav-link {{in_use.study}}">My studies  ({{ studies.paginator.count }})</a>
                 </li>
                 {% endif %}
             </ul>
@@ -115,9 +119,14 @@
                         {% endfor %}
                     </tbody>
                     </table>
+                    {% if notifications %}
+                    {% with table=notifications type="notifications" %}
+                    {% include "pages/paginate.html" %}
+                    {% endwith %}
+                    {% endif %}
                 </div>
                 </div>
-                <div class="tab-pane" id="groups">
+                <div class="tab-pane {{in_use.group}}" id="groups">
                 <h2>My groups <button data-url="{% url 'groups:create' %}" class="btn btn-outline-info js-create float-right"><i class="fas fa-external-link-alt"></i>New</button></h2>
                 <div class="table-responsive-xl">
                     <table class="table table-hover">
@@ -142,6 +151,43 @@
                         {% endfor %}
                     </tbody>
                     </table>
+                    {% if groups %}
+                    {% with table=groups type="groups" %}
+                    {% include "pages/paginate.html" %}
+                    {% endwith %}
+                    {% endif %}
+                </div>
+                </div>
+                <div class="tab-pane {{in_use.study}}" id="studies">
+                <h2>My studies <button data-url="" class="btn btn-outline-info float-right"><i class="fas fa-external-link-alt"></i>New</button></h2>
+                <div class="table-responsive-xl">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr style="text-align:center;">
+                                <th scope="col">Pubmed ID</th>
+                                <th scope="col">Article</th>
+                                <th scope="col">Species</th>
+                                <th scope="col">Technology</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                    <tbody>
+                        {% for study in studies %}
+                        <tr style="text-align:center;">
+                            <td>{{study.pmid}}</td>
+                            <td>{{study.article}}</td>
+                            <td>{{study.species | join:",<br>"}}</td>
+                            <td>{{study.technology | join:",<br>"}}</td>
+                            <td>{{study.status}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                    {% if studies %}
+                    {% with table=studies type="studies" %}
+                    {% include "pages/paginate.html" %}
+                    {% endwith %}
+                    {% endif %}
                 </div>
                 </div>
                </div>

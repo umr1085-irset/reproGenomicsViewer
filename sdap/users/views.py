@@ -9,6 +9,8 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 
 from sdap.users.models import Notification
+from sdap.studies.models import ExpressionStudy
+from sdap.studies.views import check_view_permissions, paginate
 
 User = get_user_model()
 
@@ -23,19 +25,26 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         context = super(UserDetailView, self).get_context_data(**kwargs)
         groups = self.request.user.groups.all()
 
-        context['groups'] = groups
-        context['notifications'] = Notification.objects.filter(user=self.request.user)
+        context['groups'] = paginate(groups, self.request.GET.get('groups'))
+        context['notifications'] = paginate(Notification.objects.filter(user=self.request.user), self.request.GET.get('notifications'))
+        context['studies'] = paginate([study for study in ExpressionStudy.objects.all() if check_view_permissions(self.request.user, study, True)], self.request.GET.get('studies'))
 
         for group in context['groups']:
             group.members_number = group.user_set.count()
 
         context['in_use'] = {
             'user': "",
-            'notification': ""
+            'notification': "",
+            'group': "",
+            'study': ""
         }
 
-        if self.request.GET.get('notification'):
+        if self.request.GET.get('notifications'):
             context['in_use']['notification'] = 'active'
+        elif self.request.GET.get('studies'):
+            context['in_use']['study'] = 'active'
+        elif self.request.GET.get('groups'):
+            context['in_use']['group'] = 'active'
         else:
             context['in_use']['user'] = 'active'
 

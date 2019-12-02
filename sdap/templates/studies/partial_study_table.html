@@ -1,0 +1,21 @@
+{% load custom %}
+
+{% for study in studies %}
+<tr study_id="{{study.id}}">
+<td>{{study.article}}</td>
+<td>{{study.pmid}}</td>
+<td>{{study.ome | join:",<br>"}}</td>
+<td>{{study.technology | join:",<br>"}}</td>
+<td>{{study.species | join:",<br>"}}</td>
+<td>{{study.experimental_design | join:",<br>"}}</td>
+<td>{{study.topics | join:",<br>"}}</td>
+<td>{{study.tissues | join:",<br>"}}</td>
+<td>{{study.sex | join:",<br>"}}</td>
+<td>{{study.dev_stage | join:",<br>"}}</td>
+<td>{{study.age | join:",<br>"}}</td>
+<td>{{study.antibody | join:",<br>"}}</td>
+<td>{{study.mutant | join:",<br>"}}</td>
+<td>{{study.cell_sorted | join:",<br>"}}</td>
+<td>{{study.keywords | join:",<br>"}}</td>
+</tr>
+{% endfor %}

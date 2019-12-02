@@ -1,0 +1,17 @@
+<table>
+    <thead>
+        <tr>
+            <th>Genes</th>
+            <th>Expression value (mean)</th>
+        </tr>
+    </thead>
+
+    <tbody>
+            {% for gene in genes_list %}
+                <tr>
+                    <td>{{ gene.gene }}</td>
+                    <td>{{ gene.value }}</td>
+                </tr>
+            {% endfor %}
+    </tbody>
+</table>  
