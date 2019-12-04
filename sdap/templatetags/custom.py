@@ -3,6 +3,12 @@ from django.utils.html import format_html
 
 register = template.Library()
 
+@register.filter
+def keyvalue(dict, key):
+    return dict[key]
+
+
+
 @register.simple_tag
 def val_to_set(study, key):
     set_val = set()

@@ -379,12 +379,12 @@ $(function () {
     var display_class = $("#display_selection_a").val()
     
     if (display_class == "density" || display_class == "violin"){
-        $("#div_table_select").removeClass( "visible" ).addClass("invisible");
-        $("#div_gene_select").removeClass( "invisible" ).addClass("visible");
+        $("#div_table_select").hide();
+        $("#div_gene_select").show();
     }
     if (display_class =="table"){
-      $("#div_gene_select").removeClass( "visible" ).addClass("invisible");
-      $("#div_table_select").removeClass( "invisible" ).addClass("visible");
+      $("#div_gene_select").hide();
+      $("#div_table_select").show();
     }
   });
 
@@ -404,6 +404,48 @@ $(function () {
     })
   });
 
+  $("#select_table").click(function(e){
+    $("#table-graph-warning").html("");
+    $("#table-graph-div").html("");
+    var genes = $("#gene_select_table").val();
+    if (! genes){
+        $("#table-graph-warning").html("Please select at least one gene");
+        return;
+    }
+
+    var selected_class = $("#class_select_table").val();
+    var query_type = $("#gene_query_type_table").val();
+    var data = {
+        'csrfmiddlewaretoken': token,
+        'genes': genes,
+        'query': query_type,
+        'class': selected_class
+    }
+    var url = $(this).attr("data-url");
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        success: function (data) {
+            if (data['is_ok']){
+                $("#table-graph-div").html(data['base_table']);
+                $("#dt-select-table-gene").DataTable({
+                    data: data['dataset'],
+                    columns: data['columns'],
+                    scrollX: true,
+                    dom: 'Bfrtip',
+                    buttons: [{ extend: 'csv', text: 'Export' }]
+                });
+            } else {
+                $("#table-graph-warning").html(data['warning']);
+            }
+        },
+        error: function (err) {
+            console.log(err);
+        }
+    });
+  });
 });
 
 function removegeneoflist(gene){

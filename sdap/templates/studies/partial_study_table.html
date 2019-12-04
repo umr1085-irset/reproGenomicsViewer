@@ -20,20 +20,28 @@
 <td>{{study.mutant | join:",<br>"}}</td>
 <td>{{study.cell_sorted | join:",<br>"}}</td>
 <td>{{study.keywords | join:",<br>"}}</td>
-<td><button type="button" class="btn btn-primary select_study" data-object="{{study.id}}" data-url="{% url 'studies:graph' %}">Select</button></td>
+<td>
+    <a class="btn btn-outline-info select_study" data-object="{{study.id}}" data-url="{% url 'studies:select_documents' %}">
+        <i class="fa fa-external-link-alt" aria-hidden="true"></i>
+    </a>
+</td>
 </tr>
 
-<div class="modal fade" id="basicExampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-{{study.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modal-{{study.id}}">Study information</h5>
+        <h5 class="modal-title" >Study information</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        TEST MODAL STUDY ({{ study.title}})
+        {% if not study.title and not study.abstract and not study.publish_date and not study.authors %} No information were retrieved for this study {% endif %}
+        {% if study.title %}<p>Title : {{study.title}}</p> {% endif %}
+        {% if study.publish_date %}<p>Publication date : {{study.publish_date}}</p> {% endif %}
+        {% if study.authors %}<p>Authors : {{study.authors}}</p> {% endif %}
+        {% if study.abstract %}<p>{{study.abstract}}</p> {% endif %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

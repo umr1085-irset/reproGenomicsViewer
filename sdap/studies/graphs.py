@@ -655,3 +655,43 @@ def get_violin_graph_gene_data_full(file, genes, selected_class=None):
 
         result['charts'].append(violin_chart)
     return result
+
+def getGenesValues(data, selected_class, gene_dict):
+
+    #Return dictionnary gene:groups:mean(value)
+    result = []
+    all_group = []
+
+    groups = getValues(data, [selected_class])
+    groups = np.array(groups[selected_class])
+    _, idx = np.unique(groups, return_index=True)
+    uniq_groups = groups[np.sort(idx)[::-1]]
+    all_group = uniq_groups.tolist()
+
+    samples = getValues(data, ['Sample'])
+    samples = np.array(samples['Sample'])
+
+    for gene_name, gene_id in gene_dict.items():
+        temp_list = [gene_name]
+        #result[gene_name]={'geneID':gene_id,'conditions':{}}
+        # Get all classes in the file and loop
+        #result[gene_name]['conditions'][selected_class]={}
+
+        genes = getValues(data,[gene_id])
+        val_gene = np.array(genes[str(gene_id)])
+        for cond in all_group:
+            #result[gene_name]['conditions'][selected_class][cond] = ""
+            if len(val_gene) != 0 :
+                val = val_gene[np.where(groups == cond)[0]]
+                group_mean_value = np.around(np.mean(val.astype(np.float)),3)
+            else :
+                group_mean_value = "NA"
+            temp_list.append(group_mean_value)
+            #result[gene_name]['conditions'][selected_class][cond] = group_mean_value
+        result.append(temp_list)
+    groups = []
+    groups.append({'title': 'Gene'})
+    for group in all_group:
+        groups.append({'title': group})
+
+    return {'results': result, 'groups': groups}

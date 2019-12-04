@@ -79,7 +79,6 @@ $(function () {
   /* Binding */
     $("#filter").on("change", "select", search);
     $("#filter").on("keyup", "input", search);
-    $("#table").on("click", "tr", selectMe);
     $("#studies").on("click", ".select_study", goToDocuments);
     $("#table_analyse").on("change", "select", checkSelect);
     $("#graphButton").on("click", graphMe);

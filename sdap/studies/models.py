@@ -17,9 +17,44 @@ import pickle, os
 import requests
 from xml.etree import ElementTree as ET
 
+def _extract_date(elem):
+    publish_date = ""
+    year = ""
+    month = ""
+    year_elem = elem.find('Year')
+    if year_elem is not None:
+        year = year_elem.text
+    month_elem = elem.find('Month')
+    if month_elem is not None:
+        month = month_elem.text
+    if year:
+        publish_date = year
+    if month:
+        publish_date =  month + ". " + publish_date
+    return publish_date
+
+def _extract_author(author_element):
+    author_list = []
+    for author in author_element:
+        if author.find("CollectiveName") is not None:
+            author_list.append(author.find("CollectiveName").text)
+        else:
+            name = ""
+            lastname_elem = author.find("LastName")
+            firstname_elem = author.find("Initials")
+            if lastname is not None:
+                name = lastname.text
+            if firstname is not None:
+                name = firstname.text + " " + name
+            if name:
+                author_list.append(name)
+    return ",".join(author_list)
+
 def get_pubmed_info(pmid):
     abstract = ""
     title = ""
+    publish_date = ""
+    authors = ""
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id={}&rettype=abstract".format(pmid)
     response = requests.get(url)
     if response.status_code == 200:
@@ -30,7 +65,14 @@ def get_pubmed_info(pmid):
         elem = root.find('.//ArticleTitle')
         if elem is not None:
             title = elem.text
-    return abstract, title
+        elem = root.find('.//PubDate')
+        if elem is not None:
+            publish_date = _extract_date(elem)
+        elem = root.find('.//AuthorList')
+        if elem is not None:
+            authors = _extract_author(elem)
+
+    return abstract, title, publish_date, authors
 
 def get_upload_path(instance, filename):
 
@@ -106,6 +148,8 @@ class ExpressionStudy(models.Model):
     pmid = models.CharField(max_length=20)
     title = models.CharField(max_length=200, blank=True)
     abstract = models.TextField(blank=True, default='', verbose_name='Abstract')
+    publish_date = models.CharField(max_length=50, blank=True)
+    authors = models.TextField(blank=True, default='', verbose_name='Authors')
     status = models.CharField(max_length=50, choices=STATUS, default="PRIVATE")
     ome = ArrayField(models.CharField(max_length=50, blank=True), default=list)
     technology = ArrayField(models.CharField(max_length=50, blank=True), default=list)
@@ -138,7 +182,7 @@ class ExpressionStudy(models.Model):
 
     def save(self, *args, **kwargs):
         super(ExpressionStudy, self).save(*args, **kwargs)
-        self.abstract, self.title = get_pubmed_info(self.pmid)
+        self.abstract, self.title, self.publish_date, self.authors = get_pubmed_info(self.pmid)
         super(ExpressionStudy, self).save(*args, **kwargs)
         change_permission_owner(self)
 

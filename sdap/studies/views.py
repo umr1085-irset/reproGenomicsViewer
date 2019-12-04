@@ -33,7 +33,7 @@ import uuid
 import shutil
 from .models import ExpressionStudy, ExpressionData, Gene, Database
 from .forms import *
-from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full
+from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full, getGenesValues
 
 class GeneAutocomplete(autocomplete.Select2QuerySetView):
 
@@ -279,3 +279,78 @@ def check_view_permissions(user, study, strict=False):
         has_access = True
 
     return has_access
+
+def get_genes_values_table(request, document_id):
+
+    warning = ""
+    is_ok = False
+
+    if request.method != 'POST':
+        return
+
+    if not request.POST.get('genes') or not request.POST.get('query') or not request.POST.get('class'):
+        return
+
+    document = get_object_or_404(ExpressionData, id=document_id)
+    gene_list = request.POST.get('genes').replace('\n', ',').replace('\t', ',').split(',')
+    selected_class= request.POST.get('class')
+    correct_gene_dict = _process_gene_list(gene_list, document.species, request.POST.get('query'), document.gene_type)
+    data = {}
+    if correct_gene_dict:
+        results = getGenesValues(document, selected_class, correct_gene_dict)
+        is_ok = True
+        data['dataset'] = results['results']
+        data['columns'] = results['groups']
+        data['base_table'] = render_to_string('studies/partial_genes_table.html', {'columns': data['columns']}, request)
+    else:
+        warning = "No corresponding genes in database: Have you selected the right data type (id or name)?"
+
+    data['is_ok'] = is_ok
+    data['warning'] = warning
+    return JsonResponse(data)
+
+
+def _process_gene_list(gene_list, species_id, query_type, target_gene_type):
+    correct_dict = {}
+    for gene in gene_list:
+        correct_gene_id = _process_gene(gene, species_id, query_type, target_gene_type)
+        if correct_gene_id:
+            correct_dict[gene] = correct_gene_id
+    return correct_dict
+
+def _process_gene(gene_id, species_id, query_type, target_gene_type):
+
+    correct_gene_id = ""
+
+    # Assume they meant gene from the document species
+    if query_type == "name":
+        gene = Gene.objects.filter(symbol__iexact=gene_id, tax_id=species_id)
+        if gene:
+            if target_gene_type == "Entrez Gene":
+                correct_gene_id = gene[0].gene_id
+            else:
+                correct_gene_id = gene[0].ensemble_id
+    else:
+    # Check ids
+        if "ENS" in "gene_id":
+            gene = Gene.objects.filter(ensemble_id__iexact=gene_id)
+        else:
+            gene = Gene.objects.filter(gene_id__iexact=gene_id)
+
+        if gene:
+            gene = gene[0]
+            if gene.tax_id == "species_id":
+                if target_gene_type == "Entrez Gene":
+                    correct_gene_id = gene.gene_id
+                else:
+                    correct_gene_id = gene.ensemble_id
+            else:
+                correct_gene = Gene.objects.filter(homolog_id=gene.homolog_id, tax_id=species_id)
+                if correct_gene:
+                    correct_gene = correct_gene[0]
+                    if target_gene_type == "Entrez Gene":
+                        correct_gene_id = correct_gene.gene_id
+                    else:
+                        correct_gene_id = correct_gene.ensemble_id
+
+    return correct_gene_id
