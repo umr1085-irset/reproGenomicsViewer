@@ -52,6 +52,7 @@
 
     </style>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#fullHeightModalRight" id="mapDrawerActivateButtonContainer">
@@ -255,7 +256,7 @@
                                     </form>
                                 </div>
                             </div>
-                            <div class="row my-5 invisible" id="div_gene_select">
+                            <div class="row my-5" style="display:none;" id="div_gene_select">
                                 <div class="col-md-8 mb-5">
                                     <h2>Genes selection</h2>
                                     <hr>
@@ -278,14 +279,30 @@
                                 </div>
 
                             </div>
-                            <div class="row my-5 invisible" id="div_table_select">
-                                <div class="col-md-8 mb-5">
+                            <div class="row my-5" style="display:none;" id="div_table_select">
+                                <div class="col-md-12 mb-5">
                                     <h2>Past your genes IDs/names</h2>
                                     <hr>
                                     <div class="form-group purple-border">
-                                        <label for="exampleFormControlTextarea4">Gene list</label>
-                                        <textarea class="form-control" id="exampleFormControlTextarea4" rows="3"></textarea>
+                                        <form id="table_form">
+                                            <label for="class_select_table">Select your class</label>
+                                            <select class="browser-default custom-select" id="class_select_table">
+                                            {% for class in classes %}
+                                                <option value="{{class}}">{{class}}</option>
+                                            {% endfor %}
+                                            </select>
+                                            <label for="gene_query_type_table">Gene format</label>
+                                            <select class="browser-default custom-select" id="gene_query_type_table">
+                                                <option value="name">Gene name</option>
+                                                <option value="id">Gene id</option>
+                                            </select>
+                                            <label for="gene_select_table">Gene list</label>
+                                            <textarea class="form-control" id="gene_select_table" rows="3"></textarea>
+                                        </form>
                                     </div>
+                                    <button id="select_table" type="button" class="btn btn-default" data-url="{% url 'studies:get_genes_values_table' document.id %}" >Show</button>
+                                    <div id="table-graph-warning" style="color:red;"></div>
+                                    <div id="table-graph-div"></div>
                                 </div>
                             </div>              
                         </div>
@@ -348,9 +365,11 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
-
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
 
     <script>
+        var token = '{{ csrf_token }}';
         var summary = "{{ data_stat | safe }}";
         var url_group_info = "{% url 'studies:group_info' %}";
         var doc_data = '{{ document.id | safe }}'

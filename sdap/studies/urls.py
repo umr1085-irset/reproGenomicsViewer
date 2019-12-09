@@ -11,6 +11,7 @@ urlpatterns = [
     path('graph_data', views.get_graph_data, name="graph_data"),
     re_path(r'^gene-autocomplete/$', views.GeneAutocomplete.as_view(), name='gene-autocomplete'),
     path('gene/<int:gene_id>', views.get_gene, name="get_gene"),
+    path('table/<int:document_id>', views.get_genes_values_table, name="get_genes_values_table"),
     path('ajax/get_stud_db', views.get_stud_db, name="get_stud_db"),
     path('ajax/group_info', views.get_group_info, name="group_info"),
     path('ajax/autocomplete_genes/<str:taxonid>', views.autocomplete_genes, name="autocomplete_genes"),

@@ -1,19 +1,53 @@
+{% load custom %}
+
 {% for study in studies %}
 <tr study_id="{{study.id}}">
 <td>{{study.article}}</td>
-<td>{{study.pmid}}</td>
-<td>{{study.ome | join:","}}</td>
-<td>{{study.technology | join:","}}</td>
-<td>{{study.species | join:","}}</td>
-<td>{{study.experimental_design | join:","}}</td>
-<td>{{study.topics | join:","}}</td>
-<td>{{study.tissues | join:","}}</td>
-<td>{{study.sex | join:","}}</td>
-<td>{{study.dev_stage | join:","}}</td>
-<td>{{study.age | join:","}}</td>
-<td>{{study.antibody | join:","}}</td>
-<td>{{study.mutant | join:","}}</td>
-<td>{{study.cell_sorted | join:","}}</td>
-<td>{{study.keywords | join:","}}</td>
+<td>{{study.pmid}}
+  <a class="btn btn-primary" data-toggle="modal" data-target="#modal-{{study.id}}"aria-label="More info">
+    <i class="fa fa-question-circle" aria-hidden="true"></i>
+  </a>
+</td>
+<td>{{study.ome | join:",<br>"}}</td>
+<td>{{study.technology | join:",<br>"}}</td>
+<td>{{study.species | join:",<br>"}}</td>
+<td>{{study.experimental_design | join:",<br>"}}</td>
+<td>{{study.topics | join:",<br>"}}</td>
+<td>{{study.tissues | join:",<br>"}}</td>
+<td>{{study.sex | join:",<br>"}}</td>
+<td>{{study.dev_stage | join:",<br>"}}</td>
+<td>{{study.antibody | join:",<br>"}}</td>
+<td>{{study.mutant | join:",<br>"}}</td>
+<td>{{study.cell_sorted | join:",<br>"}}</td>
+<td>{{study.keywords | join:",<br>"}}</td>
+<td>
+    <a class="btn btn-outline-info select_study" data-object="{{study.id}}" data-url="{% url 'studies:select_documents' %}">
+        <i class="fa fa-external-link-alt" aria-hidden="true"></i>
+    </a>
+</td>
 </tr>
+
+<div class="modal fade" id="modal-{{study.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Study information</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if not study.title and not study.abstract and not study.publish_date and not study.authors %} No information were retrieved for this study {% endif %}
+        {% if study.title %}<p>Title : {{study.title}}</p> {% endif %}
+        {% if study.publish_date %}<p>Publication date : {{study.publish_date}}</p> {% endif %}
+        {% if study.authors %}<p>Authors : {{study.authors}}</p> {% endif %}
+        {% if study.abstract %}<p>{{study.abstract}}</p> {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endfor %}

@@ -19,11 +19,10 @@ from django.contrib import messages
 from django.template.loader import render_to_string
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
-
 from django.views.generic import CreateView
 from django.core import serializers
 
+from guardian.shortcuts import get_perms
 
 import pandas as pd
 import numpy as np
@@ -34,7 +33,7 @@ import uuid
 import shutil
 from .models import ExpressionStudy, ExpressionData, Gene, Database
 from .forms import *
-from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full
+from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full, getGenesValues
 
 class GeneAutocomplete(autocomplete.Select2QuerySetView):
 
@@ -58,7 +57,7 @@ def get_gene(request, gene_id):
     return JsonResponse(data)
 
 def get_stud_db(request):
-    db_ids  = request.GET.getlist('db_ids[]')    
+    db_ids  = request.GET.getlist('db_ids[]')
     print (db_ids)
     db_ids = list(map(int, db_ids))
     print (db_ids)
@@ -89,17 +88,19 @@ def index(request):
             "tissues",
             "sex",
             "dev_stage",
-            "age",
             "antibody",
             "mutant",
             "cell_sorted",
             "keywords",
+            "Select"
     ]
 
-    studies = ExpressionStudy.objects.exclude(data=None)
-    form = ExpressionStudyFilterForm(studies=studies)
+    all_studies = [study for study in ExpressionStudy.objects.exclude(data=None) if check_view_permissions(request.user, study)]
+    studies = paginate(all_studies)
+    form = ExpressionStudyFilterForm(studies=all_studies)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
-    context = {'form': form, 'columns': columns, 'table': table}
+    pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
+    context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination}
     return render(request, 'studies/scatter_plot.html', context)
 
 def document_select(request):
@@ -118,7 +119,7 @@ def document_select(request):
 
     table = render_to_string('studies/document_select.html', {'studies': studies}, request)
     data = {'table' : table}
-    
+
     return JsonResponse(data)
     #return render(request, 'studies/document_select.html', {'studies': studies})
 
@@ -141,7 +142,7 @@ def show_graph(request):
 
     data_stat = {}
 
-        
+
     study = get_object_or_404(ExpressionStudy, id=study_id)
     form = GeneFilterForm()
     classes = getClasses(data)
@@ -149,12 +150,12 @@ def show_graph(request):
     return render(request, 'studies/graph.html', context)
 
 def get_graph_data(request):
-    
+
     display_mode = "scatter"
 
     if "mode" in request.GET:
         display_mode = request.GET["mode"]
-    
+
 
     if not "document_id" in request.GET:
         return redirect(reverse("studies:index"))
@@ -165,7 +166,7 @@ def get_graph_data(request):
         return redirect(reverse("studies:index"))
 
     data = get_object_or_404(ExpressionData, id=document_id)
-    
+
 
     selected_class = request.GET.get('selected_class', None)
 
@@ -198,7 +199,7 @@ def get_group_info(request):
     group = request.GET.get('group',None)
     sample = request.GET.get('sample',None)
     document_id = request.GET.get('document',None)
-    
+
     data = get_object_or_404(ExpressionData, id=document_id)
 
     selected_class = request.GET.get('selected_class', None)
@@ -223,13 +224,20 @@ def render_table(request):
         if value:
             if key == "article":
                 kwargs[key + "__icontains"] = value
+            elif key == "technology" or key == "species":
+                kwargs["data__" + key] = value
+            elif key == "page":
+                continue
             else:
                 kwargs[key + "__contains"] = [value]
 
-    studies = studies.filter(**kwargs)
+
+    studies = paginate([study for study in studies.filter(**kwargs).distinct() if check_view_permissions(request.user, study)], request.GET.get('page'))
     # Filter here
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     data['table'] = table
+    data['pagination'] = pagination
     return JsonResponse(data)
 
 def autocomplete_genes(request,taxonid):
@@ -247,5 +255,105 @@ def autocomplete_genes(request,taxonid):
         data="fail"
     mimetype = 'application/json'
     return HttpResponse(data, mimetype)
-    
 
+def paginate(values, query=None, count=5, is_ES=False):
+
+    paginator = Paginator(values, count)
+
+    try:
+        val = paginator.page(query)
+    except PageNotAnInteger:
+        val = paginator.page(1)
+    except EmptyPage:
+        val = paginator.page(paginator.num_pages)
+
+    return val
+
+def check_view_permissions(user, study, strict=False):
+    has_access = False
+    if study.status == "PUBLIC" and not strict:
+        has_access = True
+    elif user.is_superuser:
+        has_access = True
+    elif user.is_authenticated and 'view_expressionstudy' in get_perms(user, study):
+        has_access = True
+
+    return has_access
+
+def get_genes_values_table(request, document_id):
+
+    warning = ""
+    is_ok = False
+
+    if request.method != 'POST':
+        return
+
+    if not request.POST.get('genes') or not request.POST.get('query') or not request.POST.get('class'):
+        return
+
+    document = get_object_or_404(ExpressionData, id=document_id)
+    gene_list = request.POST.get('genes').replace('\n', ',').replace('\t', ',').split(',')
+    selected_class= request.POST.get('class')
+    correct_gene_dict = _process_gene_list(gene_list, document.species, request.POST.get('query'), document.gene_type)
+    data = {}
+    if correct_gene_dict:
+        results = getGenesValues(document, selected_class, correct_gene_dict)
+        is_ok = True
+        data['dataset'] = results['results']
+        data['columns'] = results['groups']
+        data['base_table'] = render_to_string('studies/partial_genes_table.html', {'columns': data['columns']}, request)
+    else:
+        warning = "No corresponding genes in database: Have you selected the right data type (id or name)?"
+
+    data['is_ok'] = is_ok
+    data['warning'] = warning
+    return JsonResponse(data)
+
+
+def _process_gene_list(gene_list, species_id, query_type, target_gene_type):
+    correct_dict = {}
+    missing = []
+    for gene in gene_list:
+        correct_gene_id = _process_gene(gene, species_id, query_type, target_gene_type)
+        if correct_gene_id:
+            correct_dict[gene] = correct_gene_id
+        else:
+            correct_dict[gene] = ""
+    return correct_dict
+
+def _process_gene(gene_id, species_id, query_type, target_gene_type):
+
+    correct_gene_id = ""
+
+    # Assume they meant gene from the document species
+    if query_type == "name":
+        gene = Gene.objects.filter(symbol__iexact=gene_id, tax_id=species_id)
+        if gene:
+            if target_gene_type == "Entrez Gene":
+                correct_gene_id = gene[0].gene_id
+            else:
+                correct_gene_id = gene[0].ensemble_id
+    else:
+    # Check ids
+        if "ENS" in "gene_id":
+            gene = Gene.objects.filter(ensemble_id__iexact=gene_id)
+        else:
+            gene = Gene.objects.filter(gene_id__iexact=gene_id)
+
+        if gene:
+            gene = gene[0]
+            if gene.tax_id == "species_id":
+                if target_gene_type == "Entrez Gene":
+                    correct_gene_id = gene.gene_id
+                else:
+                    correct_gene_id = gene.ensemble_id
+            else:
+                correct_gene = Gene.objects.filter(homolog_id=gene.homolog_id, tax_id=species_id)
+                if correct_gene:
+                    correct_gene = correct_gene[0]
+                    if target_gene_type == "Entrez Gene":
+                        correct_gene_id = correct_gene.gene_id
+                    else:
+                        correct_gene_id = correct_gene.ensemble_id
+
+    return correct_gene_id

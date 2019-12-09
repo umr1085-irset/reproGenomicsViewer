@@ -74,7 +74,6 @@ def concat_files(dirpath, use_dl=False, file_list=[]):
         fGene_info = open(gene_info,'r')
         for gene_ligne in fGene_info.readlines():
             if gene_ligne[0] != '#':
-                print(gene_ligne)
                 line_split = gene_ligne.split('\t')
                 tax_id = line_split[0]
                 GeneID = line_split[1]

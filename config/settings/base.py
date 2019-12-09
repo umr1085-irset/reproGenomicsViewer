@@ -190,6 +190,9 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "sdap.utils.context_processors.settings_context",
             ],
+            'libraries': {
+                'custom': 'sdap.templatetags.custom',
+            },
         },
     }
 ]

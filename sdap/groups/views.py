@@ -15,6 +15,7 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 
+from sdap.studies.models import ExpressionStudy
 
 # TODO : clear 403 page redirect (page with an explanation?)
 def DetailView(request, grpid):
@@ -27,6 +28,8 @@ def DetailView(request, grpid):
         'group': group,
         'users': group.user_set.all(),
         'notifications': group.add_notifications.all(),
+        'read_access': get_objects_for_group(group, 'view_expressionstudy', ExpressionStudy),
+        'edit_access': get_objects_for_group(group, 'change_expressionstudy', ExpressionStudy)
     }
     return render(request, 'groups/group_detail.html', data)
 

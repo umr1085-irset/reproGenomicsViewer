@@ -339,3 +339,8 @@ Session.vim
 # Auto-generated tag files
 tags
 
+sdap/media/
+
+celerybeat.pid
+
+.ipython/

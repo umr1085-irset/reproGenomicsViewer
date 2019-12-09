@@ -15,7 +15,7 @@ def insertCollections(apps, schema_editor):
     try :
         print('CreateCollection - create RGV_geneDB collection')
         #Insert Allbank ID from TOXsIgN_geneDB file
-        genefile = "/app/databases_files/RGV_database_genes.txt"
+        genefile = "/app/loading_data/RGV_database_genes.txt"
         geneFile = open(genefile,'r')
         geneList = []
 
@@ -23,7 +23,6 @@ def insertCollections(apps, schema_editor):
             if geneLine[0] != '#':
                 split = geneLine.split('\t')
                 GeneID = split[0]
-                print(GeneID)
                 tax_id = split[1]
                 homologeneID = split[2]
                 ensembleID = split[3]

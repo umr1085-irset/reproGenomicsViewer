@@ -38,7 +38,8 @@
                                     {% for field in form %}
                                     <td>{{ field|as_crispy_field }}</td>
                                     {% endfor %}
-                                </tr>                    
+                                    <td></td>
+                                </tr>
                             </thead>
                             <tbody id="table">
                                 {{table}}
@@ -46,9 +47,8 @@
                         </table>
                     </div>
                     </form>
-                    <div class="row mt-3"></div>
-                        <p id="summary"> Please select one study. </p>
-                        <button type="button" class="btn btn-default" id="nextButton" data-url="{% url 'studies:select_documents' %}" disabled> Next</button>
+                    <div class="partial_paginate">
+                        {{ pagination }}
                     </div>
                 </div>
                 <div id="analyse-part" class="content" role="tabpanel" aria-labelledby="analyse-part-trigger">
