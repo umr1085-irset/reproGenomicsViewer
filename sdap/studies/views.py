@@ -312,10 +312,13 @@ def get_genes_values_table(request, document_id):
 
 def _process_gene_list(gene_list, species_id, query_type, target_gene_type):
     correct_dict = {}
+    missing = []
     for gene in gene_list:
         correct_gene_id = _process_gene(gene, species_id, query_type, target_gene_type)
         if correct_gene_id:
             correct_dict[gene] = correct_gene_id
+        else:
+            correct_dict[gene] = ""
     return correct_dict
 
 def _process_gene(gene_id, species_id, query_type, target_gene_type):

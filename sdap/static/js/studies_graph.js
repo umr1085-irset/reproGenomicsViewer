@@ -407,7 +407,7 @@ $(function () {
   $("#select_table").click(function(e){
     $("#table-graph-warning").html("");
     $("#table-graph-div").html("");
-    var genes = $("#gene_select_table").val();
+    var genes = $("#gene_select_table").val().replace(/\n/g, ',');
     if (! genes){
         $("#table-graph-warning").html("Please select at least one gene");
         return;

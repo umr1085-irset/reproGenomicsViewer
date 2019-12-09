@@ -342,3 +342,5 @@ tags
 sdap/media/
 
 celerybeat.pid
+
+.ipython/
