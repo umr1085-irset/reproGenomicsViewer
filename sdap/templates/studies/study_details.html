@@ -36,7 +36,7 @@
           {% print_val study.cell_sorted "Cell sorted" %}
           {% print_val study.keywords "Keywords" %}
           {% print_val study.samples_count "Sample count" False %}
-          {% if user == study.created_by %}
+          {% if user == study.created_by and not study.status == 'PUBLIC' %}
           <p>
             <a type="button" class="btn btn-default btn-sm" href="{% url 'studies:study_edit' study.id %}"> <i class="fas fa-cog"></i> Edit study </a>
             <button type="button" class="btn btn-danger btn-sm js-get-form" data-url="{% url 'studies:study_delete' study.id %}"> <i class="fas fa-trash"></i> Delete study </button>

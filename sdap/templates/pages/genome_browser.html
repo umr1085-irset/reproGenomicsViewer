@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+
+{% block content %}
+    <div class="container">
+        <h2><i class="fa fa-indent"></i> Genome browser</h1>
+        <p> Current Genomes </p>
+        <div class="table-responsive-xl">
+          <table class="table table-hover">
+            <thead>
+              <tr style="text-align:center;">
+                <th scope="col">Genome</th>
+                <th scope="col">RGV genome browser</th>
+                <th scope="col">UCSC genome release</th>
+                <th scope="col">n° of studies</th>
+                <th scope="col">n° of samples</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for specie in species %}
+              <tr style="text-align:center;">
+                <td><img src="{% static specie.image %}" height="50" title="{{specie.name}}" alt="{{specie.name}}"></td>
+                <td><a href="{{specie.rgv_url}}"><i class="fa fa-indent"></i> Click here</a></td>
+                <td><a href="{{specie.ucsc_url}}">{{specie.short}}</a></td>
+                <td>{{specie.studies}}</td>
+                <td>{{specie.samples}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+{% endblock %}

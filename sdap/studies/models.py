@@ -18,6 +18,16 @@ import pickle, os
 import requests
 from xml.etree import ElementTree as ET
 
+def _set_values(study):
+    species = set()
+    technology = set()
+    for data in study.data.all():
+        species.add(data.get_species_display())
+        technology.add(data.get_technology_display())
+    study.species = list(species)
+    study.technology = list(technology)
+    study.save()
+
 def _extract_date(elem):
     publish_date = ""
     year = ""
@@ -196,6 +206,9 @@ class ExpressionStudy(models.Model):
         return self.pmid
 
 
+
+
+
 @receiver(m2m_changed, sender=ExpressionStudy.read_groups.through)
 def update__permissions_read(sender, instance, action, **kwargs):
     if instance.read_groups.all():
@@ -309,7 +322,7 @@ class ExpressionData(models.Model):
         self.gene_number = nb_gene
         self.cell_number = cell_number
         super(ExpressionData, self).save(*args, **kwargs)
-        self.study.save()
+        _set_values(self.study)
 
 @receiver(models.signals.pre_delete, sender=ExpressionData)
 def auto_delete_signature_on_delete(sender, instance, **kwargs):
@@ -318,6 +331,11 @@ def auto_delete_signature_on_delete(sender, instance, **kwargs):
             os.remove(instance.file.path)
         if os.path.exists(instance.file.path + ".pickle"):
             os.remove(instance.file.path + ".pickle")
+
+@receiver(models.signals.post_delete, sender=ExpressionData)
+def auto_refresh_data_on_delete(sender, instance, **kwargs):
+    if instance.study:
+        _set_values(instance.study)
 
 class Gene(models.Model):
 

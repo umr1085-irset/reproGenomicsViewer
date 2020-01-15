@@ -168,20 +168,22 @@
                                 <th scope="col">Article</th>
                                 <th scope="col">Species</th>
                                 <th scope="col">Technology</th>
+                                <th scope="col">Documents</th>
                                 <th scope="col">Status</th>
                             </tr>
                         </thead>
-                    <tbody>
-                        {% for study in studies %}
-                        <tr style="text-align:center;">
-                            <td>{{study.pmid}}</td>
+                        <tbody>
+                          {% for study in studies %}
+                          <tr style="text-align:center;">
+                            <th><a href="{% url 'studies:study_view' study.id %}" style="color:#007bff"><b>{{study.pmid}}</b></a></th>
                             <td>{{study.article}}</td>
                             <td>{{study.species | join:",<br>"}}</td>
                             <td>{{study.technology | join:",<br>"}}</td>
+                            <td>{{study.data.count}}</td>
                             <td>{{study.status}}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
                     </table>
                     {% if studies %}
                     {% with table=studies type="studies" %}
