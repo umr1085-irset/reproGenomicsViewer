@@ -9,6 +9,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.apps import apps
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
+from django.urls import reverse
 
 from guardian.shortcuts import assign_perm, remove_perm, get_group_perms, get_user_perms
 
@@ -40,8 +41,8 @@ def _extract_author(author_element):
             author_list.append(author.find("CollectiveName").text)
         else:
             name = ""
-            lastname_elem = author.find("LastName")
-            firstname_elem = author.find("Initials")
+            lastname = author.find("LastName")
+            firstname = author.find("Initials")
             if lastname is not None:
                 name = lastname.text
             if firstname is not None:
@@ -177,14 +178,19 @@ class ExpressionStudy(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(ExpressionStudy, self).__init__(*args, **kwargs)
+        self.initial_pmid = self.pmid
         self.initial_owner = self.created_by
         self.initial_status = self.status
 
     def save(self, *args, **kwargs):
         super(ExpressionStudy, self).save(*args, **kwargs)
-        self.abstract, self.title, self.publish_date, self.authors = get_pubmed_info(self.pmid)
+        if self.initial_pmid != self.pmid:
+            self.abstract, self.title, self.publish_date, self.authors = get_pubmed_info(self.pmid)
         super(ExpressionStudy, self).save(*args, **kwargs)
         change_permission_owner(self)
+
+    def get_absolute_url(self):
+        return reverse('studies:study_view', kwargs={"stdid": self.id})
 
     def __str__(self):
         return self.pmid
@@ -303,6 +309,15 @@ class ExpressionData(models.Model):
         self.gene_number = nb_gene
         self.cell_number = cell_number
         super(ExpressionData, self).save(*args, **kwargs)
+        self.study.save()
+
+@receiver(models.signals.pre_delete, sender=ExpressionData)
+def auto_delete_signature_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.exists(instance.file.path):
+            os.remove(instance.file.path)
+        if os.path.exists(instance.file.path + ".pickle"):
+            os.remove(instance.file.path + ".pickle")
 
 class Gene(models.Model):
 
