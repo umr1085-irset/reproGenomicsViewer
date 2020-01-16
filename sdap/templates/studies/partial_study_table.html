@@ -1,11 +1,11 @@
 {% load custom %}
 
 {% for study in studies %}
-<tr study_id="{{study.id}}">
+<tr study_id="{{study.id}}" style="text-align:center">
 <td>{{study.article}}</td>
 <td>{{study.pmid}}
-  <a class="btn btn-primary" data-toggle="modal" data-target="#modal-{{study.id}}"aria-label="More info">
-    <i class="fa fa-question-circle" aria-hidden="true"></i>
+  <a data-toggle="modal" data-target="#modal-{{study.id}}" aria-label="More info">
+    <i style="color:blue"class="fa fa-question-circle" aria-hidden="true"></i>
   </a>
 </td>
 <td>{{study.ome | join:",<br>"}}</td>
@@ -21,7 +21,7 @@
 <td>{{study.cell_sorted | join:",<br>"}}</td>
 <td>{{study.keywords | join:",<br>"}}</td>
 <td>
-    <a class="btn btn-outline-info select_study" data-object="{{study.id}}" data-url="{% url 'studies:select_documents' %}">
+    <a class="btn btn-info select_study" data-object="{{study.id}}" data-url="{% url 'studies:select_documents' %}">
         <i class="fa fa-external-link-alt" aria-hidden="true"></i>
     </a>
 </td>
