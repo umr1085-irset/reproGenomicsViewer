@@ -259,16 +259,16 @@ def document_select(request):
     if not "id" in request.GET:
         return redirect(reverse("studies:index"))
 
-    id_list = request.GET.getlist("id")
+    id = request.GET["id"]
     # Just in case
-    if not all(x.isdigit() for x in id_list):
+    if not id.isdigit():
         return redirect(reverse("studies:index"))
 
-    studies = ExpressionStudy.objects.filter(id__in=id_list)
+    studies = ExpressionStudy.objects.filter(id=id)
     if studies.count() == 0:
         return redirect(reverse("studies:index"))
 
-    table = render_to_string('studies/document_select.html', {'studies': studies}, request)
+    table = render_to_string('studies/document_select.html', {'studies': studies[0]}, request)
     data = {'table' : table}
 
     return JsonResponse(data)
