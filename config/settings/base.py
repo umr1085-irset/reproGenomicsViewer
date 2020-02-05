@@ -297,3 +297,5 @@ SOCIALACCOUNT_ADAPTER = "sdap.users.adapters.SocialAccountAdapter"
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+FILE_UPLOAD_MAX_MEMORY_SIZE = 0
+FILE_UPLOAD_TEMP_DIR = '/tmp'

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load custom %}
+{% block title %}Study: {{ study.article }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="study">
+  <div class="row">
+    <div class="col-md-3 ">
+      <div class="list-group ">
+          <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
+          <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Documents(s) ({{ study.data.count }})</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+      <div class="tab-content card" style="text-align:center;">
+        <div class="tab-pane active text-style card-body" id="tab1">
+          {% print_val study.pmid "Pubmed ID" False %}
+          {% print_val study.title "Article Name" False %}
+          {% print_val study.abstract "Abstract" False | safe %}
+          {% print_val study.publish_date "Publication data" False %}
+          {% print_val study.authors "Authors" False %}
+          {% print_val study.ome "Ome" %}
+          {% print_val study.technology "Technologies" %}
+          {% print_val study.species "Species" %}
+          {% print_val study.experimental_design "Experimental design" %}
+          {% print_val study.topics "Topics" %}
+          {% print_val study.tissues "Tissues" %}
+          {% print_val study.sex "Sex" %}
+          {% print_val study. "Pubmed ID" %}
+          {% print_val study.dev_stage "Developmental stage" %}
+          {% print_val study.age "Age" %}
+          {% print_val study.antibody "Antibody" %}
+          {% print_val study.mutantd "Mutant" %}
+          {% print_val study.cell_sorted "Cell sorted" %}
+          {% print_val study.keywords "Keywords" %}
+          {% print_val study.samples_count "Sample count" False %}
+          {% if user == study.created_by and not study.status == 'PUBLIC' %}
+          <p>
+            <a type="button" class="btn btn-default btn-sm" href="{% url 'studies:study_edit' study.id %}"> <i class="fas fa-cog"></i> Edit study </a>
+            <button type="button" class="btn btn-danger btn-sm js-get-form" data-url="{% url 'studies:study_delete' study.id %}"> <i class="fas fa-trash"></i> Delete study </button>
+          </p>
+          {% endif %}
+          <br>
+        </div>
+        <div class="tab-pane text-style card-body" id="tab2">
+          <h3>Document(s) {% if has_edit_perm %}<button data-url="{% url 'studies:document_create' study.id %}" class="btn btn-info js-get-form float-right"><i class="fas fa-plus"></i></button>{% endif %}</h3>
+          {% if study.data.exists %}
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Name</th>
+                          <th scope="col">Specie</th>
+                          <th scope="col">Technology</th>
+                          <th scope="col">Actions</th>                          
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for data in study.data.all %}
+                    <tr style="text-align:center;">
+                        <td>{{data.name}}</td>
+                        <td>{{data.get_species_display}}</td>
+                        <td>{{data.get_technology_display}}</td>
+                        <td>
+                            <a type="button" class="btn btn-default btn-sm" href="{% url 'studies:document_download' data.id %}"> <i class="fas fa-download"></i> Download </a>
+                            {% if has_edit_perm %}
+                            <button type="button" data-url="{% url 'studies:document_delete' data.id %}" class="btn btn-danger btn-sm js-get-form"> <i class="fas fa-trash"></i> Delete</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+          {% else %}
+          <br>
+          <p>No files are associated with this study</p>
+          {% endif %}
+        </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-group">
+      <div class="modal-dialog"><div class="modal-content"></div></div>
+  </div>
+</div>
+<br>
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/study_details.js' %}"></script>
+{% endblock %}

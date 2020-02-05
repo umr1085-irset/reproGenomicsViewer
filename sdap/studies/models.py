@@ -9,6 +9,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.apps import apps
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
+from django.urls import reverse
 
 from guardian.shortcuts import assign_perm, remove_perm, get_group_perms, get_user_perms
 
@@ -16,6 +17,16 @@ import sys
 import pickle, os
 import requests
 from xml.etree import ElementTree as ET
+
+def _set_values(study):
+    species = set()
+    technology = set()
+    for data in study.data.all():
+        species.add(data.get_species_display())
+        technology.add(data.get_technology_display())
+    study.species = list(species)
+    study.technology = list(technology)
+    study.save()
 
 def _extract_date(elem):
     publish_date = ""
@@ -40,8 +51,8 @@ def _extract_author(author_element):
             author_list.append(author.find("CollectiveName").text)
         else:
             name = ""
-            lastname_elem = author.find("LastName")
-            firstname_elem = author.find("Initials")
+            lastname = author.find("LastName")
+            firstname = author.find("Initials")
             if lastname is not None:
                 name = lastname.text
             if firstname is not None:
@@ -166,6 +177,7 @@ class ExpressionStudy(models.Model):
     keywords = ArrayField(models.CharField(max_length=200, blank=True), default=list)
     samples_count = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     database = models.ForeignKey(Database, blank=True, null=True, on_delete=models.CASCADE, related_name='from_database')
     read_groups = models.ManyToManyField(Group, blank=True, related_name='read_access_to')
@@ -177,17 +189,25 @@ class ExpressionStudy(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(ExpressionStudy, self).__init__(*args, **kwargs)
+        self.initial_pmid = self.pmid
         self.initial_owner = self.created_by
         self.initial_status = self.status
 
     def save(self, *args, **kwargs):
         super(ExpressionStudy, self).save(*args, **kwargs)
-        self.abstract, self.title, self.publish_date, self.authors = get_pubmed_info(self.pmid)
+        if self.initial_pmid != self.pmid:
+            self.abstract, self.title, self.publish_date, self.authors = get_pubmed_info(self.pmid)
         super(ExpressionStudy, self).save(*args, **kwargs)
         change_permission_owner(self)
 
+    def get_absolute_url(self):
+        return reverse('studies:study_view', kwargs={"stdid": self.id})
+
     def __str__(self):
         return self.pmid
+
+
+
 
 
 @receiver(m2m_changed, sender=ExpressionStudy.read_groups.through)
@@ -303,6 +323,20 @@ class ExpressionData(models.Model):
         self.gene_number = nb_gene
         self.cell_number = cell_number
         super(ExpressionData, self).save(*args, **kwargs)
+        _set_values(self.study)
+
+@receiver(models.signals.pre_delete, sender=ExpressionData)
+def auto_delete_signature_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.exists(instance.file.path):
+            os.remove(instance.file.path)
+        if os.path.exists(instance.file.path + ".pickle"):
+            os.remove(instance.file.path + ".pickle")
+
+@receiver(models.signals.post_delete, sender=ExpressionData)
+def auto_refresh_data_on_delete(sender, instance, **kwargs):
+    if instance.study:
+        _set_values(instance.study)
 
 class Gene(models.Model):
 

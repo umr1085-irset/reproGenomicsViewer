@@ -12,12 +12,11 @@ urlpatterns = [
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
-    path(
-        "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
-    ),
+    path("genome_browser/", views.genome_browser, name="genome_browser"),
     path(
         "tutorial/", TemplateView.as_view(template_name="pages/tutorial.html"), name="tutorial"
     ),
+    path("unauthorized", views.render_403, name="unauthorized"),
     path(
         "tech_corner/", TemplateView.as_view(template_name="pages/tech_corner.html"), name="tech_corner"
     ),
@@ -39,6 +38,7 @@ urlpatterns = [
     path("tools/", include("sdap.tools.urls", namespace="tools")),
     path("jobs/", include("sdap.jobs.urls", namespace="jobs")),
     path("studies/", include("sdap.studies.urls", namespace="studies")),
+    
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

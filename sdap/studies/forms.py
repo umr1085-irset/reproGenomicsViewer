@@ -1,4 +1,6 @@
 from dal import autocomplete
+import csv
+import pandas as pd
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Row, Column, HTML, Button, Fieldset
@@ -7,6 +9,165 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from .models import *
 from django.http import JsonResponse, QueryDict
+from django.contrib.postgres.forms import SimpleArrayField
+
+class ExpressionStudyCreateForm(forms.ModelForm):
+
+    ome = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/ome-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+
+    experimental_design = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/experimental-design-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+
+    topics = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/topic-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+
+    tissues = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/tissue-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+    age = SimpleArrayField(forms.CharField(), required=False)
+
+    sex = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/sex-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+
+    dev_stage = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/dev-stage-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+
+    antibody = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/antibody-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+
+    mutant = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/mutant-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+
+    cell_sorted = autocomplete.Select2ListCreateChoiceField(
+                required=False,
+                widget=autocomplete.TagSelect2(url='/studies/cell-sorted-autocomplete', attrs={"data-tags":"true", "data-html":True})
+              )
+
+    keywords = SimpleArrayField(forms.CharField(), required=False)
+
+    class Meta:
+        model = ExpressionStudy
+        fields = ["article", "pmid", "samples_count", "read_groups", "edit_groups"]
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(ExpressionStudyCreateForm, self).__init__(*args, **kwargs)
+        self.fields['read_groups'].help_text = "Groups with viewing permission on project and subentities. Will be ignored if the visibility is set to public. Use 'ctrl' to select multiple/unselect."
+        self.fields['edit_groups'].help_text = "Groups with editing permission on project and subentities. Use 'ctrl' to select multiple/unselect."
+
+        # TODO : Give link to group creation interface?
+        groups = self.user.groups.all()
+        self.fields['read_groups'].queryset = groups
+        self.fields['edit_groups'].queryset = groups
+
+        self.fields.keyOrder = [
+            'article',
+            'pmid',
+            'samples_count',
+            'species'
+            'ome',
+            'technology',
+            'experimental_design',
+            'topics',
+            'tissues',
+            'age',
+            'sex',
+            'dev_stage',
+            'antibody'
+            'mutant',
+            'cell_sorted',
+            'edit_groups',
+            'read_groups']
+
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
+
+class ExpressionStudyEditForm(ExpressionStudyCreateForm):
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(ExpressionStudyCreateForm, self).__init__(*args, **kwargs)
+        self.fields['read_groups'].help_text = "Groups with viewing permission on project and subentities. Will be ignored if the visibility is set to public. Use 'ctrl' to select multiple"
+        self.fields['edit_groups'].help_text = "Groups with editing permission on project and subentities. Use 'ctrl' to select multiple/unselect."
+
+        # TODO : Give link to group creation interface?
+        groups = self.user.groups.all()
+        self.fields['read_groups'].queryset = groups
+        self.fields['edit_groups'].queryset = groups
+
+        # Need to do this because array fields don't play nice
+        for key, value in self.fields.items():
+            value.initial = getattr(self.instance, key)
+
+        self.fields.keyOrder = [
+            'article',
+            'pmid',
+            'samples_count',
+            'species'
+            'ome',
+            'technology',
+            'experimental_design',
+            'topics',
+            'tissues',
+            'age',
+            'sex',
+            'dev_stage',
+            'antibody'
+            'mutant',
+            'cell_sorted',
+            'edit_groups',
+            'read_groups']
+
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
+
+class ExpressionDataForm(forms.ModelForm):
+    class Meta:
+        model = ExpressionData
+        fields = ["name", "technology", "species", "type", "file"]
+
+    def __init__(self, *args, **kwargs):
+        super(ExpressionDataForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'POST'
+
+    def clean_file(self):
+        csv_file = self.cleaned_data['file']
+        path = csv_file.temporary_file_path()
+        try:
+            data = pd.read_csv(path, sep='\t', header=None, nrows=20)
+        except pandas.errors.ParserError as e:
+            raise forms.ValidationError("File is not a proper TSV file.")
+
+        if not len(data.columns) > 1:
+            raise forms.ValidationError("The file must contains more than 1 column")
+
+        data = data[data.columns[0]]
+        if not all([var in data.values for var in ['Sample', 'X', 'Y']]):
+            raise forms.ValidationError("The file must contain one ligne beginning with Sample, X and Y")
+        if not any([var for var in data.values if var.startswith('Class:')]):
+            raise forms.ValidationError("The file must contains at least one class, starting with 'Class:'")
+
+        return csv_file
+
 
 
 

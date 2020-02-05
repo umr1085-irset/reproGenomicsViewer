@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 
 from dal import autocomplete
+from django.contrib.auth import get_user_model, get_user
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -14,7 +15,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from django.contrib import messages
 from django.template.loader import render_to_string
 from django.db.models import Q
@@ -22,12 +23,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import CreateView
 from django.core import serializers
 
+from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_perms
 
 import pandas as pd
 import numpy as np
-import json
 import statistics
+
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView
 
 import uuid
 import shutil
@@ -35,20 +38,168 @@ from .models import ExpressionStudy, ExpressionData, Gene, Database
 from .forms import *
 from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full, getGenesValues
 
-class GeneAutocomplete(autocomplete.Select2QuerySetView):
+def add_document(request, stdid):
 
-    def get_result_value(self, result):
-        return result.id
+    if not request.user.is_authenticated :
+        return HttpResponseRedirect('/unauthorized')
 
-    def get_result_label(self, result):
-        return result.symbol
+    study = get_object_or_404(ExpressionStudy, id=stdid)
+    if not check_edit_permissions(request.user, study):
+        return HttpResponseRedirect('/unauthorized')
 
-    def get_queryset(self):
-        query = self.q
-        qs = Gene.objects.all()
-        if query:
-            qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query))
-        return qs
+    data = {}
+    context = {'study': study}
+    if request.method == 'POST':
+        form = ExpressionDataForm(request.POST, request.FILES)
+        if form.is_valid():
+            object = form.save(commit=False)
+            object.created_by = request.user
+            object.study = study
+            object.save()
+            data['redirect'] = reverse("studies:study_view", kwargs={"stdid": study.id})
+            data['form_is_valid'] = True
+        else:
+            context['form_errors'] = form.errors
+            data['form_is_valid'] = False
+    else:
+        form = ExpressionDataForm()
+
+    context['form'] = form
+    data['html_form'] = render_to_string('studies/partial_document_create.html',
+        context,
+        request=request,
+    )
+
+    return JsonResponse(data)
+
+def download_document(request, documentid):
+    doc = get_object_or_404(ExpressionData, id=documentid)
+
+    if not check_view_permissions(request.user, doc.study):
+        return redirect('/unauthorized')
+
+    if not os.path.exists(doc.file.path):
+        return redirect('/unauthorized')
+
+    response = FileResponse(open(doc.file.path, 'rb'))
+    response['Content-Type'] = "text/tab-separated-values"
+    response['Content-Disposition'] = 'attachment; filename={}'.format(doc.name)
+    response['Content-Transfer-Encoding'] = "binary"
+    response['Content-Length'] = os.path.getsize(doc.file.path)
+
+    return response
+
+def delete_document(request, documentid):
+
+    doc = get_object_or_404(ExpressionData, id=documentid)
+    study = doc.study
+
+    if not check_edit_permissions(request.user, study) or study.status == "PUBLIC":
+        return redirect('/unauthorized')
+
+    data = dict()
+    if request.method == 'POST':
+        doc.delete()
+        data = {'form_is_valid': True, 'redirect': reverse("studies:study_view", kwargs={"stdid": study.id})}
+    else:
+       context = {'doc': doc}
+       data['html_form'] = render_to_string('studies/partial_document_delete.html',
+           context,
+           request=request,
+       )
+    return JsonResponse(data)
+
+
+def ExpressionStudyDetailView(request, stdid):
+    study = get_object_or_404(ExpressionStudy, pk=stdid)
+    if not check_view_permissions(request.user, study, True):
+        return redirect('/unauthorized')
+    context = {'study': study}
+    if check_edit_permissions(request.user, study) and not study.status == "PUBLIC":
+        context['has_edit_perm'] = True
+
+    return render(request, 'studies/study_details.html', context)
+
+class CreateExpressionStudyView(LoginRequiredMixin, CreateView):
+    model = ExpressionStudy
+    template_name = 'studies/study_create.html'
+    form_class = ExpressionStudyCreateForm
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateExpressionStudyView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
+    # Autofill the user
+    def form_valid(self, form):
+        array_fields_autocomplete = ['ome', 'experimental_design', 'topics', 'tissues', 'sex', 'dev_stage', 'antibody', 'mutant', 'cell_sorted']
+        study = form.save(commit=False)
+        # Manually force the array fields with autocomplete into a list
+        for field in array_fields_autocomplete:
+            # Hacky hacky.. I hate arrayfields
+            if form.cleaned_data.get(field).strip() != '""':
+                setattr(study, field, form.cleaned_data.get(field).strip().split(','))
+            else:
+                setattr(study, field, [])
+        study.created_by = get_user(self.request)
+        study.save()
+        form.save_m2m()
+        return redirect(reverse('studies:study_view', kwargs = {'stdid': study.id}))
+
+class EditExpressionStudyView(PermissionRequiredMixin, UpdateView):
+    # Only owner has delete_project perm
+    permission_required = ['change_expressionstudy', 'delete_expressionstudy']
+    model = ExpressionStudy
+    login_url = "/unauthorized"
+    redirect_field_name="edit"
+    form_class = ExpressionStudyEditForm
+    template_name = 'studies/study_edit.html'
+    context_object_name = 'edit'
+
+    def get_form_kwargs(self):
+        kwargs = super(EditExpressionStudyView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
+    def get_object(self, queryset=None):
+        study = ExpressionStudy.objects.get(id=self.kwargs['stdid'])
+        if study.status == "PUBLIC":
+            return None
+        else:
+            return study
+
+    def form_valid(self, form):
+        array_fields_autocomplete = ['ome', 'experimental_design', 'topics', 'tissues', 'sex', 'dev_stage', 'antibody', 'mutant', 'cell_sorted']
+        study = form.save(commit=False)
+        # Manually force the array fields with autocomplete into a list
+        for field in array_fields_autocomplete:
+            if form.cleaned_data.get(field).strip():
+                setattr(study, field, form.cleaned_data.get(field).strip().split(','))
+            else:
+                setattr(study, field, [])
+        study.created_by = get_user(self.request)
+        study.save()
+        form.save_m2m()
+        return redirect(reverse('studies:study_view', kwargs = {'stdid': study.id}))
+
+def delete_study(request, stdid):
+
+    study = get_object_or_404(ExpressionStudy, id=stdid)
+
+    if not request.user == study.created_by or study.status == "PUBLIC":
+        return redirect('/unauthorized')
+
+    data = dict()
+    if request.method == 'POST':
+        study.delete()
+        data = {'form_is_valid': True, 'redirect': reverse("users:detail", kwargs={"username": request.user.username})}
+    else:
+       context = {'study': study}
+       data['html_form'] = render_to_string('studies/partial_study_delete.html',
+           context,
+           request=request,
+       )
+    return JsonResponse(data)
 
 def get_gene(request, gene_id):
 
@@ -276,6 +427,25 @@ def check_view_permissions(user, study, strict=False):
     elif user.is_superuser:
         has_access = True
     elif user.is_authenticated and 'view_expressionstudy' in get_perms(user, study):
+        has_access = True
+
+    return has_access
+
+def check_edit_permissions(user, study, need_owner=False):
+    has_access = False
+
+    if not need_owner:
+        if user.is_authenticated and 'change_expressionstudy' in get_perms(user, study):
+            has_access = True
+    else:
+        if user == study.created_by:
+            has_access = True
+
+    # Stop modification when public
+    if study.status == "PUBLIC":
+        has_access = False
+
+    if user.is_superuser:
         has_access = True
 
     return has_access

@@ -1,6 +1,5 @@
 from django import template
 from django.utils.html import format_html
-
 register = template.Library()
 
 @register.filter
@@ -19,3 +18,12 @@ def val_to_set(study, key):
             set_val.add(getattr(data, key))
     return ",<br>".join(set_val)
 
+@register.simple_tag
+def print_val(value, name, is_array=True):
+    if value:
+        if is_array:
+            return format_html("<p><b>{}</b> : {}</p><hr>".format(name, ", ".join(value)))
+        else:
+            return format_html("<p><b>{}</b> : {}</p><hr>".format(name, value))
+    else:
+        return ""

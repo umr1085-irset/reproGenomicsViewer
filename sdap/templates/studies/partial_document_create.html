@@ -1,0 +1,22 @@
+{% load crispy_forms_tags %}
+
+<form method="post" action="{% url 'studies:document_create' study.id %}" class="js-save-form-file" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="modal-header">
+    <h4 class="modal-title">Add a new document to the study {{study.article}}</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+        <div id='form-errors' style='color:red;'>{{ form_errors }}</div>
+        {{ form|crispy }}
+    <div class="progress" style="display:none;" id="progress_div">
+        <div id="progress_bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-default">Add document</button>
+    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+  </div>
+</form>

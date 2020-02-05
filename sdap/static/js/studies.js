@@ -28,6 +28,7 @@ $(function () {
       success: function (data) {
         $("#table").html(data['table']);
         $(".partial_paginate").html(data['pagination']);
+        $(".partial_modal").html(data['modal']);
       }
     });
   };
