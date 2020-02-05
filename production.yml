@@ -63,3 +63,10 @@ services:
     image: sdap_production_flower
     command: /start-flower
 
+  sdap_production_jbrowse:
+    image: erasche/jbrowse
+    volumes:
+      - /home/genouest/bioinfo/irset/rgv/RGV/jbrowse:/opt/jbrowse
+      - /groups/irset/archives/web/RGV2:/jbrowse/data
+    ports:
+      - 6546:80
