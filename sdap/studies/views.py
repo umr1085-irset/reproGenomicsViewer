@@ -268,7 +268,7 @@ def document_select(request):
     if studies.count() == 0:
         return redirect(reverse("studies:index"))
 
-    table = render_to_string('studies/document_select.html', {'studies': studies[0]}, request)
+    table = render_to_string('studies/document_select.html', {'study': studies[0]}, request)
     data = {'table' : table}
 
     return JsonResponse(data)
