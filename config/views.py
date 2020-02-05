@@ -25,6 +25,25 @@ def index(request):
         ).order_by('-created_at')
     return render(request, 'pages/index.html', {'studies':studies})
 
+def render_403(request):
+    if request.GET.get('edit'):
+        action = "edit"
+        split = request.GET.get('edit').split('/')
+        type = split[1]
+    elif request.GET.get('create'):
+        action = "create"
+        split = request.GET.get('create').split('/')
+        type = split[1]
+    else:
+        action = "view"
+        type = ""
+    data = {
+        'action': action,
+        'type': type
+    }
+
+    return render(request, '403_custom.html', {'data':data})
+
 def _get_count(specie):
     studies = ExpressionStudy.objects.filter(species__contains=[specie])
     study_count = studies.count()

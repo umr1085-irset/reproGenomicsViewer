@@ -47,15 +47,15 @@
                         </table>
                     </div>
                     </form>
+                    <div class="partial_modal">
+                        {{ modal }}
+                    </div>
                     <div class="partial_paginate">
                         {{ pagination }}
                     </div>
                 </div>
                 <div id="analyse-part" class="content" role="tabpanel" aria-labelledby="analyse-part-trigger">
-                    <div id="table_analyse">Select one study</div>
-                    <div class="row mt-3">
-                        <button type="button" class="btn btn-success" id="graphButton" data-url="{% url 'studies:graph' %}" disabled> View</button>
-                    </div>
+                    <div id="table_analyse"></div>
                 </div>
             </div>
         </div>
