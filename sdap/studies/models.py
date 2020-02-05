@@ -177,6 +177,7 @@ class ExpressionStudy(models.Model):
     keywords = ArrayField(models.CharField(max_length=200, blank=True), default=list)
     samples_count = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated_at = models.DateTimeField(auto_now=True, null=True, verbose_name=("user"))
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
     database = models.ForeignKey(Database, blank=True, null=True, on_delete=models.CASCADE, related_name='from_database')
     read_groups = models.ManyToManyField(Group, blank=True, related_name='read_access_to')
