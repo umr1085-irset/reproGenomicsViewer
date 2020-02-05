@@ -53,15 +53,11 @@
           <ul class="navbar-nav mr-auto">
             <li class="nav-item dropdown {% if request.resolver_match.url_name == 'tools' %} active {% endif %}">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-tools"></i> Visualization tools
+                <i class="fas fa-tools"></i>Tools
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="">Genome Browser</a>
-                <a class="dropdown-item" href="">Violin Plot</a>
-                <a class="dropdown-item" href="{% url 'studies:index' %}">Scatter Plot</a>
-                <a class="dropdown-item" href="">Density <span class="badge badge-pill badge-default">beta</span></a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item disabled" href="" disabled>Genes level <span class="badge badge-pill badge-default">soon</span></a>
+                <a class="dropdown-item" href="{% url 'genome_browser' %}">Genome Browser</a>
+                <a class="dropdown-item" href="{% url 'studies:index' %}">Visualisation</a>
               </div>
             </li>
             
