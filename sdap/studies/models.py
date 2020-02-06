@@ -195,7 +195,7 @@ class ExpressionStudy(models.Model):
 
     def save(self, *args, **kwargs):
         super(ExpressionStudy, self).save(*args, **kwargs)
-        if self.initial_pmid != self.pmid:
+        if self.initial_pmid != self.pmid or not (self.abstract or self.title or self.publish_date or self.authors):
             self.abstract, self.title, self.publish_date, self.authors = get_pubmed_info(self.pmid)
         super(ExpressionStudy, self).save(*args, **kwargs)
         change_permission_owner(self)
