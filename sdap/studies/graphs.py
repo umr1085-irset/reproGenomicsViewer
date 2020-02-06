@@ -242,6 +242,7 @@ def get_graph_data_genes(file, genes, selected_class=None):
 
     #Ensembl IDs
     val_gene_ensembl = np.array(ensembl_genes[ensemblgene])
+    val_gene_ensembl = val_gene_ensembl.astype(np.float)
     if len(val_gene_ensembl) != 0 :
         max_val =  np.max(val_gene_ensembl.astype(np.float))
         min_val =  np.min(val_gene_ensembl.astype(np.float))
@@ -466,6 +467,7 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
 
         #Ensembl IDs
         val_gene_ensembl = np.array(ensembl_genes[ensemblgene])
+        val_gene_ensembl = val_gene_ensembl.astype(np.float)
         if len(val_gene_ensembl) != 0 :
             max_val =  np.max(val_gene_ensembl.astype(np.float))
             min_val =  np.min(val_gene_ensembl.astype(np.float))
@@ -573,6 +575,7 @@ def get_violin_graph_gene_data_full(file, genes, selected_class=None):
 
         #Ensembl IDs
         val_gene_ensembl = np.array(ensembl_genes[ensemblgene])
+        val_gene_ensembl = val_gene_ensembl.astype(np.float)
         if len(val_gene_ensembl) != 0 :
             max_val =  np.max(val_gene_ensembl.astype(np.float))
             min_val =  np.min(val_gene_ensembl.astype(np.float))
