@@ -21,10 +21,19 @@ urlpatterns = [
         "tech_corner/", TemplateView.as_view(template_name="pages/tech_corner.html"), name="tech_corner"
     ),
     path(
+        "founders/", TemplateView.as_view(template_name="pages/founder.html"), name="founders"
+    ),
+    path(
         "statistics/", TemplateView.as_view(template_name="pages/statistics.html"), name="statistics"
     ),
     path(
+        "ressources/", TemplateView.as_view(template_name="pages/ressources.html"), name="ressources"
+    ),
+    path(
         "download/", TemplateView.as_view(template_name="pages/download.html"), name="download"
+    ),
+    path(
+        "citing/", TemplateView.as_view(template_name="pages/citing.html"), name="citing"
     ),
     path(
         "help/", TemplateView.as_view(template_name="pages/help.html"), name="help"
