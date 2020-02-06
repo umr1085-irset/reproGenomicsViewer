@@ -250,8 +250,9 @@ def index(request):
     studies = paginate(all_studies)
     form = ExpressionStudyFilterForm(studies=all_studies)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
-    context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination}
+    context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination, 'modal': modal}
     return render(request, 'studies/scatter_plot.html', context)
 
 def document_select(request):
@@ -386,9 +387,11 @@ def render_table(request):
     studies = paginate([study for study in studies.filter(**kwargs).distinct() if check_view_permissions(request.user, study)], request.GET.get('page'))
     # Filter here
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     data['table'] = table
     data['pagination'] = pagination
+    data['modal'] = modal
     return JsonResponse(data)
 
 def autocomplete_genes(request,taxonid):
