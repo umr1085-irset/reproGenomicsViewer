@@ -59,7 +59,7 @@ def _extract_author(author_element):
                 name = firstname.text + " " + name
             if name:
                 author_list.append(name)
-    return ",".join(author_list)
+    return ", ".join(author_list)
 
 def get_pubmed_info(pmid):
     abstract = ""
@@ -194,8 +194,9 @@ class ExpressionStudy(models.Model):
         self.initial_status = self.status
 
     def save(self, *args, **kwargs):
+        force = kwargs.pop('force', False)
         super(ExpressionStudy, self).save(*args, **kwargs)
-        if self.initial_pmid != self.pmid or not (self.abstract or self.title or self.publish_date or self.authors):
+        if force or self.initial_pmid != self.pmid or not (self.abstract or self.title or self.publish_date or self.authors):
             self.abstract, self.title, self.publish_date, self.authors = get_pubmed_info(self.pmid)
         super(ExpressionStudy, self).save(*args, **kwargs)
         change_permission_owner(self)
