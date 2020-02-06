@@ -273,8 +273,8 @@ def get_graph_data_genes(file, genes, selected_class=None):
             data_chart['marker']['color'].extend(val)
             chart['data'].append(data_chart)
         elif len(val_gene_ensembl) != 0 :
-            chart['distribution_values'].append(np.mean(val))
             val = val_gene_ensembl[np.where(groups == cond)[0]]
+            chart['distribution_values'].append(np.mean(val))
             val_x= x[np.where(groups == cond)[0]]
             val_y= y[np.where(groups == cond)[0]]
             text = samples[np.where(groups == cond)[0]]
