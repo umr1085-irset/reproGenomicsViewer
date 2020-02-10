@@ -5,6 +5,13 @@
 
 {% block content %}
     <div class="container-fluid">
+        <label for="pagination-value">Studies per page </label>
+        <select id="pagination-value">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="all">All</option>
+        </select>
         <form id="study-form" data-url="{% url 'studies:render_table' %}" data-type="{{data_type}}">
             <div class="table-responsive">
                 <table class="table" id="studies">

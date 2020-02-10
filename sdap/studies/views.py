@@ -367,6 +367,8 @@ def render_table(request):
 
     data = {}
     type = request.GET.get('type')
+    pagination = request.GET.get('pagination', 10)
+
     if type == "partial":
         studies = ExpressionStudy.objects.exclude(data=None)
     else:
@@ -380,12 +382,12 @@ def render_table(request):
                 kwargs[key + "__istartswith"] = value
             elif key == "technology" or key == "species":
                 kwargs["data__" + key] = value
-            elif key == "page" or key == "type":
+            elif key == "page" or key == "type" or key == "pagination":
                 continue
             else:
                 kwargs[key + "__contains"] = [value]
 
-    studies = paginate([study for study in studies.filter(**kwargs).distinct() if check_view_permissions(request.user, study)], request.GET.get('page'))
+    studies = paginate([study for study in studies.filter(**kwargs).distinct() if check_view_permissions(request.user, study)], request.GET.get('page'), pagination)
     # Filter here
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
@@ -411,9 +413,12 @@ def autocomplete_genes(request,taxonid):
     mimetype = 'application/json'
     return HttpResponse(data, mimetype)
 
-def paginate(values, query=None, count=5, is_ES=False):
+def paginate(values, query=None, count=10, is_ES=False):
 
-    paginator = Paginator(values, count)
+    if count == "all":
+        paginator = Paginator(values, len(values))
+    else:
+        paginator = Paginator(values, count)
 
     try:
         val = paginator.page(query)
