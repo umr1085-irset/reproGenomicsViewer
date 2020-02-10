@@ -20,7 +20,8 @@ $(function () {
   var loadTable = function () {
     var form = $("#study-form")
     var type = form.attr("data-type");
-    var search_data = form.serialize() + '&page=' + currentPage + '&type=' + type;
+    var pagination_nbr = $("#pagination-value").val()
+    var search_data = form.serialize() + '&page=' + currentPage + '&type=' + type + '&pagination=' + pagination_nbr;
     $.ajax({
       url: form.attr("data-url"),
       type: 'get',
@@ -41,6 +42,11 @@ $(function () {
 
   var paginate = function(){
     currentPage = $(this).attr("target");
+    loadTable()
+  }
+
+  var select_pagination = function(){
+    currentPage = 1;
     loadTable()
   }
 
@@ -73,4 +79,5 @@ $(function () {
     $("#table_analyse").on("change", "select", checkSelect);
     $("#graphButton").on("click", graphMe);
     $(".partial_paginate").on('click', ".page-action", paginate);
+    $("#pagination-value").on('change', select_pagination);
 });
