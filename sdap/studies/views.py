@@ -269,11 +269,7 @@ def document_select(request):
     if studies.count() == 0:
         return redirect(reverse("studies:index"))
 
-    table = render_to_string('studies/document_select.html', {'study': studies[0]}, request)
-    data = {'table' : table}
-
-    return JsonResponse(data)
-    #return render(request, 'studies/document_select.html', {'studies': studies})
+    return render(request, 'studies/document_select.html', {'study': studies[0]})
 
 def show_graph(request):
 
