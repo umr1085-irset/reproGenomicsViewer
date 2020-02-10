@@ -9,21 +9,46 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect
+from django.template.loader import render_to_string
 
 from sdap.files.models import File
 from sdap.jobs.models import Job
 from sdap.tools.models import Tool
 from sdap.studies.models import ExpressionStudy
+from sdap.studies.views import paginate
+from sdap.studies.forms import ExpressionStudyFilterForm
+
 
 def HomeView(request):
     context = {}
     return render(request, 'pages/home.html',context)
 
 def index(request):
-    studies = ExpressionStudy.objects.filter(
-            created_at__lte=timezone.now()
-        ).order_by('-created_at')
-    return render(request, 'pages/index.html', {'studies':studies})
+    columns = [
+            "article",
+            "pmid",
+            "ome",
+            "technology",
+            "species",
+            "experimental_design",
+            "topics",
+            "tissues",
+            "sex",
+            "dev_stage",
+            "antibody",
+            "mutant",
+            "cell_sorted",
+            "keywords",
+            "Select"
+    ]
+    all_studies = ExpressionStudy.objects.all()
+    studies = paginate(all_studies)
+    form = ExpressionStudyFilterForm(studies=all_studies)
+    table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
+    pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
+    context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination, 'modal': modal, 'data_type': 'full'}
+    return render(request, 'studies/scatter_plot.html', context)
 
 def render_403(request):
     if request.GET.get('edit'):
