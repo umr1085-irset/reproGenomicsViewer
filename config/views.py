@@ -15,7 +15,7 @@ from sdap.files.models import File
 from sdap.jobs.models import Job
 from sdap.tools.models import Tool
 from sdap.studies.models import ExpressionStudy
-from sdap.studies.views import paginate
+from sdap.studies.views import paginate, check_view_permissions
 from sdap.studies.forms import ExpressionStudyFilterForm
 
 
@@ -41,7 +41,7 @@ def index(request):
             "keywords",
             "Select"
     ]
-    all_studies = ExpressionStudy.objects.all()
+    all_studies =[study for study in  ExpressionStudy.objects.all().order_by('article') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)
     form = ExpressionStudyFilterForm(studies=all_studies)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
