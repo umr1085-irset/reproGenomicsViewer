@@ -1,4 +1,5 @@
 from dal import autocomplete
+from operator import itemgetter
 import csv
 import pandas as pd
 from django import forms
@@ -214,6 +215,7 @@ class ExpressionStudyFilterForm(forms.Form):
             else:
                 for content in value:
                     choices = choices + ((content,content),)
+            choices = tuple(sorted(choices, key=itemgetter(1)))
             self.fields[key] = forms.ChoiceField(choices=choices, required=False, widget=forms.Select(attrs={'class':'browser-default custom-select'}))
 
         # We add it later for proper ordering
