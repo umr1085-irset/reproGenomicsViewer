@@ -21,9 +21,11 @@
 <td>{{study.cell_sorted | join:",<br>"}}</td>
 <td>{{study.keywords | join:",<br>"}}</td>
 <td>
+{% if study.data.count %}
     <a class="btn btn-info select_study" data-object="{{study.id}}" data-url="{% url 'studies:select_documents' %}">
         <i class="fa fa-external-link-alt" aria-hidden="true"></i>
     </a>
+{% endif %}
 </td>
 </tr>
 {% endfor %}

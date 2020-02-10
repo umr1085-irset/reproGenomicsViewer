@@ -19,7 +19,8 @@ $(function () {
 
   var loadTable = function () {
     var form = $("#study-form")
-    var search_data = form.serialize() + '&page=' + currentPage;
+    var type = form.attr("data-type");
+    var search_data = form.serialize() + '&page=' + currentPage + '&type=' + type;
     $.ajax({
       url: form.attr("data-url"),
       type: 'get',
