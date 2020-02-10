@@ -51,13 +51,17 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent-333">
           <!-- Left -->
           <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'index' %}">Browse studies
+              </a>
+            </li>
             <li class="nav-item dropdown {% if request.resolver_match.url_name == 'tools' %} active {% endif %}">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-tools"></i>Tools
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="{% url 'genome_browser' %}">Genome Browser</a>
-                <a class="dropdown-item" href="{% url 'studies:index' %}">Visualisation</a>
+                <a class="dropdown-item" href="{% url 'studies:index' %}">Scatter & Violin plot</a>
               </div>
             </li>
             
@@ -77,7 +81,6 @@
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="{% url 'about' %}">About</a>
-                <a class="dropdown-item" href="{% url 'index' %}">Browse studies</a>
                 <a class="dropdown-item" href="{% url 'founders' %}">Institutions and funders</a>
                 <a class="dropdown-item" href="{% url 'ressources' %}">Other resources</a>
                 <a class="dropdown-item" href="{% url 'citing' %}">Citing RGV</a>
@@ -151,7 +154,7 @@
               {% endfor %}
           {% endif %}
           <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            We currently upgrading the ReproGenomics Viewer, please excuse us for the inconvenience.
+            The ReproGenomics Viewer is upgrading, please excuse us for the inconvenience.
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
