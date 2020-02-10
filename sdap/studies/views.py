@@ -376,7 +376,7 @@ def render_table(request):
         if value:
             if key == "article" or key == "keywords":
                 kwargs[key + "__icontains"] = value
-            if key == "pmid":
+            elif key == "pmid":
                 kwargs[key + "__istartswith"] = value
             elif key == "technology" or key == "species":
                 kwargs["data__" + key] = value
