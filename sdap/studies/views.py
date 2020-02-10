@@ -252,7 +252,7 @@ def index(request):
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
-    context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination, 'modal': modal}
+    context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination, 'modal': modal, 'data_type':'partial'}
     return render(request, 'studies/scatter_plot.html', context)
 
 def document_select(request):
@@ -269,11 +269,7 @@ def document_select(request):
     if studies.count() == 0:
         return redirect(reverse("studies:index"))
 
-    table = render_to_string('studies/document_select.html', {'study': studies[0]}, request)
-    data = {'table' : table}
-
-    return JsonResponse(data)
-    #return render(request, 'studies/document_select.html', {'studies': studies})
+    return render(request, 'studies/document_select.html', {'study': studies[0]})
 
 def show_graph(request):
 
@@ -370,19 +366,24 @@ def get_group_info(request):
 def render_table(request):
 
     data = {}
-    studies = ExpressionStudy.objects.exclude(data=None)
+    type = request.GET.get('type')
+    if type == "partial":
+        studies = ExpressionStudy.objects.exclude(data=None)
+    else:
+        studies = ExpressionStudy.objects.all()
     kwargs = {}
     for key, value in request.GET.items():
         if value:
-            if key == "article":
+            if key == "article" or key == "keywords":
                 kwargs[key + "__icontains"] = value
+            if key == "pmid":
+                kwargs[key + "__istartswith"] = value
             elif key == "technology" or key == "species":
                 kwargs["data__" + key] = value
-            elif key == "page":
+            elif key == "page" or key == "type":
                 continue
             else:
                 kwargs[key + "__contains"] = [value]
-
 
     studies = paginate([study for study in studies.filter(**kwargs).distinct() if check_view_permissions(request.user, study)], request.GET.get('page'))
     # Filter here

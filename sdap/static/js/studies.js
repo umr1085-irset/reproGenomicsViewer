@@ -19,7 +19,8 @@ $(function () {
 
   var loadTable = function () {
     var form = $("#study-form")
-    var search_data = form.serialize() + '&page=' + currentPage;
+    var type = form.attr("data-type");
+    var search_data = form.serialize() + '&page=' + currentPage + '&type=' + type;
     $.ajax({
       url: form.attr("data-url"),
       type: 'get',
@@ -48,19 +49,7 @@ $(function () {
     var url = btn.attr("data-url");
     var study = btn.attr("data-object");
     var url_ref = url + "?id=" + study;
-    $.ajax({
-        url: url_ref,
-        type: 'GET',
-        cache: false,
-        dataType: 'json',
-        success: function (data) {
-          $("#table_analyse").html(data['table']);
-          stepper.next();
-        },
-        error: function (err) {
-            console.log(err);
-        }
-    });
+    document.location.href = url_ref;
   }
 
   var checkSelect = function(){

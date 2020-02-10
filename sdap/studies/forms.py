@@ -174,6 +174,7 @@ class ExpressionDataForm(forms.ModelForm):
 class ExpressionStudyFilterForm(forms.Form):
 
     article = forms.CharField(max_length=200, required=False, label="")
+    pmid = forms.CharField(max_length=50, required=False, label="")
 
     def __init__(self, *args, **kwargs):
 
@@ -181,7 +182,6 @@ class ExpressionStudyFilterForm(forms.Form):
         super(ExpressionStudyFilterForm, self).__init__(*args, **kwargs)
 
         columns = {
-            "pmid": set(),
             "ome": set(),
             "technology": set(),
             "species": {},
@@ -193,15 +193,12 @@ class ExpressionStudyFilterForm(forms.Form):
             "antibody": set(),
             "mutant": set(),
             "cell_sorted": set(),
-            "keywords": set()
         }
         # Get all values for columns
         for study in studies:
             for key, value in columns.items():
                 if key == "technology":
                     value |= set([getattr(data, key, []) for data in study.data.all()])
-                elif key == "pmid":
-                    value.add(getattr(study, key, ""))
                 # Hacky hacky : we need to display the display value, and send the real value
                 elif key == "species":
                     for data in study.data.all():
@@ -218,6 +215,10 @@ class ExpressionStudyFilterForm(forms.Form):
                 for content in value:
                     choices = choices + ((content,content),)
             self.fields[key] = forms.ChoiceField(choices=choices, required=False, widget=forms.Select(attrs={'class':'browser-default custom-select'}))
+
+        # We add it later for proper ordering
+        self.fields['keywords'] = forms.CharField(max_length=200, required=False, label="")
+
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'GET'
