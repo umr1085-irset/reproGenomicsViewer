@@ -1,0 +1,21 @@
+# General
+# ------------------------------------------------------------------------------
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0
+
+# Celery
+# ------------------------------------------------------------------------------
+
+# Flower
+CELERY_FLOWER_USER=bVCJjACZDFBzPbCkIliBTSxrnoJEAGBD
+CELERY_FLOWER_PASSWORD=yPd9Iz81fea6lIPWD7rbc8uROzsL3nOWNYE7ibgqKZjWauFApoPxn1KVMyqyA3zB
+
+FLOWER_URL_PREFIX=/flower
+
+DJANGO_SECRET_KEY=2WrPze5RDK4H2ulhXjkTECJSYKAddxdpQVYNyySeyFGOV4YJa7
+EMAIL_HOST=192.168.1.247
+DJANGO_ADMIN_URL=admin/
+SENTRY_DSN=https://898e046ea4794fb0aaa1f619c419d4b1@sentry.io/2402754

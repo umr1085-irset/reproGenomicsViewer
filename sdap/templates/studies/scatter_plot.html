@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <label for="pagination-value">Studies per page </label>
+        <select id="pagination-value">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="all">All</option>
+        </select>
+        <form id="study-form" data-url="{% url 'studies:render_table' %}" data-type="{{data_type}}">
+            <div class="table-responsive">
+                <table class="table" id="studies">
+                    <thead>
+                        <tr style="text-align:center;">
+                        {% for column in columns %}
+                            <th scope="col">{{column | title}}</th>
+                        {% endfor %}
+                        </tr>
+                        <tr style="text-align:center;" id ="filter">
+                        {% for field in form %}
+                            <td>{{ field|as_crispy_field }}</td>
+                        {% endfor %}
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody id="table">
+                    {{table}}
+                    </tbody>
+                </table>
+            </div>
+        </form>
+        <div class="partial_modal">
+        {{ modal }}
+        </div>
+        <div class="partial_paginate">
+            {{ pagination }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/studies.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container">
+            <div class="bs-stepper">
+                <div class="bs-stepper-header" role="tablist">
+                    <!-- your steps here -->
+                    <div class="step" data-target="#dataset-part">
+                        <button type="button" class="step-trigger" role="tab" aria-controls="dataset-part" id="dataset-part-trigger">
+                            <span class="bs-stepper-circle">1</span>
+                            <span class="bs-stepper-label">Select dataset</span>
+                        </button>
+                    </div>
+                    <div class="line"></div>
+                    <div class="step" data-target="#analyse-part">
+                        <button type="button" class="step-trigger" role="tab" aria-controls="analyse-part" id="analyse-part-trigger">
+                            <span class="bs-stepper-circle">2</span>
+                            <span class="bs-stepper-label">Select analyse</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bs-stepper-content">
+                    <!-- your steps content here -->
+                    <div id="dataset-part" class="content" role="tabpanel" aria-labelledby="dataset-part-trigger">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Selection</th>
+                                    <th scope="col">Article</th>
+                                    <th scope="col">PMID</th>
+                                    <th scope="col">Species</th>
+                                    <th scope="col">Topics</th>
+                                    <th scope="col">Cells</th>
+                                    <th scope="col">Samples</th>
+                                </tr>
+                            </thead>
+                        
+                            <tbody>
+                                {% for study in studies %}
+                                <tr>
+                                    <td>
+                                        <label>
+                                            <input type="checkbox" id="study" class="study" value="{{ study.id}}" />
+                                            <span> </span>
+                                        </label>
+                                    </td>
+                                    <td>{{ study.article }}</td>
+                                    <td>{{ study.pmid }}</td>
+                                    <td>{{ study.species | join:"," }}</td>
+                                    <td>{{ study.topics | join:"," }}</td>
+                                    <td>{{ study.cell_sorted | join:"," }}</td>
+                                    <td>{{ study.samples_count | join:"," }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>     
+                    </div>
+                </div>
+            </div>
+    </div>
+    
+{% endblock %}
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        var stepper = new Stepper($('.bs-stepper')[0])
+        var url_getdb_studies = "{% url 'studies:get_stud_db' %}";
+        var url_get_datasets = "{% url 'studies:select_documents' %}";
+        var url_display_data = "{% url 'studies:graph' %}";
+    </script>
+    <script src="{% static 'js/studies.js' %}"></script>
+{% endblock %}

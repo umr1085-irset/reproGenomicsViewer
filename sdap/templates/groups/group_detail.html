@@ -10,6 +10,7 @@
       <div class="list-group ">
           <a href="#group_users" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
           <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Sent invitation(s)  ({{ notifications.count }})</a>
+          <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Permissions</a>
         </div>
     </div>
     <div class="col-md-9">
@@ -93,6 +94,41 @@
           <br>
           <p>No pending invitations</p>
           {% endif %}
+        </div>
+        <div class="tab-pane text-style card-body" id="tab3">
+          <h3>Studies permissions</h3>
+          {% if read_access %}
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Study</th>
+                          <th scope="col">Owner</th>
+                          <th scope="col">Read access</th>
+                          <th scope="col">Edit access</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for study in read_access %}
+                    <tr style="text-align:center;">
+                        <td>{{ study.article }}</td>
+                        <td>{{study.created_by.username}}</td>
+                        <td><i class="fas fa-check"></i></td>
+                        {% if study in edit_access %}
+                        <td><i class="fas fa-check"></i></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+        {% else %}
+        <br>
+        <p>This group does not have any specific access.</p>
+        {% endif %}
         </div>
       </div>
     </div>

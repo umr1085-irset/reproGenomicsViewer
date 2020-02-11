@@ -21,7 +21,7 @@ root {
 .card-signin .card-img-left {
   width: 45%;
   /* Link to your background image using in the property below! */
-  background: scroll center no-repeat url('../images/logo/SciLicium_mini.png');
+  background: scroll center no-repeat url('../images/logo/RGVLogo_home_crop.png');
   background-size: contain;
 }
 

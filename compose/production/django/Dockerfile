@@ -1,5 +1,4 @@
-
-FROM python:3.6-alpine
+FROM nickgryg/alpine-pandas:3.7.6
 
 ENV PYTHONUNBUFFERED 1
 
@@ -42,11 +41,8 @@ RUN chown django /start-celerybeat
 COPY ./compose/production/django/celery/flower/start /start-flower
 RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
-COPY . /app
 
-RUN chown -R django /app
-
-USER django
+RUN mkdir -p /app/staticfiles
 
 WORKDIR /app
 

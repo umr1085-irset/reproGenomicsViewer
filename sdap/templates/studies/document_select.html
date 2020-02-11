@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container-fluid">
+        <form id="document-form">
+        Please select the document for study {{study.article}}
+        <div class="table-responsive-xl">
+            <table class="table">
+                <thead>
+                    <tr style="text-align:center;">
+                        <th scope="col">Specie</th>
+                        <th scope="col">Technology</th>
+                        <th scope="col">Document name</th>
+                        <th scope="col">Select data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in study.data.all %}
+                    <tr style="text-align:center;">
+                        <td>{{file.get_species_display}}</td>
+                        <td>{{file.get_technology_display}}</td>
+                        <td>{{file.name}}</td>
+                        <td><a class="btn btn-info" href="{% url 'studies:graph' %}?study_id={{study.id}}&document_id={{file.id}}">
+                            <i class="fa fa-external-link-alt" aria-hidden="true"></i>Select</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        </form>
+        
+    </div>
+{% endblock %}
