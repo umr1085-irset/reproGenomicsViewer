@@ -48,6 +48,10 @@ myLayout.on('componentCreated',function(component) {
     });
 });
 
+$(window).resize(function () {
+    myLayout.updateSize();
+});
+
 var addMenuItem = function( title, color ) {
     var element = $( '<li>' + title + '</li>' );
     $( '#menuContainer' ).append( element );
