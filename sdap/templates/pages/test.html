@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% load account socialaccount %}
+{% load crispy_forms_tags %}
+{% block content %}
+<link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-base.css" />
+<link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-dark-theme.css" />
+<link href="{% static 'css/test.css' %}" rel="stylesheet">
+
+<template type="text/html">
+    <li id="test">
+    <a data-toggle="modal" data-target="#mymodal" aria-label="More info">
+        <i class="fa fa-question-circle" aria-hidden="true"></i>
+    </a>
+    </li>
+</template>
+
+<div id="wrapper">
+  <div class="row">
+    <div class="col-1">
+      <div style="list-style: none" id="menuContainer"></div>
+    </div>
+    <div class="col-11">
+      <div id="layoutContainer"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="mymodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Study information</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Test</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary test" data-dismiss="modal">Test</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<br>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="//golden-layout.com/assets/js/goldenlayout.min.js"></script>
+    <script src="{% static 'js/test.js' %}"></script>
+{% endblock %}
