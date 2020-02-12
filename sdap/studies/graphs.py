@@ -110,8 +110,6 @@ def arrayMin(arr) :
         len_ = len_ - 1
     return min
 
-
-
 def get_graph_data_full(file, selected_class=None):
 
     result = {'charts':[],'warning':[],'time':''}
@@ -181,6 +179,9 @@ def get_graph_data_full(file, selected_class=None):
     interval = time.time() - start_time
     result['time'] = interval
     return result
+
+
+
 
 def get_graph_data_genes(file, genes, selected_class=None):
 
