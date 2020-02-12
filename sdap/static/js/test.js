@@ -63,8 +63,8 @@ $(window).resize(function () {
     myLayout.updateSize();
 });
 
-var addMenuItem = function( title ) {
-    var element = $( '<li>' + title + '</li>' );
+var addMenuItem = function( title) {
+    var element = $( '<button class="btn btn-default"><i class="fas fa-plus fa-2x"></i></button>' );
     $( '#menuContainer' ).append( element );
 
    var newItemConfig = {
