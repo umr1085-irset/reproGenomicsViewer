@@ -9,7 +9,7 @@ myLayout = new GoldenLayout({
             title: 'New graph',
             type: 'component',
             componentName: 'testComponent',
-            componentState: { text: ' Drag a new graph here, or use the cog button to select a graph.', modal_id: current_container_id }
+            componentState: { text: ' Drag the right-side <i class="fas fa-plus"></i> button here to create a new graph, or use the cog button to select a graph.', modal_id: current_container_id }
         }]
     }]
 }, $('#layoutContainer'));
@@ -71,7 +71,7 @@ var addMenuItem = function( title) {
         title: title,
         type: 'component',
         componentName: 'testComponent',
-        componentState: { text: ' Drag a new graph here, or use the cog button to select a graph.'}
+        componentState: { text: ' Drag the right-side <i class="fas fa-plus fa-2x"></i> here to create a new graph'}
     };
 
     myLayout.createDragSource( element, newItemConfig );
