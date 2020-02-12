@@ -52,6 +52,12 @@
 }
 #menuContainer{
   height:80vh;
+  position: fixed;
+  padding: 2em;
+  top: 150px;
+  right: -55px;
+  overflow-y: scroll;
+  z-index: 99;
 }
 
 #menuContainer li{

@@ -53,7 +53,7 @@ $(window).resize(function () {
 });
 
 var addMenuItem = function( title, color ) {
-    var element = $( '<li>' + title + '</li>' );
+    var element = $( '<button class="btn btn-default"><i class="fas fa-plus fa-2x"></i></button>' );
     $( '#menuContainer' ).append( element );
 
    var newItemConfig = {
@@ -66,7 +66,7 @@ var addMenuItem = function( title, color ) {
     myLayout.createDragSource( element, newItemConfig );
 };
 
-addMenuItem( 'New graph', 'blue' );
+addMenuItem( 'New graph', 'grey' );
 
 
 $(function () {
