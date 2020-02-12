@@ -9,13 +9,13 @@
 
 <template type="text/html">
     <li id="test">
-    <a data-toggle="modal" data-target="#mymodal" aria-label="More info">
-        <i class="fa fa-question-circle" aria-hidden="true"></i>
-    </a>
+      <a data-toggle="modal" data-target="#mymodal" aria-label="More info">
+        <i class="fa fa-cog" aria-hidden="true"></i>
+      </a>
     </li>
 </template>
 
-<div id="wrapper">
+<div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{data.id}}">
   <div class="row">
     <div class="col-1">
       <div style="list-style: none" id="menuContainer"></div>
@@ -26,6 +26,7 @@
   </div>
 </div>
 
+<div id="default_modal">
 <div class="modal fade" id="mymodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -36,7 +37,28 @@
         </button>
       </div>
       <div class="modal-body">
-        <p>Test</p>
+       <div class="row my-5">
+         <div class="col-md-8 mb-5">
+           <h2>Select your visualisation</h2>
+           <hr>
+           <form class="md-form md-bg visu-form">
+             <h3>Visualisation type</h3>
+             <select class="browser-default custom-select visu-type">
+                <option value="">Select</option>
+                <option value="scatter">Scatter plot</option>
+                <option value="histogram">Histogram</option>
+                <option value="violin">Violin plot</option>
+                <option value="density">Density plot</option>
+              </select>
+              <h3>Class selection</h3>
+              <select class="browser-default custom-select visu-class">
+                {% for class in classes %}
+                <option value="{{class}}">{{class}}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary test" data-dismiss="modal">Test</button>
@@ -45,6 +67,9 @@
     </div>
   </div>
 </div>
+</div>
+
+<div id="modal-wrapper"></div>
 
 <br>
 {% endblock %}

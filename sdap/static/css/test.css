@@ -50,6 +50,12 @@
 #layoutContainer{
   height:80vh;
 }
+
+#layoutContainer p{
+  color:white;
+  text-align: center;
+}
+
 #menuContainer{
   height:80vh;
 }
