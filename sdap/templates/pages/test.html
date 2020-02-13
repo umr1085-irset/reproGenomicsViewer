@@ -3,29 +3,31 @@
 {% load account socialaccount %}
 {% load crispy_forms_tags %}
 {% block content %}
+
 <link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-base.css" />
 <link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-dark-theme.css" />
 <link href="{% static 'css/test.css' %}" rel="stylesheet">
 
 <template type="text/html">
     <li id="test">
-    <a data-toggle="modal" data-target="#mymodal" aria-label="More info">
-        <i class="fa fa-question-circle" aria-hidden="true"></i>
-    </a>
+      <a data-toggle="modal" data-target="#mymodal" aria-label="More info">
+        <i class="fa fa-cog" aria-hidden="true"></i>
+      </a>
     </li>
 </template>
 
-<div id="wrapper">
+<div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{data.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' data.species %}">
   <div class="row">
-    <div class="col-1">
-      <div style="list-style: none" id="menuContainer"></div>
-    </div>
     <div class="col-11">
       <div id="layoutContainer"></div>
+    </div>
+    <div class="col-1">
+      <div style="list-style: none" id="menuContainer"></div>
     </div>
   </div>
 </div>
 
+<div id="default_modal">
 <div class="modal fade" id="mymodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -36,15 +38,59 @@
         </button>
       </div>
       <div class="modal-body">
-        <p>Test</p>
+        <h2>Select your visualisation</h2>
+        <hr>
+          <form class="md-form md-bg visu-form">
+            <div class="row my-5">
+              <div class="col-md-6 mb-5">
+                <h3>Visualisation type</h3>
+                <select class="browser-default custom-select visu-type">
+                  <option value="scatter">Scatter plot</option>
+                  <option value="violin">Violin plot</option>
+                  <option value="density">Density plot</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-5">
+                <h3>Class selection</h3>
+                <select class="browser-default custom-select visu-class">
+                  {% for class in classes %}
+                  <option value="{{class}}">{{class}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+           </div>  
+         </form>
+         <div class="row my-5 gene_select">
+           <div class="col-md-8 mb-5">
+             <h2>Genes selection</h2>
+             <hr>
+             <form>
+               <div class="md-form md-bg">
+                 <input type="text" class="form-control autocomplete-gene">
+                 <label for="formBg1">Display gene</label>
+               </div>
+               <div class="autogeneresponse"></div>
+               <button type="button" class="btn btn-default gene-add" disabled>Add</button>
+             </form>
+           </div>
+           <div class="col-md-4 mb-5">
+             <h2>Selected genes</h2>
+             <div class="messagegene"></div>
+             <div class="gene_div">Please select genes</div>
+             <form class="md-form md-bg gene-form"><table class='table align-middle gene-table'><tbody></tbody></table></form>
+           </div>
+         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary test" data-dismiss="modal">Test</button>
+        <button type="button" class="btn btn-primary test" data-dismiss="modal">Create graph</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
+</div>
+
+<div id="modal-wrapper"></div>
 
 <br>
 {% endblock %}
