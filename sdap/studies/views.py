@@ -314,20 +314,14 @@ def get_graph_data(request):
         return redirect(reverse("studies:index"))
 
     data = get_object_or_404(ExpressionData, id=document_id)
-
+    genelist = request.GET.getlist('gene_id[]')
 
     selected_class = request.GET.get('selected_class', None)
 
-    if "gene_id" in request.GET:
-
+    if genelist :
         exp_list = []
-        if "|" in request.GET['gene_id']:
-            list_gene = request.GET['gene_id'].split("|")
-            for g_ in list_gene :
-                gene = get_object_or_404(Gene, id=g_)
-                exp_list.append(gene)
-        else :
-            gene = get_object_or_404(Gene, id=request.GET['gene_id'])
+        for g_ in genelist :
+            gene = get_object_or_404(Gene, id=g_)
             exp_list.append(gene)
         if display_mode =="scatter" :
             data = get_graph_data_genes(data,exp_list, selected_class)
@@ -340,6 +334,8 @@ def get_graph_data(request):
             data = get_graph_data_full(data, selected_class)
         if display_mode =="density" :
             data = get_density_graph_data_full(data, selected_class)
+        if display_mode =="violin" :
+            data = {"data":"","error_msg":"Please select at least one gene"}
     return JsonResponse(data)
 
 def get_group_info(request):
@@ -406,7 +402,7 @@ def autocomplete_genes(request,taxonid):
         qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query) & Q(tax_id__exact=int(taxonid)))
         results = []
         for gene in qs :
-            results.append({'label' : gene.symbol, 'value':gene.symbol+" ("+str(gene.id)+")"})
+            results.append({'label' : gene.symbol, 'value':gene.symbol+" ("+str(gene.gene_id)+")"})
         data = json.dumps(results[:10])
     else:
         data="fail"
