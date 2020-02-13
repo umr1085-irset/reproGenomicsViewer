@@ -314,7 +314,7 @@ def get_graph_data(request):
         return redirect(reverse("studies:index"))
 
     data = get_object_or_404(ExpressionData, id=document_id)
-    genelist = request.GET.getlist('gene_id[]')
+    genelist = request.GET.getlist('gene_id', [])
 
     selected_class = request.GET.get('selected_class', None)
 

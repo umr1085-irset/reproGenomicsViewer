@@ -88,7 +88,7 @@ $(function () {
 
     var generate_row = function(gene_label, gene_id){
         html =  "<tr class='align-middle'>";
-        html += "<td class='align-middle'><input type='checkbox' class='gene_checkbox' name='gene' value='" + gene_id  + "'></td>";
+        html += "<td class='align-middle'><input type='checkbox' class='gene_checkbox' name='gene_id' value='" + gene_id  + "'></td>";
         html += "<td class='align-middle'>" + gene_label + "</td>";
         html += "<td class='align-middle'><a class='btn btn-danger gene-remove' value='"+ gene_id + "'> <i class='far fa-trash-alt'></i></a></td>"
         html += "</tr></form>"
@@ -99,11 +99,11 @@ $(function () {
         var url = $("#wrapper").attr("data-url");
         var current_form = $("#modal-" + current_container.getState().modal_id).find(".visu-form");
         var gene_form = $("#modal-" + current_container.getState().modal_id).find(".gene-form");
-        console.log(gene_form.serialize());
         var selected_type = current_form.find(".visu-type").val();
         var selected_class = current_form.find(".visu-class").val();
+        var gene_data = gene_form.serialize();
         $.ajax({
-            url: url + "&mode="+ selected_type + "&selected_class=" + selected_class,
+            url: url + "&mode="+ selected_type + "&selected_class=" + selected_class + "&" + gene_data,
             type: 'get',
             dataType: 'json',
             success: function (data) {
