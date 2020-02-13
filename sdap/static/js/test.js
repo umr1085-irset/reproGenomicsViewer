@@ -140,6 +140,39 @@ $(function () {
         });
     });
 
+    $("#modal-wrapper").on('click', 'input:checkbox', function(e){
+        var current_modal = "#modal-" + current_container.getState().modal_id;
+        var current_form = $("#modal-" + current_container.getState().modal_id).find(".visu-form");
+        var selected_type = current_form.find(".visu-type").val();
+        var gene_form = $("#modal-" + current_container.getState().modal_id).find(".gene-form");
+        if ($(this).prop("checked")){
+            if (selected_type == "scatter"){
+                $(this).parents('tr').siblings().find('input:checkbox').prop("checked", false);
+            } else if (selected_type == "violin"){
+                $(this).parents('tr').siblings().find('input:checkbox').prop("checked", false);
+                $(current_modal + " .test").attr("disabled", false);
+            }
+        } else {
+            if (selected_type == "violin"){
+                $(current_modal + " .test").attr("disabled", true);
+            }
+        }
+    });
+
+    $("#modal-wrapper").on('change', ".visu-type", function(e) {
+
+        var current_modal_id = current_container.getState().modal_id;
+        var current_modal = "#modal-" + current_modal_id;
+        var current_form = $("#modal-" + current_container.getState().modal_id).find(".visu-form");
+        var selected_type = current_form.find(".visu-type").val();
+        $(current_modal + ' input:checkbox').prop('checked', false);
+        if (selected_type == "violin"){
+            $(current_modal + " .test").attr("disabled", true);
+        } else {
+            $(current_modal + " .test").attr("disabled", false);
+        }
+    }),
+
     $("#modal-wrapper").on('click', ".gene-add", function(e) {
 
         var current_modal_id = current_container.getState().modal_id;
