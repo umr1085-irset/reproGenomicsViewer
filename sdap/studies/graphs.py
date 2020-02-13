@@ -112,7 +112,7 @@ def arrayMin(arr) :
 
 def get_graph_data_full(file, selected_class=None):
 
-    result = {'charts':[],'warning':[],'time':''}
+    result = {'chart':[],'warning':[],'time':''}
     start_time = time.time()
     chart = {}
     # Should not happen. We select the class before
@@ -305,7 +305,7 @@ def get_graph_data_genes(file, genes, selected_class=None):
 
 def get_density_graph_data_full(file, selected_class=None):
 
-    result = {'charts':[],'warning':[],'time':''}
+    result = {'chart':[],'warning':[],'time':''}
     start_time = time.time()
     chart = {}
     # Should not happen. We select the class before
@@ -381,7 +381,7 @@ def get_density_graph_data_full(file, selected_class=None):
 def get_density_graph_gene_data_full(file, genes, selected_class=None):
 
 
-    result = {'charts':[],'warning':[],'time':''}
+    result = {'chart':[],'warning':[],'time':''}
     start_time = time.time()
     chart = {}
     # Should not happen. We select the class before
@@ -518,7 +518,7 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
 def get_violin_graph_gene_data_full(file, genes, selected_class=None):
 
 
-    result = {'charts':[],'warning':[],'time':''}
+    result = {'chart':[],'warning':[],'time':''}
     start_time = time.time()
     chart={}
     # Should not happen. We select the class before
@@ -657,7 +657,7 @@ def get_violin_graph_gene_data_full(file, genes, selected_class=None):
                 violin_chart['violmsg'] = ""
             violin_chart['data'].append(data_chart)
 
-        result['charts'].append(violin_chart)
+        result['chart'].append(violin_chart)
     return result
 
 def getGenesValues(data, selected_class, gene_dict):

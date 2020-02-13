@@ -335,7 +335,7 @@ def get_graph_data(request):
         if display_mode =="density" :
             data = get_density_graph_data_full(data, selected_class)
         if display_mode =="violin" :
-            data = {'charts':[],'warning':[],'time':'',"error_msg":"Please select at least one gene"}
+            data = {'chart':[],'warning':[],'time':'',"error_msg":"Please select at least one gene"}
     return JsonResponse(data)
 
 def get_group_info(request):
