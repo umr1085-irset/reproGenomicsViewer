@@ -7,7 +7,16 @@
 <link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-base.css" />
 <link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-dark-theme.css" />
 <link href="{% static 'css/test.css' %}" rel="stylesheet">
-
+<style>
+  #mapDrawerActivateButtonContainer{
+      position: fixed;
+      padding: 2em;
+      top: 150px;
+      right: -10px;
+      overflow-y: scroll;
+      z-index: 99;
+  }
+</style>
 <template type="text/html">
     <li id="test">
       <a data-toggle="modal" data-target="#mymodal" aria-label="More info">
@@ -15,6 +24,161 @@
       </a>
     </li>
 </template>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-default" data-toggle="modal" data-target="#fullHeightModalRight" id="mapDrawerActivateButtonContainer">
+  <i class="fas fa-info fa-2x"></i>
+</button>
+
+
+<!-- Full Height Modal Right -->
+<div class="modal fade right" id="fullHeightModalRight" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+aria-hidden="true">
+
+<!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+<div class="modal-dialog modal-full-height modal-right modal-lg" role="document" id="modaltest1">
+
+
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title w-100" id="myModalLabel">Dataset information</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row my-5">
+                <div class="col-md-6 mb-5">
+                    <h2>Study summary</h2>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Title</th>
+                                <td>{{study.title}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Abstract</th>
+                                <td>{{study.abstract | safe}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Publication date</th>
+                                <td>{{study.publish_date}}</td>
+                            </tr>
+   
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6 mb-5">
+                  <h2>Dataset summary</h2>
+                  <table class="table">
+                      <tbody>
+                          <tr>
+                              <th scope="row">Name</th>
+                              <td>{{document.name}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Number of sample/cell</th>
+                            <td>{{document.cell_number }}</td>
+                          </tr>
+                          <tr>
+                              <th scope="row">Number of classification</th>
+                              <td>{{ document.class_name |length }}</td>
+                          </tr>
+                          <tr>
+                              <th scope="row">Number of Interogated genes</th>
+                              <td>{{ document.gene_number }}</td>
+                          </tr>
+                          <tr>
+                              <th scope="row">Technology</th>
+                              <td>{{ document.technology }}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Species</th>
+                            <td>{{ document.species }}</td>
+                        </tr>
+                      </tbody>
+                  </table>
+              </div>
+            </div>
+            <div class="row my-5">
+                <div class="col-md-4 mb-5">
+                    <h2>Classification parameters</h2>
+                    <hr>
+                    <form id="graph-form md-form md-bg">
+                        <select class="browser-default custom-select" id="class_select">
+                            {% for class in classes %}
+                                <option value="{{class}}">{{class}}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                <div class="col-md-8 mb-5">
+                    <!-- Card -->
+                    <div class="card">
+
+                        <!-- Card image -->
+                        <div class="view overlay">
+                            <canvas id="summary_cluster_distribution"></canvas>
+                            <a href="#!">
+                            <div class="mask rgba-white-slight"></div>
+                            </a>
+                        </div>
+
+                    
+                    </div>
+                    <!-- Card -->
+                </div>
+            </div>
+
+            <div class="row my-5">
+                <div class="col-md-4 mb-5">
+                    <h2>Genes information</h2>
+                    <hr>
+                    <div id="autogene" data-url="{% url 'studies:autocomplete_genes' document.species %}">   
+                        <form id="modaltest">
+                            <div class="md-form md-bg">
+                                <input type="text" id="formBg1" class="form-control">
+                                <label for="formBg1">Display gene</label>
+                            </div>
+                            <div id="autogeneresponse"></div>
+                            <button id="select_gene_" type="button" class="btn btn-default">Display</button>
+                            <button id="select_gene_unselect" type="button" class="btn btn-warning">Unselect</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8 mb-5">
+                    <!-- Card -->
+                    <div class="card" >
+
+                        <!-- Card image -->
+                        <div class="view overlay">
+                            <canvas id="summary_gene_distribution"></canvas>
+                            <p id="genemessage" class="text-center">Please select a gene</p>
+                            <a href="#!">
+                            <div class="mask rgba-white-slight"></div>
+                            </a>
+                        </div>
+
+                        
+
+                    </div>
+                    <!-- Card -->
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Full Height Modal Right -->
+
+
+
+
 
 <div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{data.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' data.species %}">
   <div class="row">
@@ -29,7 +193,7 @@
 
 <div id="default_modal">
 <div class="modal fade" id="mymodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" >Study information</h5>
@@ -42,7 +206,7 @@
         <hr>
           <form class="md-form md-bg visu-form">
             <div class="row my-5">
-              <div class="col-md-6 mb-5">
+              <div class="col-md-4 mb-5">
                 <h3>Visualisation type</h3>
                 <select class="browser-default custom-select visu-type">
                   <option value="scatter">Scatter plot</option>
@@ -50,13 +214,26 @@
                   <option value="density">Density plot</option>
                 </select>
               </div>
-              <div class="col-md-6 mb-5">
+              <div class="col-md-4 mb-5">
                 <h3>Class selection</h3>
                 <select class="browser-default custom-select visu-class">
                   {% for class in classes %}
                   <option value="{{class}}">{{class}}</option>
                   {% endfor %}
                 </select>
+              </div>
+              <div class="col-md-4 mb-5">
+                <div id="scatter_info" style="display:block;">
+                  <p>Recommended for single-cell data. Each point represents a sample/cell. colorized by groups.<br>
+                    Ability to display the expression of a selected gene</p>
+                </div>
+                <div id="density_info" style="display:none;">
+                  <p>Recommended for single-cell data. Visualize the density of samples/cells.
+                    Ability to display the expression of one or more genes.</p>
+                </div>
+                <div id="violin_info" style="display:none;">
+                  <p>Recommended for transcriptomic data. Visualize the expression intensity of the selected gene (only one) through the selected dataset.</p>
+                </div>
               </div>
            </div>  
          </form>

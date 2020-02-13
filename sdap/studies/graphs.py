@@ -303,6 +303,9 @@ def get_graph_data_genes(file, genes, selected_class=None):
     return result
 
 
+
+
+
 def get_density_graph_data_full(file, selected_class=None):
 
     result = {'chart':[],'warning':[],'time':''}
@@ -515,11 +518,10 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
 
 
 
-def get_violin_graph_gene_data_full(file, genes, selected_class=None):
+def get_violin_graph_gene_data_full(file, gene, selected_class=None):
 
 
-    result = {'chart':[],'warning':[],'time':''}
-    start_time = time.time()
+    result = {'charts':[],'warning':[],'time':''}
     chart={}
     # Should not happen. We select the class before
     chart['classes'] = getClasses(file)
@@ -557,107 +559,95 @@ def get_violin_graph_gene_data_full(file, genes, selected_class=None):
                       }
     chart['msg'] = []
 
+    gene_name = gene.symbol
+    ensemblgene = gene.ensemble_id
+    genes = getValues(file, [gene.gene_id])
+    ensembl_genes = getValues(file, [ensemblgene])
+    max_val = 0
+    min_val = 0
 
-    for gene in genes :
-        chart = {}
-        gene_name = gene.symbol
-        ensemblgene = gene.ensemble_id
-        genes = getValues(file, [gene.gene_id])
-        ensembl_genes = getValues(file, [ensemblgene])
+    #EntrezGenes
+    val_gene = np.array(genes[gene.gene_id])
+    val_gene = val_gene.astype(np.float)
+    if len(val_gene) != 0 :
+        max_val =  np.max(val_gene.astype(np.float))
+        min_val =  np.min(val_gene.astype(np.float))
+    
+    #Ensembl IDs
+    val_gene_ensembl = np.array(ensembl_genes[ensemblgene])
+    val_gene_ensembl = val_gene_ensembl.astype(np.float)
+    if len(val_gene_ensembl) != 0 :
+        max_val =  np.max(val_gene_ensembl.astype(np.float))
+        min_val =  np.min(val_gene_ensembl.astype(np.float))
 
-        max_val = 0
-        min_val = 0
-        #EntrezGenes
-        val_gene = np.array(genes[gene.gene_id])
-        val_gene = val_gene.astype(np.float)
+    chart['name'] = "Violin plot of: %s " % (gene_name)
+    chart['selected'] = selected_class
+    if len(uniq_groups) > 25 :
+        chart['layout'] = {
+            'height': "",
+            'showlegend': False,
+            "title":'Dynamic expression of '+gene.symbol,
+            'margin':{'l':300,},
+            'yaxis':{'tickfont':10},
+            'hovermode': 'closest'
+        }
+    else :
+        chart['layout'] = {
+            'height': "",
+            'showlegend': False,
+            "title":'Dynamic expression of '+gene.symbol,
+            'margin':{'l':300,},
+            'yaxis':{'tickfont':10},
+            'hovermode': 'closest'
+        }
+    for cond in uniq_groups :
+        val =""
         if len(val_gene) != 0 :
-            max_val =  np.max(val_gene.astype(np.float))
-            min_val =  np.min(val_gene.astype(np.float))
+            val = val_gene[np.where(groups == cond)[0]]
+        elif len(val_gene_ensembl) != 0 :
+            val = val_gene_ensembl[np.where(groups == cond)[0]]
 
-        #Ensembl IDs
-        val_gene_ensembl = np.array(ensembl_genes[ensemblgene])
-        val_gene_ensembl = val_gene_ensembl.astype(np.float)
-        if len(val_gene_ensembl) != 0 :
-            max_val =  np.max(val_gene_ensembl.astype(np.float))
-            min_val =  np.min(val_gene_ensembl.astype(np.float))
-        #ADD VIOLIN PLOT FOR GENE
-        violin_chart = {}
-        violin_chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['toImage','zoom2d','pan2d','lasso2d','resetScale2d']}
-        violin_chart['data']=[]
-        violin_chart['description'] = ""
-        violin_chart['name'] = "Violin plot of: %s " % (gene_name)
-        violin_chart['title'] = "violin"
-        violin_chart['selected'] = selected_class
-        if len(uniq_groups) > 25 :
-            violin_chart['layout'] = {
-                'height': "",
-                'showlegend': False,
-                "title":'Dynamic expression of '+gene.symbol,
-                'margin':{'l':300,},
-                'yaxis':{'tickfont':10},
-                'hovermode': 'closest'
-            }
-        else :
-            violin_chart['layout'] = {
-                'height': "",
-                'showlegend': False,
-                "title":'Dynamic expression of '+gene.symbol,
-                'margin':{'l':300,},
-                'yaxis':{'tickfont':10},
-                'hovermode': 'closest'
-            }
-        violin_chart['gene'] = gene_name
-        violin_chart['violmsg'] = ""
+        data_chart = {}
+        data_chart['x'] = []
 
-        for cond in uniq_groups :
-            val =""
-            if len(val_gene) != 0 :
-                val = val_gene[np.where(groups == cond)[0]]
-            elif len(val_gene_ensembl) != 0 :
-                val = val_gene_ensembl[np.where(groups == cond)[0]]
+        q3 = np.percentile(val.astype(np.float), 75) #Q3
 
-            data_chart = {}
-            data_chart['x'] = []
+        data_chart['x'].extend(val)
+        data_chart['name'] = cond
+        data_chart['hoverinfo'] = "all"
+        max_x = max(data_chart['x'])
+        min_x = min(data_chart['x'])
 
-            q3 = np.percentile(val.astype(np.float), 75) #Q3
-
-            data_chart['x'].extend(val)
-            data_chart['name'] = cond
-            data_chart['hoverinfo'] = "all"
-            max_x = max(data_chart['x'])
-            min_x = min(data_chart['x'])
-
-            if len( data_chart['x']) > 5 :
-                if arrayMax(data_chart['x']) != arrayMin(data_chart['x']):
-                    bw = bw_nrd0(data_chart['x'])
-                    data_chart['type'] = 'violin'
-                    data_chart['opacity'] = 0.4
-                    data_chart['points'] = True
-                    data_chart['pointpos'] = 0
-                    data_chart['jitter'] = .85
-                    data_chart['bandwidth'] = bw
-                    data_chart['scalemode'] = "width"
-                    data_chart['spanmode'] = "hard"
-                    data_chart['orientation'] = 'h'
-                    data_chart['box'] = {'visible': True,'width': .1}
-                    data_chart['boxpoints'] = True
-                    data_chart['marker'] = {'size':2,'opacity': 0.8}
-                else :
-                    data_chart['type'] = 'box'
-                    data_chart['orientation'] = "h"
-                    data_chart['boxpoints'] = False
-                    data_chart['y'] = [cond] * len(data_chart['x'])
-                    data_chart['boxmean'] = True
+        if len( data_chart['x']) > 5 :
+            if arrayMax(data_chart['x']) != arrayMin(data_chart['x']):
+                bw = bw_nrd0(data_chart['x'])
+                data_chart['type'] = 'violin'
+                data_chart['opacity'] = 0.4
+                data_chart['points'] = True
+                data_chart['pointpos'] = 0
+                data_chart['jitter'] = .85
+                data_chart['bandwidth'] = bw
+                data_chart['scalemode'] = "width"
+                data_chart['spanmode'] = "hard"
+                data_chart['orientation'] = 'h'
+                data_chart['box'] = {'visible': True,'width': .1}
+                data_chart['boxpoints'] = True
+                data_chart['marker'] = {'size':2,'opacity': 0.8}
             else :
                 data_chart['type'] = 'box'
                 data_chart['orientation'] = "h"
                 data_chart['boxpoints'] = False
                 data_chart['y'] = [cond] * len(data_chart['x'])
                 data_chart['boxmean'] = True
-                violin_chart['violmsg'] = ""
-            violin_chart['data'].append(data_chart)
-
-        result['chart'].append(violin_chart)
+        else :
+            data_chart['type'] = 'box'
+            data_chart['orientation'] = "h"
+            data_chart['boxpoints'] = False
+            data_chart['y'] = [cond] * len(data_chart['x'])
+            data_chart['boxmean'] = True
+            violin_chart['violmsg'] = ""
+        chart['data'].append(data_chart)
+    result['chart'] = chart
     return result
 
 def getGenesValues(data, selected_class, gene_dict):
