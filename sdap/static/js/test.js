@@ -206,5 +206,48 @@ $(function () {
 
     });
 
+    $("#select_table").click(function(e){
+      $("#table-graph-warning").html("");
+      $("#table-graph-div").html("");
+      var genes = $("#gene_select_table").val().replace(/\n/g, ',');
+      if (! genes){
+        $("#table-graph-warning").html("Please select at least one gene");
+        return;
+      }
+
+      var selected_class = $("#class_select_table").val();
+      var query_type = $("#gene_query_type_table").val();
+      var data = {
+        'csrfmiddlewaretoken': token,
+        'genes': genes,
+        'query': query_type,
+        'class': selected_class
+      }
+      var url = $(this).attr("data-url");
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        success: function (data) {
+            if (data['is_ok']){
+                $("#table-graph-div").html(data['base_table']);
+                $("#dt-select-table-gene").DataTable({
+                    data: data['dataset'],
+                    columns: data['columns'],
+                    scrollX: true,
+                    dom: 'Bfrtip',
+                    buttons: [{ extend: 'csv', text: 'Export' }]
+                });
+            } else {
+                $("#table-graph-warning").html(data['warning']);
+            }
+        },
+        error: function (err) {
+            console.log(err);
+        }
+      });
+    });
+
     $("#modal-wrapper").on('click', '.test', set_graph);
 });
