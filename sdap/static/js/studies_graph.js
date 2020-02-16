@@ -150,53 +150,6 @@ $(function () {
                 }
             }
           });
-          
-          myplot.on('plotly_click', function(data){
-            var pts = '';
-            for(var i=0; i < data.points.length; i++){
-                var group = data.points[i].data.name
-                var sample = data.points[i].text
-                var selected_class = $("#class_select").val();
-            }
-            $.ajax({
-              beforeSend: function() {
-                $('#ajax-loader').css('visibility',"visible");
-            },
-            complete: function(){
-                $('#ajax-loader').css('visibility',"hidden");
-            },
-              url: url_group_info,
-              type: 'get',
-              dataType: 'json',
-              data: {
-                'group':group,
-                'selected_class':selected_class,
-                'sample':sample,
-                'document':doc_data,
-              },
-              success: function (data) {
-                //$("#table_info").html(data['table_list']);
-
-                var table;
-                if ($.fn.dataTable.isDataTable('#example')) {
-                    table = $('#example').DataTable();
-                    table.clear();
-                    table.rows.add(data.list).draw();
-                }
-                else {
-                  table = $('#example').DataTable( {
-                  data: data.list,
-                  columns: [
-                      { title: "Gene" },
-                      { title: "Expression value" },
-                  ]
-                  } );
-                }
-                $("#info_title").html(data.group);
-                
-              }
-            });
-          });
         }
       });
   };
@@ -259,53 +212,6 @@ $(function () {
                   }]
               }
           }
-        });
-        
-        myplot.on('plotly_click', function(data){
-          var pts = '';
-          for(var i=0; i < data.points.length; i++){
-              var group = data.points[i].data.name
-              var sample = data.points[i].text
-              var selected_class = $("#class_select").val();
-          }
-          $.ajax({
-            beforeSend: function() {
-              $('#ajax-loader').css('visibility',"visible");
-           },
-           complete: function(){
-              $('#ajax-loader').css('visibility',"hidden");
-           },
-            url: url_group_info,
-            type: 'get',
-            dataType: 'json',
-            data: {
-              'group':group,
-              'selected_class':selected_class,
-              'sample':sample,
-              'document':doc_data,
-            },
-            success: function (data) {
-              //$("#table_info").html(data['table_list']);
-
-              var table;
-              if ($.fn.dataTable.isDataTable('#example')) {
-                  table = $('#example').DataTable();
-                  table.clear();
-                  table.rows.add(data.list).draw();
-              }
-              else {
-                table = $('#example').DataTable( {
-                data: data.list,
-                columns: [
-                    { title: "Gene" },
-                    { title: "Expression value" },
-                ]
-                } );
-              }
-              $("#info_title").html(data.group);
-              
-            }
-          });
         });
       }
     });
