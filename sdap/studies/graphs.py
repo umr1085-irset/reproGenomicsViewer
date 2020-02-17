@@ -44,7 +44,7 @@ def getValues(data, selectedvalues):
 
 def getNbSampleByClass(data):
     dIndex = pickle.load(open(data.file.path + ".pickle", 'rb'))
-    dClass = {}
+    lClass = []
     for index in dIndex :
         if "Class" in index :
             selected_class = index
@@ -62,8 +62,9 @@ def getNbSampleByClass(data):
                 val_x= x[np.where(groups == str(cond))[0]]
                 distribution_values.append(len(val_x))
             
-            dClass[selected_class] = {'colors':colors, 'distribution_labels':uniq_groups, 'distribution_values':distribution_values}
-    return dClass
+            lClass.append({'class_name':selected_class,'colors':colors, 'distribution_labels':uniq_groups, 'distribution_values':distribution_values})
+    
+    return lClass
 
 
 # Get classes from pickle file
