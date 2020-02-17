@@ -65,7 +65,7 @@ $(window).resize(function () {
 });
 
 var addMenuItem = function( title) {
-    var element = $( '<button class="btn btn-default"><i class="fas fa-plus fa-2x"></i></button>' );
+    var element = $( '<button class="btn btn-light"><i class="fas fa-plus fa-2x"></i></button>' );
     $( '#menuContainer' ).append( element );
 
    var newItemConfig = {
