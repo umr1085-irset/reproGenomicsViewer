@@ -42,33 +42,29 @@ def getValues(data, selectedvalues):
             result[str(val)] = []
     return result
 
-def getValuesExpression(data, Class, selection):
+def getNbSampleByClass(data):
     dIndex = pickle.load(open(data.file.path + ".pickle", 'rb'))
-    fList = data.file.file.open("rb")
-    result = {}
-    iPosition = dIndex[str(Class)]
-    fList.seek(iPosition)
-    all_class_groups = fList.readline().decode().rstrip().split('\t')[1:]
-    pos = np.where(np.array(all_class_groups) == selection)[0]
-    removed = ["X","Y","Sample"]
-    d={}
-
-
+    dClass = {}
     for index in dIndex :
-        if "Class" not in index and index not in removed and index != '':
-            iPosition = dIndex[str(index)]
-            fList.seek(iPosition)
-            all_exp_value = fList.readline().decode().rstrip().split('\t')[1:]
-            x = np.array(all_exp_value)[pos]
+        if "Class" in index :
+            selected_class = index
+            groups = getValues(data, [selected_class])
+            groups = np.array(groups[selected_class])
+            _, idx = np.unique(groups, return_index=True)
+            uniq_groups = groups[np.sort(idx)[::-1]]
 
-            d[index] = np.mean(x.astype(np.float))
-    
-    # Iterate over the sorted sequence
-    d = dict(OrderedDict(sorted(d.items(), key = itemgetter(1), reverse = True)))
-    final = []
-    for gene in d :
-        final.append([gene,d[gene]])
-    return final
+            x = np.array(getValues(data, ['X'])['X'])
+
+            colors = random_color(len(uniq_groups))
+
+            distribution_values = []
+            for cond in uniq_groups :
+                val_x= x[np.where(groups == str(cond))[0]]
+                distribution_values.append(len(val_x))
+            
+            dClass[selected_class] = {'colors':colors, 'distribution_labels':uniq_groups, 'distribution_values':distribution_values}
+    return dClass
+
 
 # Get classes from pickle file
 def getClasses(data):
