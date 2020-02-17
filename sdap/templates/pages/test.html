@@ -6,17 +6,10 @@
 
 <link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-base.css" />
 <link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-light-theme.css" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
 <link href="{% static 'css/test.css' %}" rel="stylesheet">
-<style>
-  #mapDrawerActivateButtonContainer{
-      position: fixed;
-      padding: 2em;
-      top: 150px;
-      right: -10px;
-      overflow-y: scroll;
-      z-index: 99;
-  }
-</style>
 <template type="text/html">
     <li id="test">
       <a data-toggle="modal" data-target="#mymodal" aria-label="More info">
@@ -26,19 +19,12 @@
 </template>
 
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-default" data-toggle="modal" data-target="#fullHeightModalRight" id="mapDrawerActivateButtonContainer">
-  <i class="fas fa-info fa-2x"></i>
-</button>
 
 
 <!-- Full Height Modal Right -->
-<div class="modal fade right" id="fullHeightModalRight" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-aria-hidden="true">
-
+<div class="modal fade right" id="fullHeightModalRight-info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
-<div class="modal-dialog modal-full-height modal-right modal-lg" role="document" id="modaltest1">
-
-
+  <div class="modal-dialog modal-full-height modal-right modal-lg" role="document" id="modaltest1">
     <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title w-100" id="myModalLabel">Dataset information</h4>
@@ -158,9 +144,6 @@ aria-hidden="true">
                             <div class="mask rgba-white-slight"></div>
                             </a>
                         </div>
-
-                        
-
                     </div>
                     <!-- Card -->
                 </div>
@@ -172,23 +155,76 @@ aria-hidden="true">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
     </div>
+  </div>
 </div>
-</div>
-<!-- Full Height Modal Right -->
 
-
-
-
-
-<div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{data.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' data.species %}">
-  <div class="row">
-    <div class="col-11">
-      <div id="layoutContainer"></div>
-    </div>
-    <div class="col-1">
-      <div style="list-style: none" id="menuContainer"></div>
+<!-- Full Height Modal Right-data -->
+<div class="modal fade right" id="fullHeightModalRight-data" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+  <div class="modal-dialog modal-full-height modal-right modal-lg" role="document" id="modaltest2">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title w-100" id="myModalLabel">Dataset operations</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h2> Download full dataset : </h2>
+            <a class="btn btn-primary" href="{% url 'studies:document_download' document.id %}" role="button">Download</a>
+            <hr>
+            <h2> Gene expression table </h2>
+            <hr>
+            <div class="form-group purple-border">
+              <label for="class_select_table">Select your class</label>
+              <form id="table_form">
+                <select class="browser-default custom-select" id="class_select_table">
+                {% for class in classes %}
+                  <option value="{{class}}">{{class}}</option>
+                {% endfor %}
+                </select>
+                <label for="gene_query_type_table">Gene format</label>
+                <select class="browser-default custom-select" id="gene_query_type_table">
+                  <option value="name">Gene name</option>
+                  <option value="id">Gene id</option>
+                </select>
+                <label for="gene_select_table">Gene list</label>
+                <textarea class="form-control" id="gene_select_table" rows="3"></textarea>
+              </form>
+            </div>
+            <button id="select_table" type="button" class="btn btn-default" data-url="{% url 'studies:get_genes_values_table' document.id %}" >Show</button>
+            <div id="table-graph-warning" style="color:red;"></div>
+            <div id="table-graph-div"></div>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
     </div>
   </div>
+</div>
+
+<div class="container-fluid">
+    <h2>{{study.article}} TSNE visualization</h2>
+    <p>{{ document.name }}</p>
+    <hr>
+    <div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{data.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' data.species %}">
+         <div class="row">
+            <div class="col-11">
+                <div id="layoutContainer"></div>
+            </div>
+            <div class="col-1">
+                <button type="button" class="btn btn-default waves-effect waves-light" data-toggle="modal" data-target="#fullHeightModalRight-info" id="mapDrawerActivateButtonContainer">
+                    <i class="fas fa-info fa-2x"></i>
+                </button>
+                <button type="button" class="btn btn-secondary waves-effect waves-light" data-toggle="modal" data-target="#fullHeightModalRight-data" id="mapDrawerActivateButtonContainer2">
+                    <i class="fas fa-laptop-code fa-2x"></i>
+                </button>
+                <div id="mapDrawerActivateButtonContainer3">
+                    <div style="list-style: none" id="menuContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="default_modal">
@@ -274,6 +310,12 @@ aria-hidden="true">
 
 {% block javascript %}
     {{ block.super }}
+    <script>
+        var token = '{{ csrf_token }}';
+    </script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="text/javascript" src="//golden-layout.com/assets/js/goldenlayout.min.js"></script>
     <script src="{% static 'js/test.js' %}"></script>

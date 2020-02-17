@@ -520,7 +520,7 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
 
 def get_violin_graph_gene_data_full(file, gene, selected_class=None):
 
-
+    gene = gene[0]
     result = {'charts':[],'warning':[],'time':''}
     chart={}
     # Should not happen. We select the class before

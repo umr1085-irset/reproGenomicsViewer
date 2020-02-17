@@ -140,6 +140,39 @@ $(function () {
         });
     });
 
+    $("#modal-wrapper").on('click', 'input:checkbox', function(e){
+        var current_modal = "#modal-" + current_container.getState().modal_id;
+        var current_form = $("#modal-" + current_container.getState().modal_id).find(".visu-form");
+        var selected_type = current_form.find(".visu-type").val();
+        var gene_form = $("#modal-" + current_container.getState().modal_id).find(".gene-form");
+        if ($(this).prop("checked")){
+            if (selected_type == "scatter"){
+                $(this).parents('tr').siblings().find('input:checkbox').prop("checked", false);
+            } else if (selected_type == "violin"){
+                $(this).parents('tr').siblings().find('input:checkbox').prop("checked", false);
+                $(current_modal + " .test").attr("disabled", false);
+            }
+        } else {
+            if (selected_type == "violin"){
+                $(current_modal + " .test").attr("disabled", true);
+            }
+        }
+    });
+
+    $("#modal-wrapper").on('change', ".visu-type", function(e) {
+
+        var current_modal_id = current_container.getState().modal_id;
+        var current_modal = "#modal-" + current_modal_id;
+        var current_form = $("#modal-" + current_container.getState().modal_id).find(".visu-form");
+        var selected_type = current_form.find(".visu-type").val();
+        $(current_modal + ' input:checkbox').prop('checked', false);
+        if (selected_type == "violin"){
+            $(current_modal + " .test").attr("disabled", true);
+        } else {
+            $(current_modal + " .test").attr("disabled", false);
+        }
+    }),
+
     $("#modal-wrapper").on('click', ".gene-add", function(e) {
 
         var current_modal_id = current_container.getState().modal_id;
@@ -171,6 +204,49 @@ $(function () {
             selected_gene_list_to_display.splice(index,1)
         }
 
+    });
+
+    $("#select_table").click(function(e){
+      $("#table-graph-warning").html("");
+      $("#table-graph-div").html("");
+      var genes = $("#gene_select_table").val().replace(/\n/g, ',');
+      if (! genes){
+        $("#table-graph-warning").html("Please select at least one gene");
+        return;
+      }
+
+      var selected_class = $("#class_select_table").val();
+      var query_type = $("#gene_query_type_table").val();
+      var data = {
+        'csrfmiddlewaretoken': token,
+        'genes': genes,
+        'query': query_type,
+        'class': selected_class
+      }
+      var url = $(this).attr("data-url");
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        success: function (data) {
+            if (data['is_ok']){
+                $("#table-graph-div").html(data['base_table']);
+                $("#dt-select-table-gene").DataTable({
+                    data: data['dataset'],
+                    columns: data['columns'],
+                    scrollX: true,
+                    dom: 'Bfrtip',
+                    buttons: [{ extend: 'csv', text: 'Export' }]
+                });
+            } else {
+                $("#table-graph-warning").html(data['warning']);
+            }
+        },
+        error: function (err) {
+            console.log(err);
+        }
+      });
     });
 
     $("#modal-wrapper").on('click', '.test', set_graph);
