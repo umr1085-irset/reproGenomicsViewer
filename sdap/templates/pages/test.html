@@ -113,7 +113,7 @@
         <div class="modal-header">
             <h4 class="modal-title w-100" id="myModalLabel">Dataset operations</h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+              <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="modal-body">
@@ -154,8 +154,8 @@
                 <a class="btn btn-primary" href="{% url 'studies:document_download' document.id %}" role="button">Download</a>
               </div>
             </div>
-            <div class="col-md-12 mb-5">
-              <div>
+            <div class="row my-5">
+              <div class="col-md-12 mb-5">
                 <h2> Gene expression table </h2>
                 <hr>
                 <div class="form-group purple-border">
@@ -178,6 +178,7 @@
                 <button id="select_table" type="button" class="btn btn-default" data-url="{% url 'studies:get_genes_values_table' document.id %}" >Show</button>
                 <div id="table-graph-warning" style="color:red;"></div>
                 <div id="table-graph-div"></div>
+              </div>
             </div>
         </div>
         <div class="modal-footer justify-content-center">
@@ -225,7 +226,7 @@
         <hr>
           <form class="md-form md-bg visu-form">
             <div class="row my-5">
-              <div class="col-md-4 mb-5">
+              <div class="col-md-3 mb-5">
                 <h3>Visualisation type</h3>
                 <select class="browser-default custom-select visu-type">
                   <option value="scatter">Scatter plot</option>
@@ -233,7 +234,7 @@
                   <option value="density">Density plot</option>
                 </select>
               </div>
-              <div class="col-md-4 mb-5">
+              <div class="col-md-3 mb-5">
                 <h3>Class selection</h3>
                 <select class="browser-default custom-select visu-class">
                   {% for class in classes %}
@@ -241,23 +242,25 @@
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-md-4 mb-5">
-                <div id="scatter_info" style="display:block;">
-                  <p>Recommended for single-cell data. Each point represents a sample/cell. colorized by groups.<br>
-                    Ability to display the expression of one selected gene</p>
+              <div class="col-md-6 mb-5">
+                <br>
+                <div class="scatter_info" style="display:block;">
+                  <p>Scatter plots are recommended for single-cell data. Each point represents a sample/cell. colorized by groups.</p>
+                  <p>You can optionally display the expression of one selected gene</p>
                 </div>
-                <div id="density_info" style="display:none;">
-                  <p>Recommended for single-cell data. Visualize the density of samples/cells.
-                    Ability to display the expression of one or several genes.</p>
+                <div class="density_info" style="display:none;">
+                  <p>Density plots are recommended for single-cell data. This plot type displays the density of samples/cells.</p>
+                  <p>You can optionally display the expression of one or more genes.</p>
                 </div>
-                <div id="violin_info" style="display:none;">
-                  <p>Recommended for transcriptomic data. Visualize the expression intensity of the selected gene (only one) through the selected dataset.</p>
-                </div>
+                <div class="violin_info" style="display:none;">
+                  <p> Violin plot are best used for for transcriptomic data. This plot type displays the expression intensity of the selected gene (only one) through the selected dataset.</p>
+               </div>
               </div>
-           </div>  
-         </form>
+            </div>  
+          </form>
+         <hr>
          <div class="row my-5 gene_select">
-           <div class="col-md-8 mb-5">
+           <div class="col-md-6 mb-5">
              <h2>Genes selection</h2>
              <hr>
              <form>
@@ -269,11 +272,15 @@
                <button type="button" class="btn btn-default gene-add" disabled>Add</button>
              </form>
            </div>
-           <div class="col-md-4 mb-5">
+           <div class="col-md-6 mb-5">
              <h2>Selected genes</h2>
              <div class="messagegene"></div>
-             <div class="gene_div">Please select genes</div>
+             <div class="scatter_info" style="color: green; display:block">Optional: Select one gene to be displayed</div>
+             <div class="violin_info" style="color:red; display:none">Required : Select one gene to be displayed</div>
+             <div class="density_info"style="color:green; display:none">Optional: Select one or more genes to be displayed</div>
+             <div class="gene_info">You can add genes to this list by using the input on the left</div>
              <form class="md-form md-bg gene-form"><table class='table align-middle gene-table'><tbody></tbody></table></form>
+             <button class="btn btn-info btn-sm clear_genes" style="display:none;">Uncheck all</button>
            </div>
          </div>
       </div>

@@ -100,6 +100,7 @@ $(function () {
         var current_form = $("#modal-" + current_container.getState().modal_id).find(".visu-form");
         var gene_form = $("#modal-" + current_container.getState().modal_id).find(".gene-form");
         var selected_type = current_form.find(".visu-type").val();
+        var display = current_form.find(".visu-type option:selected").text()
         var selected_class = current_form.find(".visu-class").val();
         var gene_data = gene_form.serialize();
         $.ajax({
@@ -113,7 +114,7 @@ $(function () {
                 var clientWidth = myelem.offsetWidth;
                 chart.layout.width = myelem.offsetWidth;
                 chart.layout.height = myelem.offsetHeight;
-                current_container.setTitle("testtitle");
+                current_container.setTitle(display + " " + selected_class);
                 Plotly.newPlot(myelem, chart.data, chart.layout, chart.config);
             }
         });
@@ -165,6 +166,14 @@ $(function () {
         var current_modal = "#modal-" + current_modal_id;
         var current_form = $("#modal-" + current_container.getState().modal_id).find(".visu-form");
         var selected_type = current_form.find(".visu-type").val();
+
+        $(current_modal).find("." + selected_type + "_info").show()
+
+        $(current_modal).find(".visu-type option:selected").siblings().each( function() {
+            var val = $(this).val();
+            $(current_modal).find("." + val + "_info").hide()
+        });
+
         $(current_modal + ' input:checkbox').prop('checked', false);
         if (selected_type == "violin"){
             $(current_modal + " .test").attr("disabled", true);
@@ -177,6 +186,7 @@ $(function () {
 
         var current_modal_id = current_container.getState().modal_id;
         var current_modal = "#modal-" + current_modal_id;
+        $(current_modal).find('.gene_info').html("");
 
         var selected_gene_label = $(current_modal).find(".autocomplete-gene").val();
         var selected_gene = $(current_modal).find(".autocomplete-gene").attr('value');
@@ -188,6 +198,12 @@ $(function () {
 
         } else {
             $(current_modal).find(".messagegene").html('<div class="alert alert-warning alert-dismissible fade show" role="alert">Your gene is already selected <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>')
+        }
+
+        if (selected_gene_list_to_display.length == 0){
+            $(current_modal).find(".clear_genes").hide()
+        } else {
+            $(current_modal).find(".clear_genes").show()
         }
 
         $(this).attr("disabled", true);
@@ -205,6 +221,17 @@ $(function () {
         }
 
     });
+
+    $("#modal-wrapper").on('click', ".clear_genes", function(e) {
+        var current_modal = "#modal-" + current_container.getState().modal_id;
+        var gene_table = $(current_modal).find(".gene-table");
+        gene_table.find('tbody tr td input:checkbox').prop("checked", false)
+        var selected_type = $(current_modal).find(".visu-type").val();
+        if(selected_type == "violin"){
+            $(current_modal + " .test").attr("disabled", true);
+        }
+    });
+
 
     $("#select_table").click(function(e){
       $("#table-graph-warning").html("");
