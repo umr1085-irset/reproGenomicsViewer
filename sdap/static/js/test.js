@@ -256,7 +256,7 @@ var loadGraph = function () {
     var div = $("#class_layout")
 
     for(var i=0;i<asso_class;i++){
-        var col = "<div class='col-md-6 mb-3'>"+asso_class[i]+"</div>";
+        var col = "<div class='col-md-6 mb-3'><div id='"+asso_class[i]+"'></div></div>";
         document.getElementById('class_layout').innerHTML = col;
     }
 
@@ -268,7 +268,26 @@ var loadGraph = function () {
       success: function (data) {
           charts = data.data
           for(var i=0; i<charts; i++){
-              console.log(charts[i].class_name)
+            var myNewChart = Chart.Bar(charts[i].class_name, {
+                data: {
+                    labels: charts[i].distribution_labels,
+                        datasets: [{
+                            label: "Samples/Cells distribution",
+                            data: charts[i].distribution_values,
+                            backgroundColor: charts[i].colors,
+                            borderWidth: 2,
+                        }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+              });
           }
 
       }
