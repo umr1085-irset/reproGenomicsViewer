@@ -80,7 +80,7 @@
                           </tr>
                           <tr>
                             <th scope="row">Species</th>
-                            <td>{{ document.species }}</td>
+                            <td>{{ document.get_species_display }}</td>
                         </tr>
                       </tbody>
                   </table>
@@ -90,66 +90,10 @@
                 <div class="col-md-4 mb-5">
                     <h2>Classification parameters</h2>
                     <hr>
-                    <form id="graph-form md-form md-bg">
-                        <select class="browser-default custom-select" id="class_select">
-                            {% for class in classes %}
-                                <option value="{{class}}">{{class}}</option>
-                            {% endfor %}
-                        </select>
-                    </form>
-                </div>
-                <div class="col-md-8 mb-5">
-                    <!-- Card -->
-                    <div class="card">
-
-                        <!-- Card image -->
-                        <div class="view overlay">
-                            <canvas id="summary_cluster_distribution"></canvas>
-                            <a href="#!">
-                            <div class="mask rgba-white-slight"></div>
-                            </a>
-                        </div>
-
                     
-                    </div>
-                    <!-- Card -->
-                </div>
-            </div>
-
-            <div class="row my-5">
-                <div class="col-md-4 mb-5">
-                    <h2>Genes information</h2>
-                    <hr>
-                    <div id="autogene" data-url="{% url 'studies:autocomplete_genes' document.species %}">   
-                        <form id="modaltest">
-                            <div class="md-form md-bg">
-                                <input type="text" id="formBg1" class="form-control">
-                                <label for="formBg1">Display gene</label>
-                            </div>
-                            <div id="autogeneresponse"></div>
-                            <button id="select_gene_" type="button" class="btn btn-default">Display</button>
-                            <button id="select_gene_unselect" type="button" class="btn btn-warning">Unselect</button>
-                        </form>
-                    </div>
-                </div>
-                <div class="col-md-8 mb-5">
-                    <!-- Card -->
-                    <div class="card" >
-
-                        <!-- Card image -->
-                        <div class="view overlay">
-                            <canvas id="summary_gene_distribution"></canvas>
-                            <p id="genemessage" class="text-center">Please select a gene</p>
-                            <a href="#!">
-                            <div class="mask rgba-white-slight"></div>
-                            </a>
-                        </div>
-                    </div>
-                    <!-- Card -->
                 </div>
             </div>
         </div>
-
 
         <div class="modal-footer justify-content-center">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -170,31 +114,68 @@
             </button>
         </div>
         <div class="modal-body">
-            <h2> Download full dataset : </h2>
-            <a class="btn btn-primary" href="{% url 'studies:document_download' document.id %}" role="button">Download</a>
-            <hr>
-            <h2> Gene expression table </h2>
-            <hr>
-            <div class="form-group purple-border">
-              <label for="class_select_table">Select your class</label>
-              <form id="table_form">
-                <select class="browser-default custom-select" id="class_select_table">
-                {% for class in classes %}
-                  <option value="{{class}}">{{class}}</option>
-                {% endfor %}
-                </select>
-                <label for="gene_query_type_table">Gene format</label>
-                <select class="browser-default custom-select" id="gene_query_type_table">
-                  <option value="name">Gene name</option>
-                  <option value="id">Gene id</option>
-                </select>
-                <label for="gene_select_table">Gene list</label>
-                <textarea class="form-control" id="gene_select_table" rows="3"></textarea>
-              </form>
+            <div class="row my-5">
+              <div class="col-md-6 mb-5">
+                <h2>Dataset summary</h2>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Name</th>
+                            <td>{{document.name}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Number of sample/cell</th>
+                          <td>{{document.cell_number }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Number of classification</th>
+                            <td>{{ document.class_name |length }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Number of Interogated genes</th>
+                            <td>{{ document.gene_number }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Technology</th>
+                            <td>{{ document.technology }}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Species</th>
+                          <td>{{ document.get_species_display }}</td>
+                      </tr>
+                    </tbody>
+                </table>
+              </div>
+              <div class="col-md-6 mb-5">
+                <h2> Download full dataset : </h2>
+                <a class="btn btn-primary" href="{% url 'studies:document_download' document.id %}" role="button">Download</a>
+              </div>
             </div>
-            <button id="select_table" type="button" class="btn btn-default" data-url="{% url 'studies:get_genes_values_table' document.id %}" >Show</button>
-            <div id="table-graph-warning" style="color:red;"></div>
-            <div id="table-graph-div"></div>
+            <div class="col-md-12 mb-5">
+              <div>
+                <h2> Gene expression table </h2>
+                <hr>
+                <div class="form-group purple-border">
+                  <label for="class_select_table">Select your class</label>
+                  <form id="table_form">
+                    <select class="browser-default custom-select" id="class_select_table">
+                    {% for class in classes %}
+                      <option value="{{class}}">{{class}}</option>
+                    {% endfor %}
+                    </select>
+                    <label for="gene_query_type_table">Gene format</label>
+                    <select class="browser-default custom-select" id="gene_query_type_table">
+                      <option value="name">Gene name</option>
+                      <option value="id">Gene id</option>
+                    </select>
+                    <label for="gene_select_table">Gene list</label>
+                    <textarea class="form-control" id="gene_select_table" rows="3"></textarea>
+                  </form>
+                </div>
+                <button id="select_table" type="button" class="btn btn-default" data-url="{% url 'studies:get_genes_values_table' document.id %}" >Show</button>
+                <div id="table-graph-warning" style="color:red;"></div>
+                <div id="table-graph-div"></div>
+            </div>
         </div>
         <div class="modal-footer justify-content-center">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -204,8 +185,7 @@
 </div>
 
 <div class="container-fluid">
-    <h2>{{study.article}} TSNE visualization</h2>
-    <p>{{ document.name }}</p>
+    <h5>{{ document.name }} - {{study.article}}</h5>
     <hr>
     <div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{data.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' data.species %}">
          <div class="row">
@@ -261,11 +241,11 @@
               <div class="col-md-4 mb-5">
                 <div id="scatter_info" style="display:block;">
                   <p>Recommended for single-cell data. Each point represents a sample/cell. colorized by groups.<br>
-                    Ability to display the expression of a selected gene</p>
+                    Ability to display the expression of one selected gene</p>
                 </div>
                 <div id="density_info" style="display:none;">
                   <p>Recommended for single-cell data. Visualize the density of samples/cells.
-                    Ability to display the expression of one or more genes.</p>
+                    Ability to display the expression of one or several genes.</p>
                 </div>
                 <div id="violin_info" style="display:none;">
                   <p>Recommended for transcriptomic data. Visualize the expression intensity of the selected gene (only one) through the selected dataset.</p>

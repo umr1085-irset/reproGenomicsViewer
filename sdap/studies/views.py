@@ -36,7 +36,7 @@ import uuid
 import shutil
 from .models import ExpressionStudy, ExpressionData, Gene, Database
 from .forms import *
-from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full, getGenesValues
+from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full, getGenesValues, getNbSampleByClass
 
 def add_document(request, stdid):
 
@@ -288,13 +288,13 @@ def show_graph(request):
     ##########################
     data = get_object_or_404(ExpressionData, id=document_id)
 
-    data_stat = {}
+    data_stat = getNbSampleByClass(data)
 
 
     study = get_object_or_404(ExpressionStudy, id=study_id)
     form = GeneFilterForm()
     classes = getClasses(data)
-    context = {'study': study, 'document': data, 'classes': classes, 'form': form}
+    context = {'study': study, 'document': data, 'classes': classes, 'form': form, 'data_stat':data_stat}
     return render(request, 'studies/graph.html', context)
 
 def get_graph_data(request):
