@@ -288,14 +288,35 @@ def show_graph(request):
     ##########################
     data = get_object_or_404(ExpressionData, id=document_id)
 
-    data_stat = getNbSampleByClass(data)
-
 
     study = get_object_or_404(ExpressionStudy, id=study_id)
     form = GeneFilterForm()
     classes = getClasses(data)
-    context = {'study': study, 'document': data, 'classes': classes, 'form': form, 'data_stat':data_stat}
+    context = {'study': study, 'document': data, 'classes': classes, 'form': form}
     return render(request, 'studies/graph.html', context)
+
+def get_class_info(request):
+
+    if not "document_id" in request.GET and not "study_id" in request.GET:
+        return redirect(reverse("studies:index"))
+
+    document_id = request.GET["document_id"]
+    study_id = request.GET["study_id"]
+    # Just in case
+    if not document_id.isdigit() or not study_id.isdigit():
+        return redirect(reverse("studies:index"))
+
+
+    ##########################
+    # File Statistique only for RGV files
+    ##########################
+    data = get_object_or_404(ExpressionData, id=document_id)
+
+    data_stat = getNbSampleByClass(data)
+
+    return JsonResponse({'data':data_stat})
+
+
 
 def get_graph_data(request):
 

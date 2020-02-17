@@ -251,3 +251,30 @@ $(function () {
 
     $("#modal-wrapper").on('click', '.test', set_graph);
 });
+
+var loadGraph = function () {
+    var div = $("#class_layout")
+
+    for(var i=0;i<asso_class;i++){
+        var col = "<div class='col-md-6 mb-3'>"+asso_class[i]+"</div>";
+        document.getElementById('class_layout').innerHTML = col;
+    }
+
+
+    $.ajax({
+      url: div.attr("data-url") + "&document_id=" + div.attr("document-id") + "&study_id=" + div.attr("study-id"),
+      type: 'get',
+      dataType: 'json',
+      success: function (data) {
+          charts = data.data
+          for(var i=0; i<charts; i++){
+              console.log(charts[i].class_name)
+          }
+
+      }
+    });
+  };
+
+$(document).ready(function() {
+    loadGraph();
+  });

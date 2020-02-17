@@ -22,6 +22,7 @@ urlpatterns = [
     path('table/<int:document_id>', views.get_genes_values_table, name="get_genes_values_table"),
     path('ajax/get_stud_db', views.get_stud_db, name="get_stud_db"),
     path('ajax/group_info', views.get_group_info, name="group_info"),
+    path('ajax/class_info', views.get_class_info, name="class_info"),
     path('ajax/autocomplete_genes/<str:taxonid>', views.autocomplete_genes, name="autocomplete_genes"),
     re_path(r'^ome-autocomplete/$', autocompletes.OmeAutocomplete.as_view(), name="ome-autocomplete"),
     re_path(r'^technology-autocomplete/$', autocompletes.TechnologyAutocomplete.as_view(), name="technology-autocomplete"),

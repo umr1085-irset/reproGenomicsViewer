@@ -90,6 +90,9 @@
                 <div class="col-md-4 mb-5">
                     <h2>Classification parameters</h2>
                     <hr>
+                    <div data-url="{% url 'studies:class_info'%}" document-id="{{document.id}}" study-id="{{study.id}}" id="class_layout" class="row my-5">
+                      
+                    </div>
                     
                 </div>
             </div>
@@ -298,5 +301,8 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="text/javascript" src="//golden-layout.com/assets/js/goldenlayout.min.js"></script>
+    <script>
+      var asso_class = '{{ classes }}';
+    </script>
     <script src="{% static 'js/test.js' %}"></script>
 {% endblock %}
