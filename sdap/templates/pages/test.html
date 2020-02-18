@@ -92,7 +92,7 @@
                     <hr>
                     <div data-url="{% url 'studies:class_info'%}" document-id="{{document.id}}" study-id="{{study.id}}" id="class_layout" class="row my-5">
                       {% for class in classes %}
-                        <div id="{{class}}">{{class}}</div>
+                        <div class="col-md-6 mb-5" id="{{class}}"></div>
                       {% endfor %}
                     </div>
                 </div>

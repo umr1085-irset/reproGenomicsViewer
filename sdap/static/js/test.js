@@ -287,8 +287,9 @@ var loadGraph = function () {
       dataType: 'json',
       success: function (data) {
           charts = data.data
-          for(var i=0; i<charts; i++){
-            var myNewChart = Chart.Bar(charts[i].class_name, {
+          for(var i=0; i<charts.length; i++){
+            console.log(charts[i])
+            var myNewChart = Chart.Bar('class_info_'+i, {
                 data: {
                     labels: charts[i].distribution_labels,
                         datasets: [{
