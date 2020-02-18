@@ -86,16 +86,28 @@
                   </table>
               </div>
             </div>
-            <div class="row my-5">
-                <div class="col-md-4 mb-5">
-                    <h2>Classification parameters</h2>
-                    <hr>
-                    <div data-url="{% url 'studies:class_info'%}" document-id="{{document.id}}" study-id="{{study.id}}" id="class_layout" class="row my-5">
-                      {% for class in classes %}
-                        <div class="col-md-6 mb-5" id="class_info_{{ forloop.counter0 }}"></div>
-                      {% endfor %}
-                    </div>
+            <div class="row my-5" data-url="{% url 'studies:class_info'%}" document-id="{{document.id}}" study-id="{{study.id}}" id="class_layout">
+              <h2>Classification parameters</h2>
+              <hr>
+
+              {% for class in classes %}
+                <div class="col-md-8 mb-5">
+                  <!-- Card -->
+                  <div class="card">
+
+                      <!-- Card image -->
+                      <div class="view overlay">
+                          <canvas id="class_info_{{ forloop.counter0 }}"></canvas>
+                          <a href="#!">
+                          <div class="mask rgba-white-slight"></div>
+                          </a>
+                      </div>
+
+                  
+                  </div>
+                  <!-- Card -->
                 </div>
+              {% endfor %}
             </div>
         </div>
 

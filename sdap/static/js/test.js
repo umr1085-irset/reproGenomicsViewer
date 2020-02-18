@@ -293,7 +293,7 @@ var loadGraph = function () {
                 data: {
                     labels: charts[i].distribution_labels,
                         datasets: [{
-                            label: "Samples/Cells distribution",
+                            label: "Samples/Cells distribution -"+charts[i].class_name,
                             data: charts[i].distribution_values,
                             backgroundColor: charts[i].colors,
                             borderWidth: 2,
