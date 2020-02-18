@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('view/<int:stdid>', views.ExpressionStudyDetailView, name="study_view"),
     path('create/study', views.CreateExpressionStudyView.as_view(), name='study_create'),
+    path('create/gene_list', views.create_gene_list, name='gene_list_create'),
     path('create/document/<int:stdid>', views.add_document, name='document_create'),
     path('edit/study/<int:stdid>', views.EditExpressionStudyView.as_view(), name='study_edit'),
     path('download/document/<int:documentid>', views.download_document, name='document_download'),

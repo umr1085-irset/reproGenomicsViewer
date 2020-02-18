@@ -59,5 +59,6 @@ $(function () {
     $("#notification_list").on("click", ".js-refuse-invitation", loadForm);
     $("#notification_list").on("click", ".js-notif-action", send_action);
     $("#groups").on("click", ".js-create", loadForm);
+    $("#gene_lists").on("click", ".js-create", loadForm);
     $("#modal-group").on("submit", ".js-form", saveForm);
 });

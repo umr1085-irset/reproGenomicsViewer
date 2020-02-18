@@ -34,7 +34,7 @@ from django.views.generic import DetailView, ListView, RedirectView, UpdateView,
 
 import uuid
 import shutil
-from .models import ExpressionStudy, ExpressionData, Gene, Database
+from .models import ExpressionStudy, ExpressionData, Gene, Database, GeneList
 from .forms import *
 from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full, getGenesValues, getNbSampleByClass
 
@@ -52,6 +52,7 @@ def add_document(request, stdid):
     if request.method == 'POST':
         form = ExpressionDataForm(request.POST, request.FILES)
         if form.is_valid():
+            raise Exception(form)
             object = form.save(commit=False)
             object.created_by = request.user
             object.study = study
@@ -119,6 +120,36 @@ def ExpressionStudyDetailView(request, stdid):
         context['has_edit_perm'] = True
 
     return render(request, 'studies/study_details.html', context)
+
+
+def create_gene_list(request):
+
+    if not request.user.is_authenticated:
+        return redirect('/unauthorized')
+
+    data = {}
+    if request.method == 'POST':
+        form = GeneListCreateForm(request.POST)
+        if form.is_valid():
+            object = form.save()
+            object.created_by = request.user
+            # No idea why it doesn't save..
+            object.genes.add(*[gene.id for gene in form.cleaned_data['genes']])
+            object.save()
+            data['redirect'] = reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1"
+            data['form_is_valid'] = True
+        else:
+            data['form_is_valid'] = False
+    else:
+        form = GeneListCreateForm()
+
+    context = {'form': form}
+    data['html_form'] = render_to_string('studies/partial_gene_list_create.html',
+        context,
+        request=request,
+    )
+
+    return JsonResponse(data)
 
 class CreateExpressionStudyView(LoginRequiredMixin, CreateView):
     model = ExpressionStudy
@@ -290,9 +321,8 @@ def show_graph(request):
 
 
     study = get_object_or_404(ExpressionStudy, id=study_id)
-    form = GeneFilterForm()
     classes = getClasses(data)
-    context = {'study': study, 'document': data, 'classes': classes, 'form': form}
+    context = {'study': study, 'document': data, 'classes': classes}
     return render(request, 'studies/graph.html', context)
 
 def get_class_info(request):
@@ -553,3 +583,17 @@ def _process_gene(gene_id, species_id, query_type, target_gene_type):
                         correct_gene_id = correct_gene.ensemble_id
 
     return correct_gene_id
+
+class GeneAutocomplete(autocomplete.Select2QuerySetView):
+
+    def get_queryset(self):
+        query = self.q
+        species = self.forwarded.get('species', '9606')
+        qs = Gene.objects.filter(tax_id=species)
+        if query:
+            qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query))
+        return qs
+
+    def get_result_value(self, result):
+        return "{} ({})".format(result.symbol, result.gene_id)
+
