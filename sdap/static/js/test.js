@@ -282,14 +282,16 @@ $(function () {
 var loadGraph = function () {
     var div = $("#class_layout")
 
+    var col = "";
+
     for(var i=0;i<asso_class;i++){
-        var col = "<div class='col-md-6 mb-3'><div id='"+asso_class[i]+"'></div></div>";
-        document.getElementById('class_layout').innerHTML = col;
+        col += "<div class='col-md-6 mb-3'><div id='"+asso_class[i]+"'></div></div>";
     }
 
+    document.getElementById('class_layout').innerHTML = col;
 
     $.ajax({
-      url: div.attr("data-url") + "&document_id=" + div.attr("document-id") + "&study_id=" + div.attr("study-id"),
+      url: div.attr("data-url") + "?document_id=" + div.attr("document-id") + "&study_id=" + div.attr("study-id"),
       type: 'get',
       dataType: 'json',
       success: function (data) {
