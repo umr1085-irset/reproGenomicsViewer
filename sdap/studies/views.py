@@ -122,6 +122,25 @@ def ExpressionStudyDetailView(request, stdid):
     return render(request, 'studies/study_details.html', context)
 
 
+def get_gene_list(request):
+
+    if not request.GET.get('id'):
+        return JsonResponse({"data": []})
+
+    gene_list = get_object_or_404(GeneList, id=request.GET.get('id'))
+
+    if not gene_list.created_by == request.user:
+        return JsonResponse({"data": []})
+
+    gene_list_format = []
+
+    for gene in gene_list.genes.all():
+        gene_list_format.append({
+            'id': gene.id,
+            'display': "{} ({})".format(gene.symbol, gene.gene_id)
+        })
+    return JsonResponse({"data": gene_list_format})
+
 def create_gene_list(request):
 
     if not request.user.is_authenticated:
@@ -176,6 +195,21 @@ def edit_gene_list(request, genelistid):
     context = {'form': form}
 
     return render(request, 'studies/gene_list_edit.html', context)
+
+def delete_gene_list(request, genelistid):
+
+    if not request.user.is_authenticated:
+        return redirect('/unauthorized')
+
+    gene_list = get_object_or_404(GeneList, id=genelistid)
+
+    if not gene_list.created_by == request.user:
+        return redirect('/unauthorized')
+
+    gene_list.delete()
+
+    return redirect(reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1")
+
 
 class CreateExpressionStudyView(LoginRequiredMixin, CreateView):
     model = ExpressionStudy

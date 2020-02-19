@@ -201,7 +201,10 @@
                                 {{gene.symbol}} ({{gene.gene_id}}){% if not forloop.last %}, {% endif %}
                             {% endfor %}
                             </td>
-                            <td><a href="{% url 'studies:gene_list_edit' gene_list.id %}" class="btn btn-info">Edit</a></td>
+                            <td>
+                                <a href="{% url 'studies:gene_list_edit' gene_list.id %}" class="btn btn-info">Edit</a>
+                                <a href="{% url 'studies:gene_list_delete' gene_list.id %}" class="btn btn-danger">Delete</a>
+                           </td>
                           </tr>
                           {% endfor %}
                         </tbody>
