@@ -1,3 +1,4 @@
+{% load static i18n %}
 {% load crispy_forms_tags %}
 
 <form method="post" action="{% url 'studies:gene_list_create' %}" class="js-form">
@@ -9,7 +10,7 @@
     </button>
   </div>
   <div class="modal-body">
-        {{ form|crispy }}
+        {% crispy form %}
   </div>
   <div class="modal-footer">
     <button type="submit" class="btn btn-default">Create gene list</button>
@@ -17,14 +18,15 @@
   </div>
 </form>
 
-{{ form.media }}
 
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script>
-    $(document).ready(function() {
-        $(':input[name$=species]').on('change', function() {
-            var prefix = $(this).getFormPrefix();
-            $(':input[name=' + prefix + 'genes]').val(null).trigger('change');
+        $(document).ready(function() {
+            $(':input[name$=species]').on('change', function() {
+                var prefix = $(this).getFormPrefix();
+                $(':input[name=' + prefix + 'genes]').val(null).trigger('change');
+            });
         });
-    });
 </script>
 

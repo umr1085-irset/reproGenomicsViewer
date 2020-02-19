@@ -227,9 +227,15 @@ class ExpressionStudyFilterForm(forms.Form):
         self.helper.form_class = 'form-inline'
         self.helper.field_template = 'bootstrap3/layout/inline_field.html'
 
+
+class MyModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, result):
+        return "{} ({})".format(result.symbol, result.gene_id)
+
+
 class GeneListCreateForm(forms.ModelForm):
 
-    genes = forms.ModelMultipleChoiceField(
+    genes = MyModelMultipleChoiceField(
                 queryset=Gene.objects.all(),
                 required=True,
                 widget=autocomplete.ModelSelect2Multiple(url='/studies/gene-autocomplete', forward=['species'], attrs={'data-minimum-input-length': 3})
@@ -243,4 +249,3 @@ class GeneListCreateForm(forms.ModelForm):
         super(GeneListCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
-        self.helper.add_input(Submit('save', 'Save'))
