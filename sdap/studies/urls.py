@@ -11,6 +11,7 @@ urlpatterns = [
     path('create/gene_list', views.create_gene_list, name='gene_list_create'),
     path('create/document/<int:stdid>', views.add_document, name='document_create'),
     path('edit/study/<int:stdid>', views.EditExpressionStudyView.as_view(), name='study_edit'),
+    path('edit/gene_list/<int:genelistid>', views.edit_gene_list, name='gene_list_edit'),
     path('download/document/<int:documentid>', views.download_document, name='document_download'),
     path('delete/document/<int:documentid>', views.delete_document, name='document_delete'),
     path('delete/study/<int:stdid>', views.delete_study, name='study_delete'),

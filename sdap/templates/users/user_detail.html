@@ -217,7 +217,7 @@
                                 {{gene.symbol}}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                             </td>
-                            <td></td>
+                            <td><button data-url="{% url 'studies:gene_list_edit' gene_list.id %}" class="btn btn-info  js-create float-right">Edit</button></td>
                           </tr>
                           {% endfor %}
                         </tbody>

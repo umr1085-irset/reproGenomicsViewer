@@ -151,6 +151,42 @@ def create_gene_list(request):
 
     return JsonResponse(data)
 
+def edit_gene_list(request, genelistid):
+
+    if not request.user.is_authenticated:
+        return redirect('/unauthorized')
+
+    gene_list = get_object_or_404(GeneList, id=genelistid)
+
+    if not gene_list.created_by == request.user:
+        return redirect('/unauthorized')
+
+    data = {}
+    if request.method == 'POST':
+        form = GeneListCreateForm(request.POST, instance=superproject)
+        if form.is_valid():
+            object = form.save()
+            object.created_by = request.user
+            # No idea why it doesn't save..
+            # Inefficient.. should only remove not needed maybe?
+            object.genes.clear()
+            object.genes.add(*[gene.id for gene in form.cleaned_data['genes']])
+            object.save()
+            data['redirect'] = reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1"
+            data['form_is_valid'] = True
+        else:
+            data['form_is_valid'] = False
+    else:
+        form = GeneListCreateForm(instance=gene_list)
+
+    context = {'form': form}
+    data['html_form'] = render_to_string('studies/partial_gene_list_create.html',
+        context,
+        request=request,
+    )
+
+    return JsonResponse(data)
+
 class CreateExpressionStudyView(LoginRequiredMixin, CreateView):
     model = ExpressionStudy
     template_name = 'studies/study_create.html'
