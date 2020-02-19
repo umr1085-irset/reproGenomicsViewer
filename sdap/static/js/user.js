@@ -61,4 +61,8 @@ $(function () {
     $("#groups").on("click", ".js-create", loadForm);
     $("#gene_lists").on("click", ".js-create", loadForm);
     $("#modal-group").on("submit", ".js-form", saveForm);
+    $("#modal-group").on("change", ":input[name$=species]", function() {
+        console.log('trigger')
+        $('.modelselect2multiple').val(null).trigger('change');
+    });
 });

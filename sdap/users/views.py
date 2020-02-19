@@ -52,6 +52,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         else:
             context['in_use']['user'] = 'active'
 
+
         return context
 
 user_detail_view = UserDetailView.as_view()

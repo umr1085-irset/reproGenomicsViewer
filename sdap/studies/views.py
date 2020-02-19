@@ -136,20 +136,15 @@ def create_gene_list(request):
             # No idea why it doesn't save..
             object.genes.add(*[gene.id for gene in form.cleaned_data['genes']])
             object.save()
-            data['redirect'] = reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1"
-            data['form_is_valid'] = True
+            return redirect(reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1")
         else:
             data['form_is_valid'] = False
     else:
         form = GeneListCreateForm()
 
     context = {'form': form}
-    data['html_form'] = render_to_string('studies/partial_gene_list_create.html',
-        context,
-        request=request,
-    )
 
-    return JsonResponse(data)
+    return render(request, 'studies/gene_list_edit.html', context)
 
 def edit_gene_list(request, genelistid):
 
@@ -163,7 +158,7 @@ def edit_gene_list(request, genelistid):
 
     data = {}
     if request.method == 'POST':
-        form = GeneListCreateForm(request.POST, instance=superproject)
+        form = GeneListCreateForm(request.POST, instance=gene_list)
         if form.is_valid():
             object = form.save()
             object.created_by = request.user
@@ -172,20 +167,15 @@ def edit_gene_list(request, genelistid):
             object.genes.clear()
             object.genes.add(*[gene.id for gene in form.cleaned_data['genes']])
             object.save()
-            data['redirect'] = reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1"
-            data['form_is_valid'] = True
+            return redirect(reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1")
         else:
             data['form_is_valid'] = False
     else:
         form = GeneListCreateForm(instance=gene_list)
 
     context = {'form': form}
-    data['html_form'] = render_to_string('studies/partial_gene_list_create.html',
-        context,
-        request=request,
-    )
 
-    return JsonResponse(data)
+    return render(request, 'studies/gene_list_edit.html', context)
 
 class CreateExpressionStudyView(LoginRequiredMixin, CreateView):
     model = ExpressionStudy

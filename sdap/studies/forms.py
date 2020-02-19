@@ -249,3 +249,4 @@ class GeneListCreateForm(forms.ModelForm):
         super(GeneListCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))

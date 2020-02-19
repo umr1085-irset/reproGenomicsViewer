@@ -24,7 +24,7 @@
                     <a href="" data-target="#studies" data-toggle="tab" class="nav-link {{in_use.study}}">My studies  ({{ studies.paginator.count }})</a>
                 </li>
                 <li class="nav-item">
-                    <a href="" data-target="#gene_lists" data-toggle="tab" class="nav-link {{in_use.gene_list}}">My genes lists  ({{ gene_lists.paginator.count }})</a>
+                    <a href="" data-target="#gene_lists" data-toggle="tab" class="nav-link {{in_use.gene_list}}">My gene lists  ({{ gene_lists.paginator.count }})</a>
                 </li>
                 {% endif %}
             </ul>
@@ -180,7 +180,7 @@
                 </div>
                 </div>
                 <div class="tab-pane {{in_use.gene_list}}" id="gene_lists">
-                <h2>My genes lists <button data-url="{% url 'studies:gene_list_create' %}" class="btn btn-outline-info  js-create float-right"><i class="fas fa-external-link-alt"></i>New</button></h2>
+                <h2>My genes lists <a href="{% url 'studies:gene_list_create' %}" class="btn btn-outline-info float-right"><i class="fas fa-external-link-alt"></i>New</a></h2>
                 <div class="table-responsive-xl">
                     <table class="table table-hover">
                         <thead>
@@ -198,10 +198,10 @@
                             <td>{{gene_list.get_species_display}}</td>
                             <td>
                             {% for gene in gene_list.genes.all %}
-                                {{gene.symbol}}{% if not forloop.last %}, {% endif %}
+                                {{gene.symbol}} ({{gene.gene_id}}){% if not forloop.last %}, {% endif %}
                             {% endfor %}
                             </td>
-                            <td><button data-url="{% url 'studies:gene_list_edit' gene_list.id %}" class="btn btn-info  js-create float-right">Edit</button></td>
+                            <td><a href="{% url 'studies:gene_list_edit' gene_list.id %}" class="btn btn-info">Edit</a></td>
                           </tr>
                           {% endfor %}
                         </tbody>
