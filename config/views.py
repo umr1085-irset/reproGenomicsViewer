@@ -14,10 +14,11 @@ from django.template.loader import render_to_string
 from sdap.files.models import File
 from sdap.jobs.models import Job
 from sdap.tools.models import Tool
-from sdap.studies.models import ExpressionStudy
+from sdap.studies.models import ExpressionStudy, ExpressionData, GeneList
 from sdap.studies.views import paginate, check_view_permissions
 from sdap.studies.forms import ExpressionStudyFilterForm
 
+from sdap.studies.graphs import getClasses
 
 def HomeView(request):
     context = {}
@@ -108,3 +109,13 @@ def genome_browser(request):
 
     return render(request, 'pages/genome_browser.html', {'species': data} )
 
+def golden(request):
+    document = ExpressionData.objects.get(id=152)
+    study = document.study
+    context = {'study': study, 'data': document, 'document': document, 'classes': getClasses(document)}
+    if request.user.is_authenticated:
+        context['gene_list'] = GeneList.objects.filter(created_by=request.user, species=document.species)
+    else:
+        context['gene_list'] = []
+
+    return render(request, 'pages/test.html', context )
