@@ -72,7 +72,7 @@ var addMenuItem = function( title) {
         title: title,
         type: 'component',
         componentName: 'testComponent',
-        componentState: { text: ' Drag the right-side <i class="fas fa-plus"></i> here to create a new graph'}
+        componentState: { text: '<img class="img-fluid" alt="" src="'+url_img_drag+'">'}
     };
 
     myLayout.createDragSource( element, newItemConfig );
