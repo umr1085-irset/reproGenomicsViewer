@@ -120,6 +120,13 @@ $(function () {
         });
     }
 
+    var clear_all_genes = function(){
+        $(".gene-table tbody").find('input').each(function(){
+            $(this).parents("tr").remove();
+        });
+        selected_gene_list_to_display = []
+    }
+
     $("#modal-wrapper").on('keydown.autocomplete', selector, function() {
 
         autocomplete_div = "#modal-" + current_container.getState().modal_id + " .autogeneresponse";
@@ -183,7 +190,6 @@ $(function () {
     }),
 
     $("#modal-wrapper").on('click', ".gene-add", function(e) {
-
         var current_modal_id = current_container.getState().modal_id;
         var current_modal = "#modal-" + current_modal_id;
         $(current_modal).find('.gene_info').html("");
@@ -201,13 +207,31 @@ $(function () {
         }
 
         if (selected_gene_list_to_display.length == 0){
-            $(current_modal).find(".clear_genes").hide()
+            $("#modal-wrapper").find(".clear_genes").hide()
         } else {
-            $(current_modal).find(".clear_genes").show()
+            $("#modal-wrapper").find(".clear_genes").show()
         }
-
         $(this).attr("disabled", true);
+    });
 
+    $("#modal-wrapper").on('click', ".gene-list-load", function(e) {
+        var selected_gene_list = $("#modal-" + current_container.getState().modal_id + " .gene-list").val();
+        var url = $(this).attr('data-url');
+        $.ajax({
+            url: url + "?id="+ selected_gene_list,
+            type: 'get',
+            dataType: 'json',
+            success: function (data) {
+                if (data.data.length > 0){
+                    clear_all_genes();
+                    $.each(data.data, function(index, value){
+                        selected_gene_list_to_display.push(value['id'])
+                        $(".gene-table tbody").append(generate_row(value['display'], value['id']))
+                        $("#modal-wrapper").find(".clear_genes").show()
+                    })
+                }
+            }
+        });
     });
 
     $("#modal-wrapper").on('click', ".gene-remove", function(e) {
@@ -281,9 +305,8 @@ $(function () {
 
 var loadGraph = function () {
     var div = $("#class_layout")
-
     $.ajax({
-      url: div.attr("data-url") + "&document_id=" + div.attr("document-id") + "&study_id=" + div.attr("study-id"),
+      url: div.attr("data-url") + "?document_id=" + div.attr("document-id") + "&study_id=" + div.attr("study-id"),
       type: 'get',
       dataType: 'json',
       success: function (data) {

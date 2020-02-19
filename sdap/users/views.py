@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 
 from sdap.users.models import Notification
-from sdap.studies.models import ExpressionStudy
+from sdap.studies.models import ExpressionStudy, GeneList
 from sdap.studies.views import check_view_permissions, paginate
 
 User = get_user_model()
@@ -28,6 +28,7 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         context['groups'] = paginate(groups, self.request.GET.get('groups'))
         context['notifications'] = paginate(Notification.objects.filter(user=self.request.user), self.request.GET.get('notifications'))
         context['studies'] = paginate([study for study in ExpressionStudy.objects.all() if check_view_permissions(self.request.user, study, True)], self.request.GET.get('studies'))
+        context['gene_lists'] = paginate(GeneList.objects.filter(created_by=self.request.user), self.request.GET.get('gene_lists'))
 
         for group in context['groups']:
             group.members_number = group.user_set.count()
@@ -36,7 +37,8 @@ class UserDetailView(LoginRequiredMixin, DetailView):
             'user': "",
             'notification': "",
             'group': "",
-            'study': ""
+            'study': "",
+            'gene_list': ""
         }
 
         if self.request.GET.get('notifications'):
@@ -45,8 +47,11 @@ class UserDetailView(LoginRequiredMixin, DetailView):
             context['in_use']['study'] = 'active'
         elif self.request.GET.get('groups'):
             context['in_use']['group'] = 'active'
+        elif self.request.GET.get('gene_list'):
+            context['in_use']['gene_list'] = 'active'
         else:
             context['in_use']['user'] = 'active'
+
 
         return context
 

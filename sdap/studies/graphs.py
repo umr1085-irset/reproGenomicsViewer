@@ -62,7 +62,7 @@ def getNbSampleByClass(data):
                 val_x= x[np.where(groups == str(cond))[0]]
                 distribution_values.append(len(val_x))
             
-            lClass.append({'class_name':selected_class,'colors':colors, 'distribution_labels':uniq_groups, 'distribution_values':distribution_values})
+            lClass.append({'class_name':selected_class,'colors':colors, 'distribution_labels':list(uniq_groups), 'distribution_values':distribution_values})
     
     return lClass
 

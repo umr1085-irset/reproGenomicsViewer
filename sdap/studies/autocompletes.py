@@ -17,18 +17,19 @@ def get_param_values(parameter, query):
 
 class GeneAutocomplete(autocomplete.Select2QuerySetView):
 
+    def get_queryset(self):
+        query = self.q
+        species = self.forwarded.get('species', '9606')
+        qs = Gene.objects.filter(tax_id=species)
+        if query:
+            qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query))
+        return qs
+
     def get_result_value(self, result):
         return result.id
 
     def get_result_label(self, result):
-        return result.symbol
-
-    def get_queryset(self):
-        query = self.q
-        qs = Gene.objects.all()
-        if query:
-            qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query))
-        return qs
+        return "{} ({})".format(result.symbol, result.gene_id)
 
 class ExpressionStudyAutocomplete(autocomplete.Select2QuerySetView):
 

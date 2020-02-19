@@ -283,12 +283,38 @@
              </form>
            </div>
            <div class="col-md-6 mb-5">
+             <h2>Load your gene lists</h2>
+             <hr>
+             {% if gene_lists %}
+                 <div class="row my-5">
+                   <div class="col-md-6 mb-5">
+                     <select class="browser-default custom-select gene-list">
+                     {% for gene_list in gene_lists %}
+                       <option value="{{gene_list.id}}">{{gene_list.name}} ({{gene_list.genes.count}} genes)</option>
+                     {% endfor %}
+                     </select>
+                   </div>
+                   <div class="col-md-6 mb-5">
+                     <button class="btn btn-default gene-list-load" data-url="{% url 'studies:gene_list_view'%}">Load list</button>
+                   </div>
+                 </div>
+             {% else %}
+               {% if user.is_authenticated %}
+                <p>To save your gene list, you need to be logged in.</p>
+               {% else %}
+                <p> You can save your gene list on this page and on your user page.</p>
+               {% endif %}
+             {% endif %}
+           </div>
+         </div>
+         <div class="row my-5 gene_select">
+           <div class="col-md-12 mb-5">
              <h2>Selected genes</h2>
              <div class="messagegene"></div>
              <div class="scatter_info" style="color: green; display:block">Optional: Select one gene to be displayed</div>
              <div class="violin_info" style="color:red; display:none">Required : Select one gene to be displayed</div>
              <div class="density_info"style="color:green; display:none">Optional: Select one or more genes to be displayed</div>
-             <div class="gene_info">You can add genes to this list by using the input on the left</div>
+             <div class="gene_info">You can add genes to this list by using the input in Genes selection, or by loading a saved gene list.</div>
              <form class="md-form md-bg gene-form"><table class='table align-middle gene-table'><tbody></tbody></table></form>
              <button class="btn btn-info btn-sm clear_genes" style="display:none;">Uncheck all</button>
            </div>

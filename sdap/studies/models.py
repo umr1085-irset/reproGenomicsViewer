@@ -351,3 +351,26 @@ class Gene(models.Model):
 
     def __str__(self):
         return self.gene_id
+
+class GeneList(models.Model):
+
+    SPECIES_TYPE = (
+        ('9606','Homo sapiens'),
+        ('10090','Mus musculus'),
+        ('10116','Rattus norvegicus'),
+        ('9913','Bos taurus'),
+        ('9544','Macaca mulatta'),
+        ('9823','Sus scrofa'),
+        ('9031','Gallus gallus'),
+        ('7955','Danio rerio'),
+        ('9615','Canis lupus familiaris')
+    )
+
+    name = models.CharField(max_length=200)
+    genes = models.ManyToManyField('Gene', blank=True, related_name="gene_lists")
+    species = models.CharField(max_length=50, choices=SPECIES_TYPE, default="9606")
+    created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
+
+    def __str__(self):
+        return self.name

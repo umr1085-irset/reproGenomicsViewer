@@ -227,21 +227,26 @@ class ExpressionStudyFilterForm(forms.Form):
         self.helper.form_class = 'form-inline'
         self.helper.field_template = 'bootstrap3/layout/inline_field.html'
 
-class GeneFilterForm(forms.Form):
 
-    gene = forms.ModelChoiceField(
-        queryset=Gene.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/studies/gene-autocomplete', attrs={'data-minimum-input-length': 2})
-    )
+class MyModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, result):
+        return "{} ({})".format(result.symbol, result.gene_id)
+
+
+class GeneListCreateForm(forms.ModelForm):
+
+    genes = MyModelMultipleChoiceField(
+                queryset=Gene.objects.all(),
+                required=True,
+                widget=autocomplete.ModelSelect2Multiple(url='/studies/gene-autocomplete', forward=['species'], attrs={'data-minimum-input-length': 3})
+            )
+
+    class Meta:
+        model = GeneList
+        fields = ["name", "species", "genes"]
 
     def __init__(self, *args, **kwargs):
-
-        super(GeneFilterForm, self).__init__(*args, **kwargs)
+        super(GeneListCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_method = 'GET'
-        self.helper.form_class = 'form-inline'
-        self.helper.field_template = 'bootstrap3/layout/inline_field.html'
-        self.helper.layout = Layout(
-            'gene',
-            StrictButton('Add', css_class='btn-default'),
-        )
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
