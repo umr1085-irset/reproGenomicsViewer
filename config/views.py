@@ -23,6 +23,16 @@ def HomeView(request):
     context = {}
     return render(request, 'pages/home.html',context)
 
+def AnalyticsView(request):
+    context = {}
+    if not request.user.is_authenticated :
+        return HttpResponseRedirect('/unauthorized')
+
+     if not request.user.is_superuser :
+        return HttpResponseRedirect('/unauthorized')
+    
+    return render(request, 'pages/analytics.html',context)
+
 def index(request):
     columns = [
             "article",

@@ -8,6 +8,7 @@ from . import views
 
 urlpatterns = [
     path("", views.HomeView, name="home"),
+    path("analytics",views.AnalyticsView, name="analytics"),
     path("index/", views.index, name="index"),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
