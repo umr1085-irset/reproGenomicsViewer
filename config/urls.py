@@ -13,7 +13,7 @@ urlpatterns = [
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
     path(
-        "golden/", TemplateView.as_view(template_name="pages/test.html"), name="golden"
+        "golden/", views.golden, name="golden"
     ),
     path("genome_browser/", views.genome_browser, name="genome_browser"),
     path(
