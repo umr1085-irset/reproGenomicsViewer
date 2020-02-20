@@ -3,6 +3,9 @@
 {% load account socialaccount %}
 {% load crispy_forms_tags %}
 {% block content %}
+    <script>
+      ga('send', 'pageview', '/home.html');
+    </script>
     <!-- Page Content -->
     <div class="container">
         <section class="mt-5 wow fadeIn">
@@ -95,6 +98,20 @@
               </div>
             </div>
             <!--/Third row-->
+
+            <div style="height:30px"></div>
+
+            <!--Third four-->
+            <div class="row">
+              <div class="col-1 mr-3">
+                <i class="fas fa-users fa-2x red-text"></i>
+              </div>
+              <div class="col-10" onmouseover="passageDeLaSouris('{% static 'images/home/home_login_ordi.png' %}')">
+                <h5 class="feature-title">User space</h5>
+                <p class="grey-text">Save your gene lists and display our data in RGV</p>
+              </div>
+            </div>
+            <!--/Third four-->
 
 
           </div>
