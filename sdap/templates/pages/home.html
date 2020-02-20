@@ -4,7 +4,10 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <script>
-      ga('send', 'pageview', '/home.html');
+      gtag('config', 'UA-158824695-1', {
+        'page_title' : 'homepage',
+        'page_path': '/home'
+      });
     </script>
     <!-- Page Content -->
     <div class="container">
