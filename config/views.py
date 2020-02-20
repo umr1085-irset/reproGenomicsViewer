@@ -28,7 +28,7 @@ def AnalyticsView(request):
     if not request.user.is_authenticated :
         return HttpResponseRedirect('/unauthorized')
 
-     if not request.user.is_superuser :
+    if not request.user.is_superuser :
         return HttpResponseRedirect('/unauthorized')
     
     return render(request, 'pages/analytics.html',context)
