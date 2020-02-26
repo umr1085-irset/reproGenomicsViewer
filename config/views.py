@@ -20,6 +20,10 @@ from sdap.studies.forms import ExpressionStudyFilterForm
 
 from sdap.studies.graphs import getClasses
 
+import requests, json
+from xml.etree import ElementTree as ET
+
+
 def HomeView(request):
     context = {}
     return render(request, 'pages/home.html',context)
@@ -118,3 +122,33 @@ def genome_browser(request):
         data.append(dict)
 
     return render(request, 'pages/genome_browser.html', {'species': data} )
+
+def _extract_data(pub_id, pub):
+    url = "https://www.ncbi.nlm.nih.gov/pubmed/" + pub_id
+    data = {'url': url, 'title': pub['title'], 'author': pub['authors'][0]['name']}
+    return data
+
+def get_citations():
+    # Add future id in it?
+    url="https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&linkname=pubmed_pubmed_citedin&id=30668675&id=25883147"
+    response = requests.get(url)
+    citing_list = set()
+    citations = []
+    if response.status_code == 200:
+        root = ET.fromstring(response.content)
+        for child in root:
+            linkset = child.find('LinkSetDb')
+            if linkset:
+                for id in linkset.findall('.//Id')
+                    citing_list.add(id.text)
+    if citing_list:
+        string = ",".join(citing_list)
+        # use Json because it's easier to parse..
+        url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=json&id=" + string
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = json.loads(response.content.decode('utf-8'))
+            for pub_id, pub in data['result'].items():
+                citations.append(_extract_data(pub_id, pub))
+
+    return citations
