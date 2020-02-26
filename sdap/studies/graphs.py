@@ -126,7 +126,7 @@ def get_graph_data_full(file, selected_class=None):
 
     x = np.array(getValues(file, ['X'])['X'])
     y = np.array(getValues(file, ['Y'])['Y'])
-    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['toImage','zoom2d','pan2d','lasso2d','resetScale2d']}
+    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['zoom2d','pan2d','lasso2d','resetScale2d']}
     chart['data']=[]
     chart['description'] = ""
     chart['name'] = "Classification by: %s" % (selected_class)
@@ -207,7 +207,7 @@ def get_graph_data_genes(file, genes, selected_class=None):
 
     chart = {}
     gene_name = gene.symbol
-    chart['config'] = {'displaylogo':False,'modeBarButtonsToRemove':['toImage','zoom2d','pan2d','lasso2d','resetScale2d']}
+    chart['config'] = {'displaylogo':False,'modeBarButtonsToRemove':['zoom2d','pan2d','lasso2d','resetScale2d']}
     chart['data'] = []
     chart['description'] = ""
     chart['name'] = "Expression of: %s " % (gene_name)
@@ -322,7 +322,7 @@ def get_density_graph_data_full(file, selected_class=None):
 
     x = np.array(getValues(file, ['X'])['X'])
     y = np.array(getValues(file, ['Y'])['Y'])
-    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['toImage','zoom2d','pan2d','lasso2d','resetScale2d']}
+    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['zoom2d','pan2d','lasso2d','resetScale2d']}
     chart['data']=[]
     chart['description'] = ""
     chart['name'] = "Classification by: %s" % (selected_class)
@@ -398,7 +398,7 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
 
     x = np.array(getValues(file, ['X'])['X'])
     y = np.array(getValues(file, ['Y'])['Y'])
-    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['toImage','zoom2d','pan2d','lasso2d','resetScale2d']}
+    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['zoom2d','pan2d','lasso2d','resetScale2d']}
     chart['data']=[]
     chart['description'] = ""
     chart['name'] = "Classification by: %s" % (selected_class)
@@ -534,7 +534,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
 
     x = np.array(getValues(file, ['X'])['X'])
     y = np.array(getValues(file, ['Y'])['Y'])
-    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['toImage','zoom2d','pan2d','lasso2d','resetScale2d']}
+    chart['config']={'displaylogo':False,'modeBarButtonsToRemove':['zoom2d','pan2d','lasso2d','resetScale2d']}
     chart['data']=[]
     chart['description'] = ""
     chart['name'] = "Classification by: %s" % (selected_class)
