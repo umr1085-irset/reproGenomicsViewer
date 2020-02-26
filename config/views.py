@@ -118,14 +118,3 @@ def genome_browser(request):
         data.append(dict)
 
     return render(request, 'pages/genome_browser.html', {'species': data} )
-
-def golden(request):
-    document = ExpressionData.objects.get(id=152)
-    study = document.study
-    context = {'study': study, 'data': document, 'document': document, 'classes': getClasses(document)}
-    if request.user.is_authenticated:
-        context['gene_list'] = GeneList.objects.filter(created_by=request.user, species=document.species)
-    else:
-        context['gene_list'] = []
-
-    return render(request, 'pages/test.html', context )

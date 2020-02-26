@@ -1,386 +1,352 @@
 {% extends "base.html" %}
 {% load static i18n %}
+{% load account socialaccount %}
 {% load crispy_forms_tags %}
-
 {% block content %}
-    <style>
-        #ajax-loader{
-            visibility: hidden;
-        }
-        #mapDrawerActivateButtonContainer{
-            position: fixed;
-            padding: 2em;
-            top: 150px;
-            right: -10px;
-            overflow-y: scroll;
-            z-index: 99;
-        }
 
-        #mapDrawerActivateButtonContainer2{
-            position: fixed;
-            padding: 2em;
-            top: 240px;
-            right: -30px;
-            overflow-y: scroll;
-            z-index: 99;
-        }
-        .ui-autocomplete {
-            position: absolute;
-            z-index: 1000;
-            cursor: default;
-            padding: 0;
-            margin-top: 2px;
-            list-style: none;
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            -webkit-border-radius: 5px;
-            -moz-border-radius: 5px;
-                    border-radius: 5px;
-            -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-            -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        .ui-autocomplete > li {
-        padding: 3px 20px;
-        }
-        .ui-autocomplete > li.ui-state-focus {
-        background-color: #DDD;
-        }
-        .ui-helper-hidden-accessible {
-        display: none;
-        }
+<link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-base.css" />
+<link type="text/css" rel="stylesheet" href="//golden-layout.com/assets/css/goldenlayout-light-theme.css" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
 
-    </style>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#fullHeightModalRight" id="mapDrawerActivateButtonContainer">
-        <i class="fas fa-info fa-2x"></i>
-    </button>
+<link href="{% static 'css/test.css' %}" rel="stylesheet">
+<template type="text/html">
+    <li id="test">
+      <a data-toggle="modal" data-target="#mymodal" aria-label="More info">
+        <i class="fa fa-cog" aria-hidden="true"></i>
+      </a>
+    </li>
+</template>
 
-     <!-- Button trigger modal -->
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#dataanalyse" id="mapDrawerActivateButtonContainer2">
-        <i class="fas fa-laptop-code fa-2x"></i>
-    </button>
-    <!-- Full Height Modal Right -->
-    <div class="modal fade right" id="fullHeightModalRight" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-        aria-hidden="true">
-
-        <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
-        <div class="modal-dialog modal-full-height modal-right modal-lg" role="document" id="modaltest1">
+<!-- Button trigger modal -->
 
 
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title w-100" id="myModalLabel">Visualization parameters</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
+<!-- Full Height Modal Right -->
+<div class="modal fade right" id="fullHeightModalRight-info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+  <div class="modal-dialog modal-full-height modal-right modal-lg" role="document" id="modaltest1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title w-100" id="myModalLabel">Dataset information</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row my-5">
+                <div class="col-md-6 mb-5">
+                    <h2>Study summary</h2>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Title</th>
+                                <td>{{study.title}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Abstract</th>
+                                <td>{{study.abstract | safe}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Publication date</th>
+                                <td>{{study.publish_date}}</td>
+                            </tr>
+   
+                        </tbody>
+                    </table>
                 </div>
-                <div class="modal-body">
-                    <div class="row my-5">
-                        <div class="col-md-6 mb-5">
-                            <h2>Dataset summary</h2>
-                            <table class="table">
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">Cell number</th>
-                                        <td>{{document.cell_number }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Number of class</th>
-                                        <td>{{ document.class_name |length }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Interogated genes</th>
-                                        <td>{{ document.gene_number }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Gene type</th>
-                                        <td>{{ document.gene_type }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-md-6 mb-5">
-                            <h2>Display parameters</h2>
-                            <table class="table">
-                                <tbody>
-                                    <tr>
-                                        
-                                        {% if 'scRNA-Seq' in study.technology %}
-                                            <th scope="row">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="densitycheck">
-                                                    <label class="custom-control-label" for="densitycheck"></label>
-                                                </div>
-                                            </th>
-                                        {% else %}
-                                            <th scope="row">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="densitycheck" disabled>
-                                                    <label class="custom-control-label" for="densitycheck"></label>
-                                                </div>
-                                            </th>
-                                        {% endif %}
-                                        <td>View density (single cell only)</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="row my-5">
-                        <div class="col-md-4 mb-5">
-                            <h2>Classification parameters</h2>
-                            <hr>
-                            <form id="graph-form md-form md-bg">
-                                <select class="browser-default custom-select" id="class_select">
-                                    {% for class in classes %}
-                                        <option value="{{class}}">{{class}}</option>
-                                    {% endfor %}
-                                </select>
-                            </form>
-                        </div>
-                        <div class="col-md-8 mb-5">
-                            <!-- Card -->
-                            <div class="card">
+                <div class="col-md-6 mb-5">
+                  <h2>Dataset summary</h2>
+                  <table class="table">
+                      <tbody>
+                          <tr>
+                              <th scope="row">Name</th>
+                              <td>{{document.name}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Number of sample/cell</th>
+                            <td>{{document.cell_number }}</td>
+                          </tr>
+                          <tr>
+                              <th scope="row">Number of classification</th>
+                              <td>{{ document.class_name |length }}</td>
+                          </tr>
+                          <tr>
+                              <th scope="row">Number of Interogated genes</th>
+                              <td>{{ document.gene_number }}</td>
+                          </tr>
+                          <tr>
+                              <th scope="row">Technology</th>
+                              <td>{{ document.technology }}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row">Species</th>
+                            <td>{{ document.get_species_display }}</td>
+                        </tr>
+                      </tbody>
+                  </table>
+              </div>
+            </div>
+            <div class="row my-5" data-url="{% url 'studies:class_info'%}" document-id="{{document.id}}" study-id="{{study.id}}" id="class_layout">
+              <h2>Classification parameters</h2>
+              <hr>
 
-                                <!-- Card image -->
-                                <div class="view overlay">
-                                    <canvas id="summary_cluster_distribution"></canvas>
-                                    <a href="#!">
-                                    <div class="mask rgba-white-slight"></div>
-                                    </a>
-                                </div>
+              {% for class in classes %}
+                <div class="col-md-12 mb-5">
+                  <!-- Card -->
+                  <div class="card">
 
-                            
-                            </div>
-                            <!-- Card -->
-                        </div>
-                    </div>
+                      <!-- Card image -->
+                      <div>
+                          <canvas id="class_info_{{ forloop.counter0 }}"></canvas>
+                      </div>
 
-                    <div class="row my-5">
-                        <div class="col-md-4 mb-5">
-                            <h2>Genes information</h2>
-                            <hr>
-                            <div id="autogene" data-url="{% url 'studies:autocomplete_genes' document.species %}">   
-                                <form id="modaltest">
-                                    <div class="md-form md-bg">
-                                        <input type="text" id="formBg1" class="form-control">
-                                        <label for="formBg1">Display gene</label>
-                                    </div>
-                                    <div id="autogeneresponse"></div>
-                                    <button id="select_gene_" type="button" class="btn btn-default">Display</button>
-                                    <button id="select_gene_unselect" type="button" class="btn btn-warning">Unselect</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="col-md-8 mb-5">
-                            <!-- Card -->
-                            <div class="card" >
-
-                                <!-- Card image -->
-                                <div class="view overlay">
-                                    <canvas id="summary_gene_distribution"></canvas>
-                                    <p id="genemessage" class="text-center">Please select a gene</p>
-                                    <a href="#!">
-                                    <div class="mask rgba-white-slight"></div>
-                                    </a>
-                                </div>
-
-                                
-
-                            </div>
-                            <!-- Card -->
-                        </div>
-                    </div>
+                  
+                  </div>
+                  <!-- Card -->
                 </div>
-
-
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
+              {% endfor %}
             </div>
         </div>
-    </div>
-    <!-- Full Height Modal Right -->
 
-
-    <!-- Full Height Modal Right -->
-    <div class="modal fade right" id="dataanalyse" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-        aria-hidden="true">
-
-        <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
-        <div class="modal-dialog modal-full-height modal-right modal-lg" role="document" id="modaltest1">
-
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title w-100" id="myModalLabel">Analyse</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
-                            aria-selected="true">Select multiple</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
-                            aria-selected="false">DEG</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact"
-                            aria-selected="false">More</a>
-                        </li>
-                    </ul>
-                    
-
-                    <div class="tab-content" id="myTabContent">
-                        <!-- Select multiple content -->
-                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                            <div class="row my-5">
-                                <div class="col-md-8 mb-5">
-                                    <h2>Select your visualisation</h2>
-                                    <hr>
-                                    <form id="graph-form md-form md-bg">
-                                        <select class="browser-default custom-select" id="display_selection_a">
-                                                <option value="">Select</option>
-                                                <option value="density">Density plot</option>
-                                                <option value="violin">Violin plot</option>
-                                                <option value="table">Table</option>
-                                        </select>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="row my-5" style="display:none;" id="div_gene_select">
-                                <div class="col-md-8 mb-5">
-                                    <h2>Genes selection</h2>
-                                    <hr>
-                                    <div id="autogene" data-url="{% url 'studies:autocomplete_genes' document.species %}">   
-                                        <form id="modaltest">
-                                            <div class="md-form md-bg">
-                                                <input type="text" id="formBg2" class="form-control">
-                                                <label for="formBg1">Display gene</label>
-                                            </div>
-                                            <div id="autogeneresponse2"></div>
-                                            <button id="select_gene_a" type="button" class="btn btn-default">Add</button>
-                                            <button id="select_gene_a_display" type="button" class="btn btn-secondary" disabled>Display</button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mb-5">
-                                    <h2>Selected genes</h2>
-                                    <div id="messagegene"></div>
-                                    <div id="selectedgeneslist">Please select genes</div>
-                                </div>
-
-                            </div>
-                            <div class="row my-5" style="display:none;" id="div_table_select">
-                                <div class="col-md-12 mb-5">
-                                    <h2>Past your genes IDs/names</h2>
-                                    <hr>
-                                    <div class="form-group purple-border">
-                                        <form id="table_form">
-                                            <label for="class_select_table">Select your class</label>
-                                            <select class="browser-default custom-select" id="class_select_table">
-                                            {% for class in classes %}
-                                                <option value="{{class}}">{{class}}</option>
-                                            {% endfor %}
-                                            </select>
-                                            <label for="gene_query_type_table">Gene format</label>
-                                            <select class="browser-default custom-select" id="gene_query_type_table">
-                                                <option value="name">Gene name</option>
-                                                <option value="id">Gene id</option>
-                                            </select>
-                                            <label for="gene_select_table">Gene list</label>
-                                            <textarea class="form-control" id="gene_select_table" rows="3"></textarea>
-                                        </form>
-                                    </div>
-                                    <button id="select_table" type="button" class="btn btn-default" data-url="{% url 'studies:get_genes_values_table' document.id %}" >Show</button>
-                                    <div id="table-graph-warning" style="color:red;"></div>
-                                    <div id="table-graph-div"></div>
-                                </div>
-                            </div>              
-                        </div>
-                        <!-- Select multiple content -->
-
-                        <!-- DEG content -->
-                        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                            DEG
-                        </div>
-                        <!-- DEG content -->
-
-                        <!-- More content -->
-                        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                            More
-                        </div>
-                        <!-- More content -->
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
+        <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
     </div>
-    <!-- Full Height Modal Right -->
+  </div>
+</div>
 
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-10">
-                <h2>{{study.article}} TSNE visualization</h2>
-                <small>{{ document.name }}</small>
+<!-- Full Height Modal Right-data -->
+<div class="modal fade right" id="fullHeightModalRight-data" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+  <div class="modal-dialog modal-full-height modal-right modal-lg" role="document" id="modaltest2">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title w-100" id="myModalLabel">Dataset operations</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row my-5">
+              <div class="col-md-6 mb-5">
+                <h2>Dataset summary</h2>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Name</th>
+                            <td>{{document.name}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Number of sample/cell</th>
+                          <td>{{document.cell_number }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Number of classification</th>
+                            <td>{{ document.class_name |length }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Number of Interogated genes</th>
+                            <td>{{ document.gene_number }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Technology</th>
+                            <td>{{ document.technology }}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Species</th>
+                          <td>{{ document.get_species_display }}</td>
+                      </tr>
+                    </tbody>
+                </table>
+              </div>
+              <div class="col-md-6 mb-5">
+                <h2> Download full dataset </h2>
+                <a class="btn btn-primary" href="{% url 'studies:document_download' document.id %}" role="button">Download</a>
+              </div>
+            </div>
+            <div class="row my-5">
+              <div class="col-md-12 mb-5">
+                <h2> Gene expression table </h2>
                 <hr>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12 center-align" id="graph_div">
-                <div id="graph" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" ></div>
-            </div>
-        </div>
-        <div class="row" id="graphviolin">
-        </div>
-
-        <div class="row">
-            <div id="test1" class="col-sm-12">
-                <div class="preloader-wrapper active" id="ajax-loader">
-                    <div class="spinner-border text-danger" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
+                <div class="form-group purple-border">
+                  <label for="class_select_table">Select your class</label>
+                  <form id="table_form">
+                    <select class="browser-default custom-select" id="class_select_table">
+                    {% for class in classes %}
+                      <option value="{{class}}">{{class}}</option>
+                    {% endfor %}
+                    </select>
+                    <label for="gene_query_type_table">Gene format</label>
+                    <select class="browser-default custom-select" id="gene_query_type_table">
+                      <option value="name">Gene name</option>
+                      <option value="id">Gene id</option>
+                    </select>
+                    <label for="gene_select_table">Gene list</label>
+                    <textarea class="form-control" id="gene_select_table" rows="3"></textarea>
+                  </form>
                 </div>
-                <span class="card-title" id="info_title"></span>
-                <table id="example" class="display" width="100%"></table>
+                <button id="select_table" type="button" class="btn btn-default" data-url="{% url 'studies:get_genes_values_table' document.id %}" >Show</button>
+                <div id="table-graph-warning" style="color:red;"></div>
+                <div id="table-graph-div"></div>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+    <h5>{{ document.name }} - {{study.article}}</h5>
+    <hr>
+    <div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' document.species %}">
+         <div class="row">
+            <div class="col-11">
+                <div id="layoutContainer"></div>
+            </div>
+            <div class="col-1">
+                <button type="button" class="btn btn-default waves-effect waves-light" data-toggle="modal" data-target="#fullHeightModalRight-info" id="mapDrawerActivateButtonContainer">
+                    <i class="fas fa-info fa-2x"></i>
+                </button>
+                <button type="button" class="btn btn-secondary waves-effect waves-light" data-toggle="modal" data-target="#fullHeightModalRight-data" id="mapDrawerActivateButtonContainer2">
+                    <i class="fas fa-laptop-code fa-2x"></i>
+                </button>
+                <div id="mapDrawerActivateButtonContainer3">
+                    <div style="list-style: none" id="menuContainer"></div>
+                </div>
             </div>
         </div>
     </div>
+</div>
+
+<div id="default_modal">
+<div class="modal fade" id="mymodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Study information</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h2>Select your visualisation</h2>
+        <hr>
+          <form class="md-form md-bg visu-form">
+            <div class="row my-5">
+              <div class="col-md-3 mb-5">
+                <h3>Visualisation type</h3>
+                <select class="browser-default custom-select visu-type">
+                  <option value="scatter">Scatter plot</option>
+                  <option value="violin">Violin plot</option>
+                  <option value="density">Density plot</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-5">
+                <h3>Class selection</h3>
+                <select class="browser-default custom-select visu-class">
+                  {% for class in classes %}
+                  <option value="{{class}}">{{class}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6 mb-5">
+                <br>
+                <div class="scatter_info" style="display:block;">
+                  <p>Scatter plots are recommended for single-cell data. Each point represents a sample/cell. colorized by groups.</p>
+                  <p>You can optionally display the expression of one selected gene</p>
+                </div>
+                <div class="density_info" style="display:none;">
+                  <p>Density plots are recommended for single-cell data. This plot type displays the density of samples/cells.</p>
+                  <p>You can optionally display the expression of one or more genes.</p>
+                </div>
+                <div class="violin_info" style="display:none;">
+                  <p> Violin plot are best used for for transcriptomic data. This plot type displays the expression intensity of the selected gene (only one) through the selected dataset.</p>
+               </div>
+              </div>
+            </div>  
+          </form>
+         <hr>
+         <div class="row my-5 gene_select">
+           <div class="col-md-6 mb-5">
+             <h2>Genes selection</h2>
+             <hr>
+             <form>
+               <div class="md-form md-bg">
+                 <input type="text" class="form-control autocomplete-gene">
+                 <label for="formBg1">Display gene</label>
+               </div>
+               <div class="autogeneresponse"></div>
+               <button type="button" class="btn btn-default gene-add" disabled>Add</button>
+             </form>
+           </div>
+           <div class="col-md-6 mb-5">
+             <h2>Load your gene lists</h2>
+             <hr>
+             {% if gene_lists %}
+                 <div class="row my-5">
+                   <div class="col-md-6 mb-5">
+                     <select class="browser-default custom-select gene-list">
+                     {% for gene_list in gene_lists %}
+                       <option value="{{gene_list.id}}">{{gene_list.name}} ({{gene_list.genes.count}} genes)</option>
+                     {% endfor %}
+                     </select>
+                   </div>
+                   <div class="col-md-6 mb-5">
+                     <button class="btn btn-default gene-list-load" data-url="{% url 'studies:gene_list_view'%}">Load list</button>
+                   </div>
+                 </div>
+             {% else %}
+               {% if not user.is_authenticated %}
+                <p>To save your gene list, you need to be logged in.</p>
+               {% else %}
+                <p> You can save your gene list on this page and on your user page.</p>
+               {% endif %}
+             {% endif %}
+           </div>
+         </div>
+         <div class="row my-5 gene_select">
+           <div class="col-md-12 mb-5">
+             <h2>Selected genes</h2>
+             <div class="messagegene"></div>
+             <div class="scatter_info" style="color: green; display:block">Optional: Select one gene to be displayed</div>
+             <div class="violin_info" style="color:red; display:none">Required : Select one gene to be displayed</div>
+             <div class="density_info"style="color:green; display:none">Optional: Select one or more genes to be displayed</div>
+             <div class="gene_info">You can add genes to this list by using the input in Genes selection, or by loading a saved gene list.</div>
+             <form class="md-form md-bg gene-form"><table class='table align-middle gene-table'><tbody></tbody></table></form>
+             <button class="btn btn-info btn-sm clear_genes" style="display:none;">Uncheck all</button>
+           </div>
+         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary test" data-dismiss="modal">Create graph</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="modal-wrapper"></div>
+
+<br>
 {% endblock %}
 
 {% block javascript %}
     {{ block.super }}
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script>
+        var token = '{{ csrf_token }}';
+    </script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="//golden-layout.com/assets/js/goldenlayout.min.js"></script>
     <script>
-        var token = '{{ csrf_token }}';
-        var summary = "{{ data_stat | safe }}";
-        var url_group_info = "{% url 'studies:group_info' %}";
-        var doc_data = '{{ document.id | safe }}'
-        var pic1 = '{% static "/images/home_density.png" %}'
-        var pic2 = '{% static "/images/home_violin.png" %}'
-        var pic3 = '{% static "/images/home_violin.png" %}'
-
-        $(document).ready(function(){
-            $('.tabs').tabs();
-        });
+      var asso_class = '{{ classes }}';
+      var url_img_drag = "{% static 'images/tuto/RGV-Drag_picture.png' %}";
     </script>
-    <script src="{% static 'js/studies_graph.js' %}"></script>
-    <script src="{% static 'js/studies_graph_analyse.js' %}"></script>
+    <script src="{% static 'js/test.js' %}"></script>
 {% endblock %}
-
