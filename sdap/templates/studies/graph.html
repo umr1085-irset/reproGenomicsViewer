@@ -137,7 +137,7 @@
                             <td>{{document.name}}</td>
                         </tr>
                         <tr>
-                          <th scope="row">Number of sample/cell</th>
+                          <th scope="row">Number of samples/cells</th>
                           <td>{{document.cell_number }}</td>
                         </tr>
                         <tr>
@@ -145,7 +145,7 @@
                             <td>{{ document.class_name |length }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Number of Interogated genes</th>
+                            <th scope="row">Number of interrogated genes</th>
                             <td>{{ document.gene_number }}</td>
                         </tr>
                         <tr>
@@ -226,16 +226,14 @@
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" >Study information</h5>
+        <h5 class="modal-title" >Select your visualisation</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <h2>Select your visualisation</h2>
-        <hr>
           <form class="md-form md-bg visu-form">
-            <div class="row my-5">
+            <div class="row my-3">
               <div class="col-md-3 mb-5">
                 <h3>Visualisation type</h3>
                 <select class="browser-default custom-select visu-type">
@@ -269,7 +267,7 @@
             </div>  
           </form>
          <hr>
-         <div class="row my-5 gene_select">
+         <div class="row my-3 gene_select">
            <div class="col-md-6 mb-5">
              <h2>Genes selection</h2>
              <hr>
@@ -286,7 +284,7 @@
              <h2>Load your gene lists</h2>
              <hr>
              {% if gene_lists %}
-                 <div class="row my-5">
+                 <div class="row my-3">
                    <div class="col-md-6 mb-5">
                      <select class="browser-default custom-select gene-list">
                      {% for gene_list in gene_lists %}
@@ -307,8 +305,9 @@
              {% endif %}
            </div>
          </div>
-         <div class="row my-5 gene_select">
-           <div class="col-md-12 mb-5">
+         <hr>
+         <div class="row my-3 gene_select">
+           <div class="col-md-12 mb-3">
              <h2>Selected genes</h2>
              <div class="messagegene"></div>
              <div class="scatter_info" style="color: green; display:block">Optional: Select one gene to be displayed</div>

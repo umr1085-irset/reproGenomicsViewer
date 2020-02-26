@@ -139,7 +139,7 @@ def get_citations():
         for child in root:
             linkset = child.find('LinkSetDb')
             if linkset:
-                for id in linkset.findall('.//Id')
+                for id in linkset.findall('.//Id'):
                     citing_list.add(id.text)
     if citing_list:
         string = ",".join(citing_list)
@@ -149,6 +149,10 @@ def get_citations():
         if response.status_code == 200:
             data = json.loads(response.content.decode('utf-8'))
             for pub_id, pub in data['result'].items():
-                citations.append(_extract_data(pub_id, pub))
+                if not pub_id == "uids":
+                    citations.append(_extract_data(pub_id, pub))
 
     return citations
+
+def citing(request):
+    return render(request, 'pages/citing.html', {'citations': get_citations()})
