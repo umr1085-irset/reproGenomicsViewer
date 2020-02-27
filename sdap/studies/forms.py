@@ -179,6 +179,7 @@ class ExpressionStudyFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
 
+        show_all = kwargs.pop('show_all', False)
         studies = kwargs.pop('studies')
         super(ExpressionStudyFilterForm, self).__init__(*args, **kwargs)
 
@@ -199,7 +200,10 @@ class ExpressionStudyFilterForm(forms.Form):
         for study in studies:
             for key, value in columns.items():
                 if key == "technology":
-                    value |= set([getattr(data, key, []) for data in study.data.all()])
+                    if show_all:
+                        value |= set(getattr(study, key, []))
+                    else:
+                        value |= set([getattr(data, key, []) for data in study.data.all()])
                 # Hacky hacky : we need to display the display value, and send the real value
                 elif key == "species":
                     for data in study.data.all():

@@ -492,7 +492,8 @@ def render_table(request):
             elif key == "pmid":
                 kwargs[key + "__istartswith"] = value
             elif key == "technology" or key == "species":
-                kwargs["data__" + key] = value
+#                kwargs["data__" + key] = value
+                 kwargs[key + "__contains"] = [value]
             elif key == "page" or key == "type" or key == "pagination":
                 continue
             else:
