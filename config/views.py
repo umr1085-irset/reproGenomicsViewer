@@ -58,7 +58,7 @@ def index(request):
     ]
     all_studies =[study for study in  ExpressionStudy.objects.all().order_by('article') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)
-    form = ExpressionStudyFilterForm(studies=all_studies)
+    form = ExpressionStudyFilterForm(studies=all_studies, show_all=True)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
