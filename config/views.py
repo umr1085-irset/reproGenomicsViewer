@@ -20,6 +20,10 @@ from sdap.studies.forms import ExpressionStudyFilterForm
 
 from sdap.studies.graphs import getClasses
 
+import requests, json
+from xml.etree import ElementTree as ET
+
+
 def HomeView(request):
     context = {}
     return render(request, 'pages/home.html',context)
@@ -119,13 +123,5 @@ def genome_browser(request):
 
     return render(request, 'pages/genome_browser.html', {'species': data} )
 
-def golden(request):
-    document = ExpressionData.objects.get(id=152)
-    study = document.study
-    context = {'study': study, 'data': document, 'document': document, 'classes': getClasses(document)}
-    if request.user.is_authenticated:
-        context['gene_list'] = GeneList.objects.filter(created_by=request.user, species=document.species)
-    else:
-        context['gene_list'] = []
-
-    return render(request, 'pages/test.html', context )
+def citing(request):
+    return render(request, 'pages/citing.html')

@@ -642,7 +642,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
             data_chart['boxpoints'] = False
             data_chart['y'] = [cond] * len(data_chart['x'])
             data_chart['boxmean'] = True
-            violin_chart['violmsg'] = ""
+            data_chart['violmsg'] = ""
         chart['data'].append(data_chart)
     result['chart'] = chart
     return result

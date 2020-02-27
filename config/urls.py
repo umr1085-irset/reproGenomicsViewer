@@ -13,9 +13,6 @@ urlpatterns = [
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
-    path(
-        "golden/", TemplateView.as_view(template_name="pages/test.html"), name="golden"
-    ),
     path("genome_browser/", views.genome_browser, name="genome_browser"),
     path(
         "tutorial/", TemplateView.as_view(template_name="pages/tutorial.html"), name="tutorial"
@@ -37,7 +34,7 @@ urlpatterns = [
         "download/", TemplateView.as_view(template_name="pages/download.html"), name="download"
     ),
     path(
-        "citing/", TemplateView.as_view(template_name="pages/citing.html"), name="citing"
+        "citing/", views.citing, name="citing"
     ),
     path(
         "help/", TemplateView.as_view(template_name="pages/help.html"), name="help"

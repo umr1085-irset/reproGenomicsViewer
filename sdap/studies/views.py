@@ -373,16 +373,20 @@ def show_graph(request):
     if not document_id.isdigit() or not study_id.isdigit():
         return redirect(reverse("studies:index"))
 
-
     ##########################
     # File Statistique only for RGV files
     ##########################
     data = get_object_or_404(ExpressionData, id=document_id)
-
-
     study = get_object_or_404(ExpressionStudy, id=study_id)
+
     classes = getClasses(data)
     context = {'study': study, 'document': data, 'classes': classes}
+
+    if request.user.is_authenticated:
+        context['gene_lists'] = GeneList.objects.filter(created_by=request.user, species=data.species)
+    else:
+        context['gene_lists'] = []
+
     return render(request, 'studies/graph.html', context)
 
 def get_class_info(request):
