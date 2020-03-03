@@ -8,7 +8,7 @@ from django.core.files import File
 from sdap.users.models import User
 from django.conf import settings
 
-def process_study(row, database, superuser, study_folder):
+def process_study(row, database, superuser):
 
     species_dict = {
         'Homo sapiens': '9606',
@@ -24,10 +24,10 @@ def process_study(row, database, superuser, study_folder):
 
     study = ExpressionStudy.objects.filter(pmid=row['PubMedID'], technology=parse_values(row['technology']), species=parse_values(row['species']))
 
-    if not study.count == 1:
+    if not study.count() == 1:
+        print("Error : {} element(s) matching parameters {} {} {}".format(study.count(), row['PubMedID'], parse_values(row['technology']), species=parse_values(row['species'])))
         # Send mail admin?
         return
-
 
     dict = {
         "article": row['article'],
@@ -54,7 +54,7 @@ def process_study(row, database, superuser, study_folder):
 
     study.update(**dict)
 
-def populate_data(metadata_file, studies_folder):
+def populate_data(metadata_file):
 
     if not os.path.exists(metadata_file):
         print("Error : no metadata.csv file found.")
@@ -69,7 +69,7 @@ def populate_data(metadata_file, studies_folder):
     df = pd.read_csv(metadata_file, sep=",")
     df = df.fillna('')
     for index, row in df.iterrows():
-        process_study(row, database, superuser, studies_folder)
+        process_study(row, database, superuser)
 
 def parse_values(values):
     value_list = []
@@ -83,11 +83,6 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         # Positional arguments
         parser.add_argument('metadata_file', type=str, help='Path to metadata file', default="/app/loading_data/metadata.csv")
-        parser.add_argument('studies_folder', type=str, help='Folder containing the studies folder', default="/app/loading_data/")
 
     def handle(self, *args, **options):
-        folder = options['studies_folder']
-        if not folder.endswith('/'):
-            folder += "/"
-
-        populate_data(options['metadata_file'], folder)
+        populate_data(options['metadata_file'])
