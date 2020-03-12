@@ -2,7 +2,7 @@
 
 {% for study in studies %}
 <tr study_id="{{study.id}}" style="text-align:center">
-<td>{{study.article}}</td>
+<td><a  style="color:blue;" href="{% url 'studies:study_view' study.id %}">{{study.article}}</a></td>
 <td>{{study.pmid}}
   <a data-toggle="modal" data-target="#modal-{{study.id}}" aria-label="More info">
     <i style="color:blue"class="fa fa-question-circle" aria-hidden="true"></i>

@@ -207,7 +207,7 @@ class ExpressionStudyFilterForm(forms.Form):
                 # Hacky hacky : we need to display the display value, and send the real value
                 elif key == "species":
                     for data in study.data.all():
-                        value[data.species] = data.get_species_display()
+                        value[data.get_species_display()] = data.get_species_display()
                 else:
                     value |= set(getattr(study, key, []))
 

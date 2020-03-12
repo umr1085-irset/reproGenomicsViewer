@@ -113,7 +113,7 @@ def delete_document(request, documentid):
 
 def ExpressionStudyDetailView(request, stdid):
     study = get_object_or_404(ExpressionStudy, pk=stdid)
-    if not check_view_permissions(request.user, study, True):
+    if not check_view_permissions(request.user, study, False):
         return redirect('/unauthorized')
     context = {'study': study}
     if check_edit_permissions(request.user, study) and not study.status == "PUBLIC":
@@ -364,7 +364,7 @@ def document_select(request):
 
 def show_graph(request):
 
-    if not "document_id" in request.GET and not "study_id" in request.GET:
+    if not "document_id" in request.GET or not "study_id" in request.GET:
         return redirect(reverse("studies:index"))
 
     document_id = request.GET["document_id"]

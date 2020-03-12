@@ -11,7 +11,7 @@ LOCAL_BACKUP_DIR="$DIR""/archives/"
 REMOTE_BACKUP_DIR="/tmp/"
 DATE=`eval date +%Y%m%d`
 
-if docker-compose -f "$DIR""/../production.yml" exec -e DATABASE_URL=$DATABASE_URL -e CELERY_BROKER_URL=$CELERY_BROKER_URL django python manage.py check_signatures > /dev/null 2>&1; then
+if docker-compose -f "$DIR""/../production.yml" exec -e DATABASE_URL=$DATABASE_URL -e CELERY_BROKER_URL=$CELERY_BROKER_URL django python manage.py check_studies > /dev/null 2>&1; then
    echo "Writing Postgres dump"
    docker-compose -f "$DIR""/../production.yml" exec postgres sh -c "pg_dump --clean -U $POSTGRES_USER $POSTGRES_DB > /backups/DB_backup"
    mv "$DIR""/DB_backup" "$DIR""/../sdap/media/"

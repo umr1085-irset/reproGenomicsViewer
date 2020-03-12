@@ -10,7 +10,7 @@
     <div class="col-md-3 ">
       <div class="list-group ">
           <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
-          <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Documents(s) ({{ study.data.count }})</a>
+          <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Document(s) ({{ study.data.count }})</a>
         </div>
     </div>
     <div class="col-md-9">
@@ -23,7 +23,7 @@
           {% print_val study.authors "Authors" False %}
           {% print_val study.ome "Ome" %}
           {% print_val study.technology "Technologies" %}
-          {% print_val study.species "Species" %}
+          {% print_species study.species "Species" %}
           {% print_val study.experimental_design "Experimental design" %}
           {% print_val study.topics "Topics" %}
           {% print_val study.tissues "Tissues" %}
@@ -61,9 +61,10 @@
                   {% for data in study.data.all %}
                     <tr style="text-align:center;">
                         <td>{{data.name}}</td>
-                        <td>{{data.get_species_display}}</td>
+                        <td>{% print_species_data data.get_species_display %}</td>
                         <td>{{data.get_technology_display}}</td>
                         <td>
+                            <a type="button" class="btn btn-default btn-sm" href="{% url 'studies:graph' %}?study_id={{study.id}}&document_id={{data.id}}"> <i class="fas fa-external-link-alt"></i> View </a>
                             <a type="button" class="btn btn-default btn-sm" href="{% url 'studies:document_download' data.id %}"> <i class="fas fa-download"></i> Download </a>
                             {% if has_edit_perm %}
                             <button type="button" data-url="{% url 'studies:document_delete' data.id %}" class="btn btn-danger btn-sm js-get-form"> <i class="fas fa-trash"></i> Delete</button>
