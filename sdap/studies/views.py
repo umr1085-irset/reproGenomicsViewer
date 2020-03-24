@@ -498,15 +498,18 @@ def render_table(request):
                 continue
             else:
                 kwargs[key + "__contains"] = [value]
-
-    studies = paginate([study for study in studies.filter(**kwargs).distinct().order_by('article') if check_view_permissions(request.user, study)], request.GET.get('page'), pagination)
+    all_studies = [study for study in studies.filter(**kwargs).distinct().order_by('article') if check_view_permissions(request.user, study)]
+    studies = paginate(all_studies, request.GET.get('page'), pagination)
     # Filter here
+    form_data = ExpressionStudyFilterForm(studies=all_studies, initial_values=request.GET)
+    form = render_to_string('studies/partial_study_form.html', {'form': form_data}, request)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     data['table'] = table
     data['pagination'] = pagination
     data['modal'] = modal
+    data['form'] = form
     return JsonResponse(data)
 
 def autocomplete_genes(request,taxonid):

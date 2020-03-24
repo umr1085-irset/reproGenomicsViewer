@@ -180,6 +180,7 @@ class ExpressionStudyFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
 
         show_all = kwargs.pop('show_all', False)
+        initial_values = kwargs.pop('initial_values', {})
         studies = kwargs.pop('studies')
         super(ExpressionStudyFilterForm, self).__init__(*args, **kwargs)
 
@@ -225,6 +226,9 @@ class ExpressionStudyFilterForm(forms.Form):
         # We add it later for proper ordering
         self.fields['keywords'] = forms.CharField(max_length=200, required=False, label="")
 
+        for key, value in initial_values.items():
+            if key in self.fields:
+                self.fields[key].initial = value
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'GET'

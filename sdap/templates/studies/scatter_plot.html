@@ -12,8 +12,19 @@
             <option value="50">50</option>
             <option value="all">All</option>
         </select>
+        <style>
+            .table td {
+                font-size: .8rem;
+            }
+            .table th {
+                font-size: .8rem;
+            }
+            .table .custom-select{
+                font-size: .8rem;
+            }
+        </style>
         <form id="study-form" data-url="{% url 'studies:render_table' %}" data-type="{{data_type}}">
-            <div class="table-responsive">
+            <div class="table-responsive" id="wrapper">
                 <table class="table" id="studies">
                     <thead>
                         <tr style="text-align:center;">
@@ -21,7 +32,7 @@
                             <th scope="col">{{column | title}}</th>
                         {% endfor %}
                         </tr>
-                        <tr style="text-align:center;" id ="filter">
+                        <tr style="text-align:center;" id="filter">
                         {% for field in form %}
                             <td>{{ field|as_crispy_field }}</td>
                         {% endfor %}
@@ -45,5 +56,6 @@
 
 {% block javascript %}
     {{ block.super }}
+    <script src="{% static 'js/jquery.doubleScroll.js' %}"></script>
     <script src="{% static 'js/studies.js' %}"></script>
 {% endblock %}
