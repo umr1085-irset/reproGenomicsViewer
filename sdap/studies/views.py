@@ -337,7 +337,7 @@ def index(request):
             "Select"
     ]
 
-    all_studies = [study for study in ExpressionStudy.objects.exclude(data=None).order_by('article') if check_view_permissions(request.user, study)]
+    all_studies = [study for study in ExpressionStudy.objects.exclude(data=None).order_by('-pmid') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)
     form = ExpressionStudyFilterForm(studies=all_studies)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
@@ -498,10 +498,13 @@ def render_table(request):
                 continue
             else:
                 kwargs[key + "__contains"] = [value]
-    all_studies = [study for study in studies.filter(**kwargs).distinct().order_by('article') if check_view_permissions(request.user, study)]
+    all_studies = [study for study in studies.filter(**kwargs).distinct().order_by('-pmid') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies, request.GET.get('page'), pagination)
     # Filter here
-    form_data = ExpressionStudyFilterForm(studies=all_studies, initial_values=request.GET)
+    if type == "partial":
+        form_data = ExpressionStudyFilterForm(studies=all_studies, initial_values=request.GET)
+    else:
+        form_data = ExpressionStudyFilterForm(studies=all_studies, initial_values=request.GET, show_all=True)
     form = render_to_string('studies/partial_study_form.html', {'form': form_data}, request)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)

@@ -46,7 +46,7 @@ def index(request):
             "keywords",
             "Select"
     ]
-    all_studies =[study for study in  ExpressionStudy.objects.all().order_by('article') if check_view_permissions(request.user, study)]
+    all_studies =[study for study in  ExpressionStudy.objects.all().order_by('-pmid') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)
     form = ExpressionStudyFilterForm(studies=all_studies, show_all=True)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)

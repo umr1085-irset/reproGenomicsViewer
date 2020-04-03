@@ -187,7 +187,7 @@ class ExpressionStudyFilterForm(forms.Form):
         columns = {
             "ome": set(),
             "technology": set(),
-            "species": {},
+            "species": set(),
             "experimental_design": set(),
             "topics": set(),
             "tissues": set(),
@@ -200,26 +200,12 @@ class ExpressionStudyFilterForm(forms.Form):
         # Get all values for columns
         for study in studies:
             for key, value in columns.items():
-                if key == "technology":
-                    if show_all:
-                        value |= set(getattr(study, key, []))
-                    else:
-                        value |= set([getattr(data, key, []) for data in study.data.all()])
-                # Hacky hacky : we need to display the display value, and send the real value
-                elif key == "species":
-                    for data in study.data.all():
-                        value[data.get_species_display()] = data.get_species_display()
-                else:
-                    value |= set(getattr(study, key, []))
+                value |= set(getattr(study, key, []))
 
         for key, value in columns.items():
             choices = ((None, "All"),)
-            if key == "species":
-                for id, name in value.items():
-                    choices = choices + ((id, name),)
-            else:
-                for content in value:
-                    choices = choices + ((content,content),)
+            for content in value:
+                choices = choices + ((content,content),)
             choices = tuple(sorted(choices, key=itemgetter(1)))
             self.fields[key] = forms.ChoiceField(choices=choices, required=False, widget=forms.Select(attrs={'class':'browser-default custom-select'}))
 
