@@ -108,14 +108,24 @@ $(function () {
             type: 'get',
             dataType: 'json',
             success: function (data) {
-                var chart = data.chart;
-                data = chart.data
-                var myelem = current_container.getElement()[0];
-                var clientWidth = myelem.offsetWidth;
-                chart.layout.width = myelem.offsetWidth;
-                chart.layout.height = myelem.offsetHeight;
-                current_container.setTitle(display + " " + selected_class);
-                Plotly.newPlot(myelem, chart.data, chart.layout, chart.config);
+
+                if (selected_type == "jbrowse"){
+                    var content = data.iframe
+                    var myelem = current_container.getElement()[0];
+                    content = content.replace("iframe_width", myelem.offsetWidth)
+                    content = content.replace("iframe_height",myelem.offsetHeight)
+                    console.log(content)
+                    current_container.getElement().eq(0).html(content);
+                } else {
+                    var chart = data.chart;
+                    data = chart.data
+                    var myelem = current_container.getElement()[0];
+                    var clientWidth = myelem.offsetWidth;
+                    chart.layout.width = myelem.offsetWidth;
+                    chart.layout.height = myelem.offsetHeight;
+                    current_container.setTitle(display + " " + selected_class);
+                    Plotly.newPlot(myelem, chart.data, chart.layout, chart.config);
+                }
             }
         });
     }
@@ -184,8 +194,16 @@ $(function () {
         $(current_modal + ' input:checkbox').prop('checked', false);
         if (selected_type == "violin"){
             $(current_modal + " .test").attr("disabled", true);
+            $(current_modal + " .gene_selector").show();
+            $(current_modal + " .class_selector").show();
+        } else if (selected_type == "jbrowse"){
+            $(current_modal + " .test").attr("disabled", false);
+            $(current_modal + " .gene_selector").hide();
+            $(current_modal + " .class_selector").hide();
         } else {
             $(current_modal + " .test").attr("disabled", false);
+            $(current_modal + " .gene_selector").show();
+            $(current_modal + " .class_selector").show();
         }
     }),
 

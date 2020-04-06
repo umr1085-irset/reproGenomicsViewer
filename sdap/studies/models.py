@@ -278,6 +278,7 @@ class ExpressionData(models.Model):
     technology = models.CharField(max_length=50, choices=TECHNOLOGY_TYPE, default="RNA-Seq")
     species = models.CharField(max_length=50, choices=SPECIES_TYPE, default="9606")
     type = models.CharField(max_length=50, choices=FILE_TYPE, default="2D")
+    jbrowse_id = models.CharField(max_length=200,null=True, blank=True)
     gene_type = models.CharField(max_length=200,null=True, blank=True)
     gene_number = models.IntegerField(null=True, blank=True)
     file = models.FileField(upload_to=get_upload_path)

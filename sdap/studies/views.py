@@ -432,26 +432,30 @@ def get_graph_data(request):
     genelist = request.GET.getlist('gene_id', [])
 
     selected_class = request.GET.get('selected_class', None)
-
+    res =  {}
     if genelist :
         exp_list = []
         for g_ in genelist :
             gene = get_object_or_404(Gene, id=g_)
             exp_list.append(gene)
         if display_mode =="scatter" :
-            data = get_graph_data_genes(data,exp_list, selected_class)
+            res = get_graph_data_genes(data,exp_list, selected_class)
         if display_mode =="density" :
-            data = get_density_graph_gene_data_full(data,exp_list, selected_class)
+            res = get_density_graph_gene_data_full(data,exp_list, selected_class)
         if display_mode =="violin" :
-            data = get_violin_graph_gene_data_full(data,exp_list, selected_class)
+            res = get_violin_graph_gene_data_full(data,exp_list, selected_class)
     else:
         if display_mode =="scatter" :
-            data = get_graph_data_full(data, selected_class)
+            res = get_graph_data_full(data, selected_class)
         if display_mode =="density" :
-            data = get_density_graph_data_full(data, selected_class)
+            res = get_density_graph_data_full(data, selected_class)
         if display_mode =="violin" :
-            data = {'chart':[],'warning':[],'time':'',"error_msg":"Please select at least one gene"}
-    return JsonResponse(data)
+            res = {'chart':[],'warning':[],'time':'',"error_msg":"Please select at least one gene"}
+        if display_mode == "jbrowse" and data.jbrowse_id:
+            url = _generate_jbrowse_url(data.get_species_display(), data.jbrowse_id, request.GET)
+            res = {"iframe": render_to_string('studies/partial_jbrowse_iframe.html', {'jbrowse_url':url}, request)}
+
+    return JsonResponse(res)
 
 def get_group_info(request):
 
@@ -668,3 +672,23 @@ class GeneAutocomplete(autocomplete.Select2QuerySetView):
     def get_result_value(self, result):
         return "{} ({})".format(result.symbol, result.gene_id)
 
+def _generate_jbrowse_url(species, jbrowse_id, request_get):
+
+    species_dict = {
+        'Homo sapiens': 'hg38',
+        'Macaca mulatta': 'rheMac8',
+        'Mus musculus':'mm10',
+        'Rattus norvegicus':'rn6',
+        'Canis lupus familiaris': 'canFam3',
+        'Bos taurus': 'bosTau8',
+        'Sus scrofa': 'susScr3',
+        'Gallus gallus': 'galGal5',
+        'Danio rerio': 'danRer10'
+    }
+
+    base_rgv_url = "https://jbrowse-rgv.genouest.org/?data=data/sample_data/json/"
+
+    if not species in species_dict:
+        return ""
+
+    return base_rgv_url + "{}&tracks={}&tracklist=0&overview=0&menu=0".format(species_dict[species], jbrowse_id)
