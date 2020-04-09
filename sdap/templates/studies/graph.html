@@ -240,9 +240,12 @@
                   <option value="scatter">Scatter plot</option>
                   <option value="violin">Violin plot</option>
                   <option value="density">Density plot</option>
+                  {% if document.jbrowse_id %}
+                  <option value="jbrowse">Jbrowse iframe</option>
+                  {% endif %}
                 </select>
               </div>
-              <div class="col-md-3 mb-5">
+              <div class="col-md-3 mb-5 class_selector">
                 <h3>Class selection</h3>
                 <select class="browser-default custom-select visu-class">
                   {% for class in classes %}
@@ -266,9 +269,32 @@
                   <img src="{% static 'images/thumbnails/violin_thumb.png' %}" class="img-thumbnail" alt="...">
                   <p> Violin plot are best used for for transcriptomic data. This plot type displays the expression intensity of the selected gene (only one) through the selected dataset.</p>
                 </div>
+                <div class="jbrowse_info" style="display:none;">
+                  <p> Display the jbrowse data for this species. The track related to the study will be displayed</p>
+                  <p> You can display additional tracks, such as the reference sequence, or annotation tracks, if they are available for this organism.</p>
+                </div>
               </div>
             </div>  
           </form>
+         {% if document.species.jbrowse_data %}
+         <div class="jbrowse_selector" style="display:None;">
+         <hr>
+            <p> Additional tracks available for this organism : </p>
+            <form class="jbrowse_track_form">
+                {% if document.species.jbrowse_data.sequence %}
+                <label> {{document.species.jbrowse_data.sequence.name}} 
+                    <input type="checkbox" name="tracks" value="{{document.species.jbrowse_data.sequence.jbrowse_id}}">
+                </label><br>
+                {% endif %}
+                {% for track in document.species.jbrowse_data.annotations %} 
+                <label> {{track.name}}
+                    <input type="checkbox" name="tracks" value="{{track.jbrowse_id}}">
+                </label><br>
+                {% endfor %}
+            </form>
+         </div>
+         {% endif %}
+         <div class="gene_selector">
          <hr>
          <div class="row my-3 gene_select">
            <div class="col-md-6 mb-5">
@@ -320,6 +346,7 @@
              <form class="md-form md-bg gene-form"><table class='table align-middle gene-table'><tbody></tbody></table></form>
              <button class="btn btn-info btn-sm clear_genes" style="display:none;">Uncheck all</button>
            </div>
+         </div>
          </div>
       </div>
       <div class="modal-footer">

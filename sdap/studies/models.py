@@ -22,7 +22,7 @@ def _set_values(study):
     species = set()
     technology = set()
     for data in study.data.all():
-        species.add(data.get_species_display())
+        species.add(data.species.name)
         technology.add(data.get_technology_display())
     study.species = list(species)
     study.technology = list(technology)
@@ -87,23 +87,11 @@ def get_pubmed_info(pmid):
 
 def get_upload_path(instance, filename):
 
-    orga_dict = {
-        '9606': 'Homo_sapiens',
-        '10090': 'Mus_musculus',
-        '10116': 'Rattus_norvegicus',
-        '9913': 'Bos_taurus',
-        '9544': 'Macaca_mulatta',
-        '9823': 'Sus_scrofa',
-        '9031': 'Gallus_gallus',
-        '7955': 'Danio_rerio',
-        '9615': 'Canis_lupus_familiaris'
-    }
-
     user_type = "user"
     if instance.created_by and instance.created_by.is_superuser:
         user_type = "admin"
 
-    path =  os.path.join("studies/{}/{}/{}/{}/".format(user_type, instance.study.pmid, instance.technology, orga_dict[instance.species]), filename)
+    path =  os.path.join("studies/{}/{}/{}/{}/".format(user_type, instance.study.pmid, instance.technology, instance.species.jbrowse_folder), filename)
     return path
 
 def change_permission_owner(self):
@@ -207,10 +195,6 @@ class ExpressionStudy(models.Model):
     def __str__(self):
         return self.pmid
 
-
-
-
-
 @receiver(m2m_changed, sender=ExpressionStudy.read_groups.through)
 def update__permissions_read(sender, instance, action, **kwargs):
     if instance.read_groups.all():
@@ -235,19 +219,17 @@ def update__permissions_write(sender, instance, action, **kwargs):
                 if 'change_expressionstudy' not in get_group_perms(group, instance):
                     assign_perm('change_expressionstudy', group, instance)
 
+class Species(models.Model):
+
+    name = models.CharField(max_length=200)
+    species_id = models.CharField(max_length=20)
+    jbrowse_name = models.CharField(max_length=20)
+    jbrowse_data = JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 class ExpressionData(models.Model):
-    SPECIES_TYPE = (
-        ('9606','Homo sapiens'),
-        ('10090','Mus musculus'),
-        ('10116','Rattus norvegicus'),
-        ('9913','Bos taurus'),
-        ('9544','Macaca mulatta'),
-        ('9823','Sus scrofa'),
-        ('9031','Gallus gallus'),
-        ('7955','Danio rerio'),
-        ('9615','Canis lupus familiaris')
-    )
 
     TECHNOLOGY_TYPE = (
         ('RNA-Seq','RNA-Seq'),
@@ -276,9 +258,10 @@ class ExpressionData(models.Model):
 
     name = models.CharField(max_length=200)
     technology = models.CharField(max_length=50, choices=TECHNOLOGY_TYPE, default="RNA-Seq")
-    species = models.CharField(max_length=50, choices=SPECIES_TYPE, default="9606")
+    species = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='datasets')
     type = models.CharField(max_length=50, choices=FILE_TYPE, default="2D")
     jbrowse_id = models.CharField(max_length=200,null=True, blank=True)
+    has_jbrowse = models.BooleanField(default=False)
     gene_type = models.CharField(max_length=200,null=True, blank=True)
     gene_number = models.IntegerField(null=True, blank=True)
     file = models.FileField(upload_to=get_upload_path)
@@ -293,6 +276,8 @@ class ExpressionData(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+
+        force = kwargs.pop('force', False)
         super(ExpressionData, self).save(*args, **kwargs)
         dIndex={'Sample':0}
         gene_type = "Entrez Gene"
@@ -302,6 +287,9 @@ class ExpressionData(models.Model):
         f =  open(self.file.path)
         cell_number = 0
         nb_gene = 0
+
+        if force:
+            return
 
         while f.readline() != '':
             pointer_list.append(f.tell())
@@ -355,23 +343,12 @@ class Gene(models.Model):
 
 class GeneList(models.Model):
 
-    SPECIES_TYPE = (
-        ('9606','Homo sapiens'),
-        ('10090','Mus musculus'),
-        ('10116','Rattus norvegicus'),
-        ('9913','Bos taurus'),
-        ('9544','Macaca mulatta'),
-        ('9823','Sus scrofa'),
-        ('9031','Gallus gallus'),
-        ('7955','Danio rerio'),
-        ('9615','Canis lupus familiaris')
-    )
-
     name = models.CharField(max_length=200)
     genes = models.ManyToManyField('Gene', blank=True, related_name="gene_lists")
-    species = models.CharField(max_length=50, choices=SPECIES_TYPE, default="9606")
+    species = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='gene_lists')
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')
 
     def __str__(self):
         return self.name
+

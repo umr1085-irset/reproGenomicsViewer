@@ -35,7 +35,7 @@ def print_species(value, name):
 
 @register.simple_tag
 def get_studies_jbrowse(study):
-    if not study.data:
+    if study.technology == ["scRNA-Seq"] or not study.data:
         return format_html("<p><b>Species</b> : {}</p><hr>".format(", ".join(study.species)))
 
     data = link_to_genome_browser(study.data.all())

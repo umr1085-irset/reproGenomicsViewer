@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 import pandas as pd
 import os
 import time
+import json
 
 from sdap.studies.models import ExpressionStudy, ExpressionData, Database
 from django.core.files import File
@@ -46,14 +47,25 @@ def sync_study(row):
         print("Updating " + row['PubMedID'])
         studies.update(**dict)
 
-    if 'JBrowseLABEL' in row:
-        jbrowse_id = row['JBrowseLABEL']
-        for study in studies:
-            if study.data:
-                for data in study.data.all():
-                    if not data.jbrowse_id == jbrowse_id:
-                        data.jbrowse_id = jbrowse_id
-                        data.save()
+    jbrowse_id = row['RGVID']
+    for study in studies:
+        if study.data:
+            for data in study.data.all():
+                need_update = False
+                if not data.jbrowse_id == jbrowse_id:
+                    data.jbrowse_id = jbrowse_id
+                    need_update = True
+                if "JBrowseStatus" in row:
+                    if row["JBrowseStatus"] = "yes":
+                        status = True
+                    else:
+                        status = False
+                    if not data.has_jbrowse == status:
+                        data.has_jbrowse = status
+                        need_update = True
+
+                if need_update:
+                    data.save()
     return True
 
 def process_study(row, database, superuser, study_folder):

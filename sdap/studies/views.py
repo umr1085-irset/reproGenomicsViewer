@@ -452,7 +452,7 @@ def get_graph_data(request):
         if display_mode =="violin" :
             res = {'chart':[],'warning':[],'time':'',"error_msg":"Please select at least one gene"}
         if display_mode == "jbrowse" and data.jbrowse_id:
-            url = _generate_jbrowse_url(data.get_species_display(), data.jbrowse_id, request.GET)
+            url = _generate_jbrowse_url(data.species.species_id, data.jbrowse_id, request.GET)
             res = {"iframe": render_to_string('studies/partial_jbrowse_iframe.html', {'jbrowse_url':url}, request)}
 
     return JsonResponse(res)
@@ -472,8 +472,6 @@ def get_group_info(request):
 
     table = render_to_string('studies/partial_group_info.html', {'genes_list': expression_values_group}, request)
     data = {'list' : expression_values_group, 'group':group}
-
-
 
     return JsonResponse(data)
 
@@ -672,23 +670,8 @@ class GeneAutocomplete(autocomplete.Select2QuerySetView):
     def get_result_value(self, result):
         return "{} ({})".format(result.symbol, result.gene_id)
 
-def _generate_jbrowse_url(species, jbrowse_id, request_get):
-
-    species_dict = {
-        'Homo sapiens': 'hg38',
-        'Macaca mulatta': 'rheMac8',
-        'Mus musculus':'mm10',
-        'Rattus norvegicus':'rn6',
-        'Canis lupus familiaris': 'canFam3',
-        'Bos taurus': 'bosTau8',
-        'Sus scrofa': 'susScr3',
-        'Gallus gallus': 'galGal5',
-        'Danio rerio': 'danRer10'
-    }
+def _generate_jbrowse_url(species_id, jbrowse_id, request_get):
 
     base_rgv_url = "https://jbrowse-rgv.genouest.org/?data=data/sample_data/json/"
 
-    if not species in species_dict:
-        return ""
-
-    return base_rgv_url + "{}&tracks={}&tracklist=0&overview=0&menu=0".format(species_dict[species], jbrowse_id)
+    return base_rgv_url + "{}&tracks={}&tracklist=0&overview=0&menu=0".format(species_id, jbrowse_id)

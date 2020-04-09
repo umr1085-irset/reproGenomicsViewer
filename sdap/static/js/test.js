@@ -196,14 +196,25 @@ $(function () {
             $(current_modal + " .test").attr("disabled", true);
             $(current_modal + " .gene_selector").show();
             $(current_modal + " .class_selector").show();
+            if ($(current_modal + " .jbrowse_selector").length > 0){
+                $(current_modal + " .jbrowse_selector").hide()
+            }
         } else if (selected_type == "jbrowse"){
             $(current_modal + " .test").attr("disabled", false);
             $(current_modal + " .gene_selector").hide();
             $(current_modal + " .class_selector").hide();
+            console.log($(current_modal + " .jbrowse_selector").length)
+            if ($(current_modal + " .jbrowse_selector").length > 0){
+                $(current_modal + " .jbrowse_selector").show()
+            }
+
         } else {
             $(current_modal + " .test").attr("disabled", false);
             $(current_modal + " .gene_selector").show();
             $(current_modal + " .class_selector").show();
+            if ($(current_modal + " .jbrowse_selector").length > 0){
+                $(current_modal + " .jbrowse_selector").hide()
+            }
         }
     }),
 
