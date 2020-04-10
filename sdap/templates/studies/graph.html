@@ -80,7 +80,7 @@
                           </tr>
                           <tr>
                             <th scope="row">Species</th>
-                            <td>{{ document.get_species_display }}</td>
+                            <td>{{ document.species.name }}</td>
                         </tr>
                       </tbody>
                   </table>
@@ -154,7 +154,7 @@
                         </tr>
                         <tr>
                           <th scope="row">Species</th>
-                          <td>{{ document.get_species_display }}</td>
+                          <td>{{ document.species.name }}</td>
                       </tr>
                     </tbody>
                 </table>
@@ -201,7 +201,7 @@
 <div class="container-fluid">
     <h5>{{ document.name }} - {{study.article}}</h5>
     <hr>
-    <div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' document.species %}">
+    <div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' document.species.species_id %}">
          <div class="row">
             <div class="col-11">
                 <div id="layoutContainer"></div>

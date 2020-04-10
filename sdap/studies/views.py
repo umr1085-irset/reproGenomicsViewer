@@ -452,7 +452,7 @@ def get_graph_data(request):
         if display_mode =="violin" :
             res = {'chart':[],'warning':[],'time':'',"error_msg":"Please select at least one gene"}
         if display_mode == "jbrowse" and data.jbrowse_id:
-            url = _generate_jbrowse_url(data.species.species_id, data.jbrowse_id, request.GET)
+            url = _generate_jbrowse_url(data.species.jbrowse_name, data.jbrowse_id, request.GET)
             res = {"iframe": render_to_string('studies/partial_jbrowse_iframe.html', {'jbrowse_url':url}, request)}
 
     return JsonResponse(res)
@@ -670,8 +670,13 @@ class GeneAutocomplete(autocomplete.Select2QuerySetView):
     def get_result_value(self, result):
         return "{} ({})".format(result.symbol, result.gene_id)
 
-def _generate_jbrowse_url(species_id, jbrowse_id, request_get):
+def _generate_jbrowse_url(species_id, tracks, request_get):
+
+    add_tracks = request_get.getlist("tracks", [])
 
     base_rgv_url = "https://jbrowse-rgv.genouest.org/?data=data/sample_data/json/"
 
-    return base_rgv_url + "{}&tracks={}&tracklist=0&overview=0&menu=0".format(species_id, jbrowse_id)
+    if add_tracks:
+        tracks = tracks + "," + ",".join(add_tracks)
+
+    return base_rgv_url + "{}&tracks={}&tracklist=0&overview=0&menu=0".format(species_id, tracks)

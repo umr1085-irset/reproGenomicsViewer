@@ -19,7 +19,7 @@
                 <tbody>
                     {% for file in study.data.all %}
                     <tr style="text-align:center;">
-                        <td>{{file.get_species_display}}</td>
+                        <td>{{file.species.name}}</td>
                         <td>{{file.get_technology_display}}</td>
                         <td>{{file.name}}</td>
                         <td><a class="btn btn-info" href="{% url 'studies:graph' %}?study_id={{study.id}}&document_id={{file.id}}">

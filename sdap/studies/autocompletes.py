@@ -2,7 +2,7 @@ from dal import autocomplete
 from django.db.models import Q
 
 from guardian.shortcuts import get_perms
-from .models import ExpressionStudy, Gene
+from .models import ExpressionStudy, Gene, Species
 
 def get_param_values(parameter, query):
     qs = ExpressionStudy.objects.all()
@@ -19,8 +19,9 @@ class GeneAutocomplete(autocomplete.Select2QuerySetView):
 
     def get_queryset(self):
         query = self.q
-        species = self.forwarded.get('species', '9606')
-        qs = Gene.objects.filter(tax_id=species)
+        species_id = self.forwarded.get('species')
+        species = Species.obects.get(id=species_id)
+        qs = Gene.objects.filter(tax_id=species.species_id)
         if query:
             qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query))
         return qs
