@@ -240,7 +240,7 @@
                   <option value="scatter">Scatter plot</option>
                   <option value="violin">Violin plot</option>
                   <option value="density">Density plot</option>
-                  {% if document.jbrowse_id %}
+                  {% if document.has_jbrowse %}
                   <option value="jbrowse">Jbrowse iframe</option>
                   {% endif %}
                 </select>
@@ -276,7 +276,7 @@
               </div>
             </div>  
           </form>
-         {% if document.species.jbrowse_data %}
+         {% if document.species.has_jbrowse %}
          <div class="jbrowse_selector" style="display:None;">
          <hr>
             <p> Additional tracks available for this organism : </p>

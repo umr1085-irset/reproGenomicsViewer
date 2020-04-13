@@ -56,7 +56,7 @@ def sync_study(row):
                     data.jbrowse_id = jbrowse_id
                     need_update = True
                 if "JBrowseStatus" in row:
-                    if row["JBrowseStatus"] = "yes":
+                    if row["JBrowseStatus"] == "yes":
                         status = True
                     else:
                         status = False
