@@ -12,10 +12,7 @@ def keyvalue(dict, key):
 def val_to_set(study, key):
     set_val = set()
     for data in study.data.all():
-        if key == "species":
-            set_val.add(data.get_species_display())
-        else:
-            set_val.add(getattr(data, key))
+        set_val.add(getattr(data, key))
     return ",<br>".join(set_val)
 
 @register.simple_tag
@@ -44,26 +41,14 @@ def get_studies_jbrowse(study):
 def link_to_genome_browser(data_list):
     # Will have duplicate if we have datasets with same species but different jbrowse url..
 
-    species_dict = {
-        'Homo sapiens': 'hg38',
-        'Macaca mulatta': 'rheMac8',
-        'Mus musculus':'mm10',
-        'Rattus norvegicus':'rn6',
-        'Canis lupus familiaris': 'canFam3',
-        'Bos taurus': 'bosTau8',
-        'Sus scrofa': 'susScr3',
-        'Gallus gallus': 'galGal5',
-        'Danio rerio': 'danRer10'
-    }
-
     base_rgv_url = "https://jbrowse-rgv.genouest.org/?data=data/sample_data/json/"
 
     url_dict = {}
 
     for data in data_list:
-        species = data.get_species_display()
-        if species in species_dict and data.jbrowse_id:
-            j_url = base_rgv_url + species_dict[species] + "&tracks=" + data.jbrowse_id
+        species = data.species.name
+        if data.has_jbrowse:
+            j_url = base_rgv_url + data.species.jbrowse_name + "&tracks=" + data.jbrowse_id
             url = "<a style='color:blue' href='{}' target='_blank'>(Genome browser <i class='fas fa-external-link-alt'></i>)</a>".format(j_url)
             url_dict[species] = url
         elif not species in url_dict:
