@@ -12,17 +12,6 @@
             <option value="50">50</option>
             <option value="all">All</option>
         </select>
-        <style>
-            .table td {
-                font-size: .8rem;
-            }
-            .table th {
-                font-size: .8rem;
-            }
-            .table .custom-select{
-                font-size: .8rem;
-            }
-        </style>
         <form id="study-form" data-url="{% url 'studies:render_table' %}" data-type="{{data_type}}">
             <div class="table-responsive" id="wrapper">
                 <table class="table" id="studies">

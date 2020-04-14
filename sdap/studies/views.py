@@ -679,4 +679,4 @@ def _generate_jbrowse_url(species_id, tracks, request_get):
     if add_tracks:
         tracks = tracks + "," + ",".join(add_tracks)
 
-    return base_rgv_url + "{}&tracks={}&tracklist=0&overview=0&menu=0".format(species_id, tracks)
+    return base_rgv_url + "{}&tracks={}&tracklist=0&overview=0&menu=1".format(species_id, tracks)

@@ -12,7 +12,10 @@ myLayout = new GoldenLayout({
             componentName: 'testComponent',
             componentState: { text: '<img class="img-fluid" alt="" src="'+url_img_drag+'">' , modal_id: current_container_id }
         }]
-    }]
+    }],
+    settings:{
+        showPopoutIcon: false
+    }
 }, $('#layoutContainer'));
 
 myLayout.registerComponent( 'testComponent', function( container, state ){
