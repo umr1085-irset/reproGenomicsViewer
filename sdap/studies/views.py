@@ -320,6 +320,7 @@ def get_stud_db(request):
 
 def index(request):
     columns = [
+            "Select",
             "article",
             "pmid",
             "ome",
@@ -334,7 +335,6 @@ def index(request):
             "mutant",
             "cell_sorted",
             "keywords",
-            "Select"
     ]
 
     all_studies = [study for study in ExpressionStudy.objects.exclude(data=None).order_by('-pmid') if check_view_permissions(request.user, study)]

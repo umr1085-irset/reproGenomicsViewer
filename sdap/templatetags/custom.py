@@ -1,4 +1,5 @@
 from django import template
+from django.urls import reverse
 from django.utils.html import format_html
 register = template.Library()
 
@@ -6,7 +7,18 @@ register = template.Library()
 def keyvalue(dict, key):
     return dict[key]
 
+@register.simple_tag
+def truncate(data, length, study_id):
 
+    html = ""
+    if length > len(data):
+        html = ",<br>".join(data)
+    else:
+        data = data[0:length-1]
+        html = ",<br>".join(data)
+        html += "<br><a style='color:blue' href={}>[..More]</a>".format(reverse("studies:study_view", kwargs={"stdid": study_id}))
+
+    return format_html(html)
 
 @register.simple_tag
 def val_to_set(study, key):

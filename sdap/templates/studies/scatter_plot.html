@@ -22,10 +22,10 @@
                         {% endfor %}
                         </tr>
                         <tr style="text-align:center;" id="filter">
+                        <td></td>
                         {% for field in form %}
                             <td>{{ field|as_crispy_field }}</td>
                         {% endfor %}
-                            <td></td>
                         </tr>
                     </thead>
                     <tbody id="table">

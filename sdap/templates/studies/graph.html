@@ -278,19 +278,29 @@
           </form>
          {% if document.species.jbrowse_data %}
          <div class="jbrowse_selector" style="display:None;">
-         <hr>
-            <p> Additional tracks available for this organism : </p>
+            <hr>
+            <h3> Select additional tracks to show</h3>
+            <hr>
             <form class="jbrowse_track_form">
                 {% if document.species.jbrowse_data.sequence %}
-                <label> {{document.species.jbrowse_data.sequence.name}} 
-                    <input type="checkbox" name="tracks" value="{{document.species.jbrowse_data.sequence.jbrowse_id}}">
-                </label><br>
+                <div class="form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" name="tracks" value="{{document.species.jbrowse_data.sequence.jbrowse_id}}"> {{document.species.jbrowse_data.sequence.name}}
+                </label>
+                </div>
+                <br>
                 {% endif %}
                 {% for track in document.species.jbrowse_data.annotations %} 
-                <label> {{track.name}}
-                    <input type="checkbox" name="tracks" value="{{track.jbrowse_id}}">
-                </label><br>
+                <div class="form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" name="tracks" value="{{track.jbrowse_id}}"> {{track.name}}
+                </label>
+                </div>
+                <br>
                 {% endfor %}
+                {% if not document.species.jbrowse_data.sequence and not document.species.jbrowse_data.annotations %}
+                    <p>No other tracks available for the organism associated with this dataset</p>
+                {% endif %}
             </form>
          </div>
          {% endif %}
@@ -298,7 +308,7 @@
          <hr>
          <div class="row my-3 gene_select">
            <div class="col-md-6 mb-5">
-             <h2>Genes selection</h2>
+             <h3>Genes selection</h3>
              <hr>
              <form>
                <div class="md-form md-bg">
