@@ -224,21 +224,21 @@ class ExpressionStudyFilterForm(forms.Form):
 
 class MyModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, result):
-        return "{} ({})".format(result.symbol, result.gene_id)
+        return "{} ({})".format(result.symbol, result.id)
 
 
 class GeneListCreateForm(forms.ModelForm):
 
     species = forms.ModelChoiceField(
-                queryset=Species.objects.all(),
+                queryset=Species.objects.all().order_by('name'),
+                empty_label="Select a species",
                 required=True,
-                to_field_name="species_id"
             )
 
     genes = MyModelMultipleChoiceField(
                 queryset=Gene.objects.all(),
+                widget=autocomplete.ModelSelect2Multiple(url='/studies/gene-autocomplete', forward=['species'], attrs={'data-minimum-input-length': 3}),
                 required=True,
-                widget=autocomplete.ModelSelect2Multiple(url='/studies/gene-autocomplete', forward=['species'], attrs={'data-minimum-input-length': 3})
             )
 
     class Meta:
@@ -250,3 +250,4 @@ class GeneListCreateForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.form_method = 'POST'
         self.helper.add_input(Submit('save', 'Save'))
+        self.helper.include_media = False

@@ -163,7 +163,7 @@ def create_gene_list(request):
 
     context = {'form': form}
 
-    return render(request, 'studies/gene_list_edit.html', context)
+    return render(request, 'studies/gene_list_create.html', context)
 
 def edit_gene_list(request, genelistid):
 
@@ -177,7 +177,7 @@ def edit_gene_list(request, genelistid):
 
     data = {}
     if request.method == 'POST':
-        form = GeneListCreateForm(request.POST, instance=gene_list)
+        form = GeneListCreateForm(request.POST, instance=gene_list, initial={'name': gene_list.name, 'species':gene_list.species, 'genes': gene_list.genes.all()})
         if form.is_valid():
             object = form.save()
             object.created_by = request.user
@@ -190,7 +190,7 @@ def edit_gene_list(request, genelistid):
         else:
             data['form_is_valid'] = False
     else:
-        form = GeneListCreateForm(instance=gene_list)
+        form = GeneListCreateForm(instance=gene_list, initial={'name': gene_list.name, 'species':gene_list.species, 'genes': gene_list.genes.all()})
 
     context = {'form': form}
 
