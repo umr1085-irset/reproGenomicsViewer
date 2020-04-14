@@ -229,6 +229,12 @@ class MyModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 class GeneListCreateForm(forms.ModelForm):
 
+    species = forms.ModelChoiceField(
+                queryset=Species.objects.all(),
+                required=True,
+                to_field_name="species_id"
+            )
+
     genes = MyModelMultipleChoiceField(
                 queryset=Gene.objects.all(),
                 required=True,
