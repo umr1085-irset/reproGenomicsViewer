@@ -535,8 +535,12 @@ def autocomplete_genes(request,taxonid):
 
 def paginate(values, query=None, count=10, is_ES=False):
 
+    total = len(values)
+    if total == 0:
+        total = 1
+
     if count == "all":
-        paginator = Paginator(values, len(values))
+        paginator = Paginator(values, total)
     else:
         paginator = Paginator(values, count)
 
