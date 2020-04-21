@@ -598,7 +598,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
             'hovermode': 'closest'
         }
     for cond in uniq_groups :
-        val =""
+        val = 0
         if len(val_gene) != 0 :
             val = val_gene[np.where(groups == cond)[0]]
         elif len(val_gene_ensembl) != 0 :
