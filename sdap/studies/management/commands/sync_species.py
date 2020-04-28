@@ -79,7 +79,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         # Positional arguments
-        parser.add_argument('jbrowse_folder', type=str, help='Folder containing the jbrowse species data', default="/app/loading_data/")
+        parser.add_argument('jbrowse_folder', type=str, help='Folder containing the jbrowse species data', default="/rgv_data/sample_data/json/")
 
     def handle(self, *args, **options):
 

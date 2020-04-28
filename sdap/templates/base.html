@@ -71,7 +71,7 @@
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="{% url 'genome_browser' %}">Genome Browser</a>
-                <a class="dropdown-item" href="{% url 'studies:index' %}">Scatter & Violin plot</a>
+                <a class="dropdown-item" href="{% url 'studies:index' %}">Visualization Tools</a>
               </div>
             </li>
             
@@ -165,14 +165,6 @@
                   </div>
                 </div>
               {% endfor %}
-          {% endif %}
-          {% if not request.COOKIES.citation_alert_box == "closed" %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-              The ReproGenomics Viewer is upgrading, please excuse us for the inconvenience.
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
           {% endif %}
           {% block content %}
           

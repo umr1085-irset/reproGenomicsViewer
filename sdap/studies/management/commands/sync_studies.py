@@ -160,8 +160,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         # Positional arguments
-        parser.add_argument('metadata_file', type=str, help='Path to metadata file', default="/app/loading_data/metadata.csv")
-        parser.add_argument('studies_folder', type=str, help='Folder containing the studies folder', default="/app/loading_data/")
+        parser.add_argument('metadata_file', type=str, help='Path to metadata file', default="/rgv_data/studies/metadata.csv")
+        parser.add_argument('studies_folder', type=str, help='Folder containing the studies folder', default="/rgv_data/")
 
     def handle(self, *args, **options):
         folder = options['studies_folder']
