@@ -24,8 +24,14 @@ def _set_values(study):
     for data in study.data.all():
         species.add(data.species.name)
         technology.add(data.get_technology_display())
-    study.species = list(species)
-    study.technology = list(technology)
+
+    for data in study.jbrowse_data.all():
+        species.add(data.species.name)
+
+    if list(species):
+        study.species = list(species)
+    if list(technology):
+        study.technology = list(technology)
     study.save()
 
 def _extract_date(elem):
@@ -91,7 +97,7 @@ def get_upload_path(instance, filename):
     if instance.created_by and instance.created_by.is_superuser:
         user_type = "admin"
 
-    path =  os.path.join("studies/{}/{}/{}/{}/".format(user_type, instance.study.pmid, instance.technology, instance.species.jbrowse_folder), filename)
+    path =  os.path.join("studies/{}/{}/{}/{}/".format(user_type, instance.study.pmid, instance.technology, instance.species.jbrowse_name), filename)
     return path
 
 def change_permission_owner(self):
@@ -260,8 +266,6 @@ class ExpressionData(models.Model):
     technology = models.CharField(max_length=50, choices=TECHNOLOGY_TYPE, default="RNA-Seq")
     species = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='datasets')
     type = models.CharField(max_length=50, choices=FILE_TYPE, default="2D")
-    jbrowse_id = models.CharField(max_length=200,null=True, blank=True)
-    has_jbrowse = models.BooleanField(default=False)
     gene_type = models.CharField(max_length=200,null=True, blank=True)
     gene_number = models.IntegerField(null=True, blank=True)
     file = models.FileField(upload_to=get_upload_path)
@@ -352,3 +356,18 @@ class GeneList(models.Model):
     def __str__(self):
         return self.name
 
+
+class JbrowseData(models.Model):
+
+    jbrowse_id = models.CharField(max_length=200,null=True, blank=True)
+    study = models.ForeignKey(ExpressionStudy, blank=True, null=True, on_delete=models.CASCADE, related_name='jbrowse_data')
+    species = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='jbrowse')
+
+    def save(self, *args, **kwargs):
+        super(JbrowseData, self).save(*args, **kwargs)
+        _set_values(self.study)
+
+@receiver(models.signals.post_delete, sender=JbrowseData)
+def auto_refresh_studies_on_delete(sender, instance, **kwargs):
+    if instance.study:
+        _set_values(instance.study)

@@ -5,7 +5,7 @@ import os
 import time
 import json
 
-from sdap.studies.models import ExpressionStudy, ExpressionData, Database
+from sdap.studies.models import ExpressionStudy, ExpressionData, Database, JbrowseData, Species
 from django.core.files import File
 from sdap.users.models import User
 from django.conf import settings
@@ -49,23 +49,12 @@ def sync_study(row):
 
     jbrowse_id = row['RGVID']
     for study in studies:
-        if study.data:
-            for data in study.data.all():
-                need_update = False
-                if not data.jbrowse_id == jbrowse_id:
-                    data.jbrowse_id = jbrowse_id
-                    need_update = True
-                if "JBrowseStatus" in row:
-                    if row["JBrowseStatus"] == "yes":
-                        status = True
-                    else:
-                        status = False
-                    if not data.has_jbrowse == status:
-                        data.has_jbrowse = status
-                        need_update = True
-
-                if need_update:
-                    data.save()
+        if study.jbrowse_data:
+                study.jbrowse_data.all().delete()
+        if "JBrowseStatus" in row and row["JBrowseStatus"] == "yes":
+            species = Species.objects.get(name=row['species'])
+            data = JbrowseData(jbrowse_id=jbrowse_id, species=species, study=study)
+            data.save()
     return True
 
 def process_study(row, database, superuser, study_folder):
@@ -81,6 +70,10 @@ def process_study(row, database, superuser, study_folder):
         'Danio rerio': '7955',
         'Canis lupus familiaris': '9615',
     }
+
+    if Species.objects.filter(name=row['species']).count() == 0:
+        print(row['species'] +  " not in registered species : skipping")
+        return
 
     if sync_study(row):
         return
@@ -111,6 +104,12 @@ def process_study(row, database, superuser, study_folder):
     study = ExpressionStudy(**dict)
     study.save()
 
+    jbrowse_id = row['RGVID']
+    if "JBrowseStatus" in row and row["JBrowseStatus"] == "yes":
+        species = Species.objects.get(name=row['species'])
+        data = JbrowseData(jbrowse_id=jbrowse_id, species=species, study=study)
+        data.save()
+
     for path in parse_values(row['path']):
         print("Creating file with path: " + path)
         if not os.path.exists("/app/loading_data/" + path):
@@ -118,10 +117,9 @@ def process_study(row, database, superuser, study_folder):
             continue
         data_dict = {
             "name": "data_genelevel",
-            "species": species_dict[row['species']],
+            "species": Species.objects.get(name=row['species']),
             "technology": row['technology'],
             "study": study,
-            "jbrowse_id": row['JBrowseLABEL'],
             "created_by": superuser
         }
         if path.split('/')[-1] != "data_genelevel.txt":

@@ -4,6 +4,21 @@
 
 
 {% block content %}
+<style>
+            .table td {
+                font-size: .8rem;
+            }
+            .table th {
+                font-size: .8rem;
+            }
+            .table .custom-select{
+                font-size: .8rem;
+            }
+            .btn {
+                text-transform: unset !important;
+            }
+</style>
+
     <div class="container-fluid">
         <label for="pagination-value">Studies per page </label>
         <select id="pagination-value">
@@ -12,6 +27,7 @@
             <option value="50">50</option>
             <option value="all">All</option>
         </select>
+        <div style="float:right; color:red"><i class="fas fa-chart-bar"></i> = Study has one or more dataset(s)  <i class="fas fa-dna"></i> = Study has an associated Jbrowse track</div>
         <form id="study-form" data-url="{% url 'studies:render_table' %}" data-type="{{data_type}}">
             <div class="table-responsive" id="wrapper">
                 <table class="table" id="studies">
@@ -22,7 +38,6 @@
                         {% endfor %}
                         </tr>
                         <tr style="text-align:center;" id="filter">
-                        <td></td>
                         {% for field in form %}
                             <td>{{ field|as_crispy_field }}</td>
                         {% endfor %}

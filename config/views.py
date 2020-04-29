@@ -44,7 +44,6 @@ def index(request):
             "mutant",
             "cell_sorted",
             "keywords",
-            "Select"
     ]
     all_studies =[study for study in  ExpressionStudy.objects.all().order_by('-pmid') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)

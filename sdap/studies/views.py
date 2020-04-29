@@ -113,11 +113,16 @@ def delete_document(request, documentid):
 
 def ExpressionStudyDetailView(request, stdid):
     study = get_object_or_404(ExpressionStudy, pk=stdid)
+    if request.GET.get("show_datasets"):
+        is_active= {"main": "", "datasets": "active"}
+    else:
+        is_active= {"main": "active", "datasets": ""}
     if not check_view_permissions(request.user, study, False):
         return redirect('/unauthorized')
     context = {'study': study}
     if check_edit_permissions(request.user, study) and not study.status == "PUBLIC":
         context['has_edit_perm'] = True
+    context['is_active'] = is_active
 
     return render(request, 'studies/study_details.html', context)
 
@@ -320,7 +325,6 @@ def get_stud_db(request):
 
 def index(request):
     columns = [
-            "Select",
             "article",
             "pmid",
             "ome",
@@ -340,7 +344,7 @@ def index(request):
     all_studies = [study for study in ExpressionStudy.objects.exclude(data=None).order_by('-pmid') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)
     form = ExpressionStudyFilterForm(studies=all_studies)
-    table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    table = render_to_string('studies/partial_study_table.html', {'studies': studies, 'data_type': 'partial'}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination, 'modal': modal, 'data_type':'partial'}
@@ -508,7 +512,7 @@ def render_table(request):
     else:
         form_data = ExpressionStudyFilterForm(studies=all_studies, initial_values=request.GET, show_all=True)
     form = render_to_string('studies/partial_study_form.html', {'form': form_data}, request)
-    table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    table = render_to_string('studies/partial_study_table.html', {'studies': studies, "data_type": type}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     data['table'] = table
