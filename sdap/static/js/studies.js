@@ -16,6 +16,11 @@ $(function () {
 */
   selectRows = [];
   currentPage = 1;
+  current_field = "";
+
+  $('#wrapper').doubleScroll({
+    onlyIfScroll: true,
+  });
 
   var loadTable = function () {
     var form = $("#study-form")
@@ -31,21 +36,30 @@ $(function () {
         $("#table").html(data['table']);
         $(".partial_paginate").html(data['pagination']);
         $(".partial_modal").html(data['modal']);
+        if (!( current_field == "article" || current_field == "study" || current_field == "keywords" ) ){
+            $("#filter").html(data['form']);
+            $('#wrapper').doubleScroll({
+                onlyIfScroll: true,
+            });
+        }
       }
     });
   };
   // Reset pagination if search
   var search = function(){
     currentPage = 1;
+    current_field=$(this).attr("name")
     loadTable()
   }
 
   var paginate = function(){
+    current_field = "";
     currentPage = $(this).attr("target");
     loadTable()
   }
 
   var select_pagination = function(){
+    current_field = "";
     currentPage = 1;
     loadTable()
   }

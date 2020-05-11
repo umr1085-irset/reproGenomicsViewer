@@ -1,17 +1,61 @@
+
 from django.core.management.base import BaseCommand, CommandError
 import pandas as pd
 import os
 import time
+import json
 
-from sdap.studies.models import ExpressionStudy, ExpressionData, Database
+from sdap.studies.models import ExpressionStudy, ExpressionData, Database, JbrowseData, Species
 from django.core.files import File
 from sdap.users.models import User
 from django.conf import settings
 
-def study_exists(pmid, technology, species):
+def sync_study(row):
 
-    study = ExpressionStudy.objects.filter(pmid=pmid, technology=technology, species=species)
-    return study.count() != 0
+    studies = ExpressionStudy.objects.filter(pmid=row['PubMedID'], technology=parse_values(row['technology']), species=parse_values(row['species']))
+
+    if studies.count() == 0:
+        return False
+
+    if studies.count() > 1 :
+        print("Error : More than one study matching " + row['PubMedID'])
+        return True
+
+    dict = {
+        "article": row['article'],
+        "status": "PUBLIC",
+        "ome": parse_values(row['ome']),
+        "experimental_design": parse_values(row['experimental_design']),
+        "topics": parse_values(row['biological_topics']),
+        "tissues": parse_values(row['tissue_or_cell']),
+        "sex": parse_values(row['sex']),
+        "dev_stage":parse_values(row['developmental_stage']),
+        "age": parse_values(row['age']),
+        "antibody": parse_values(row['antibody']),
+        "mutant": parse_values(row['mutant']),
+        "cell_sorted": parse_values(row['cell_sorted']),
+        "keywords": parse_values(row['keywords']),
+        "samples_count": len(parse_values(row['sample_ID'])),
+    }
+
+    need_update = False
+    for key, value in dict.items():
+        if not getattr(studies[0], key) == value:
+            need_update = True
+
+    if need_update:
+        print("Updating " + row['PubMedID'])
+        studies.update(**dict)
+
+    jbrowse_id = row['RGVID']
+    for study in studies:
+        if study.jbrowse_data:
+                study.jbrowse_data.all().delete()
+        if "JBrowseStatus" in row and row["JBrowseStatus"] == "yes":
+            species = Species.objects.get(name=row['species'])
+            data = JbrowseData(jbrowse_id=jbrowse_id, species=species, study=study)
+            data.save()
+    return True
 
 def process_study(row, database, superuser, study_folder):
 
@@ -27,7 +71,11 @@ def process_study(row, database, superuser, study_folder):
         'Canis lupus familiaris': '9615',
     }
 
-    if study_exists(row['PubMedID'], parse_values(row['technology']), parse_values(row['species'])):
+    if Species.objects.filter(name=row['species']).count() == 0:
+        print(row['species'] +  " not in registered species : skipping")
+        return
+
+    if sync_study(row):
         return
 
     dict = {
@@ -56,6 +104,12 @@ def process_study(row, database, superuser, study_folder):
     study = ExpressionStudy(**dict)
     study.save()
 
+    jbrowse_id = row['RGVID']
+    if "JBrowseStatus" in row and row["JBrowseStatus"] == "yes":
+        species = Species.objects.get(name=row['species'])
+        data = JbrowseData(jbrowse_id=jbrowse_id, species=species, study=study)
+        data.save()
+
     for path in parse_values(row['path']):
         print("Creating file with path: " + path)
         if not os.path.exists("/app/loading_data/" + path):
@@ -63,7 +117,7 @@ def process_study(row, database, superuser, study_folder):
             continue
         data_dict = {
             "name": "data_genelevel",
-            "species": species_dict[row['species']],
+            "species": Species.objects.get(name=row['species']),
             "technology": row['technology'],
             "study": study,
             "created_by": superuser
@@ -104,8 +158,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         # Positional arguments
-        parser.add_argument('metadata_file', type=str, help='Path to metadata file', default="/app/loading_data/metadata.csv")
-        parser.add_argument('studies_folder', type=str, help='Folder containing the studies folder', default="/app/loading_data/")
+        parser.add_argument('metadata_file', type=str, help='Path to metadata file', default="/rgv_data/studies/metadata.csv")
+        parser.add_argument('studies_folder', type=str, help='Folder containing the studies folder', default="/rgv_data/")
 
     def handle(self, *args, **options):
         folder = options['studies_folder']

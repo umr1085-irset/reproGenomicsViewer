@@ -344,3 +344,6 @@ sdap/media/
 celerybeat.pid
 
 .ipython/
+
+.envs/.production/.django_prod
+.envs/.production/.postgres_prod

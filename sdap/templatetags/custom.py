@@ -1,4 +1,5 @@
 from django import template
+from django.urls import reverse
 from django.utils.html import format_html
 register = template.Library()
 
@@ -6,16 +7,24 @@ register = template.Library()
 def keyvalue(dict, key):
     return dict[key]
 
+@register.simple_tag
+def truncate(data, length, study_id):
 
+    html = ""
+    if length > len(data):
+        html = ",<br>".join(data)
+    else:
+        data = data[0:length-1]
+        html = ",<br>".join(data)
+        html += "<br><a style='color:blue' href={}>[..More]</a>".format(reverse("studies:study_view", kwargs={"stdid": study_id}))
+
+    return format_html(html)
 
 @register.simple_tag
 def val_to_set(study, key):
     set_val = set()
     for data in study.data.all():
-        if key == "species":
-            set_val.add(data.get_species_display())
-        else:
-            set_val.add(getattr(data, key))
+        set_val.add(getattr(data, key))
     return ",<br>".join(set_val)
 
 @register.simple_tag
@@ -29,37 +38,17 @@ def print_val(value, name, is_array=True):
         return ""
 
 @register.simple_tag
-def print_species(value, name):
-    data = link_to_genome_browser(value)
-    return format_html("<p><b>{}</b> : {}</p><hr>".format(name, ", ".join(data)))
+def get_jbrowse_link(jbrowse_data):
+    tracks = [jbrowse_data.jbrowse_id]
 
-@register.simple_tag
-def print_species_data(value):
-    data = link_to_genome_browser([value])
-    return format_html("{}".format(", ".join(data)))
+    if jbrowse_data.species.jbrowse_data['sequence']:
+        tracks.append(jbrowse_data.species.jbrowse_data['sequence']['jbrowse_id'])
+    for track in jbrowse_data.species.jbrowse_data['annotations']:
+        tracks.append(track['jbrowse_id'])
 
-def link_to_genome_browser(species_list):
+    base_url = "https://jbrowse-rgv.genouest.org/?data=data/sample_data/json/"
+    full_url = base_url + jbrowse_data.species.jbrowse_name + "&tracks=" + ",".join(tracks)
+    html = "<a style='color:blue' href='{}' target='_blank'>Genome browser <i class='fas fa-external-link-alt'></i></a>".format(full_url)
 
-    species_dict = {
-        'Homo sapiens': 'hg38',
-        'Macaca mulatta': 'rheMac8',
-        'Mus musculus':'mm10',
-        'Rattus norvegicus':'rn6',
-        'Canis lupus familiaris': 'canFam3',
-        'Bos taurus': 'bosTau8',
-        'Sus scrofa': 'susScr3',
-        'Gallus gallus': 'galGal5',
-        'Danio rerio': 'danRer10'
-    }
-
-    base_rgv_url = "https://jbrowse-rgv.genouest.org/?data=data/sample_data/json/"
-
-    link_list = []
-    for species in species_list:
-        string = species
-        if species in species_dict:
-            string += " <a style='color:blue' href='{}' target='_blank'>(Genome browser <i class='fas fa-external-link-alt'></i>)</a>".format(base_rgv_url + species_dict[species])
-        link_list.append(string)
-
-    return link_list
+    return format_html(html)
 

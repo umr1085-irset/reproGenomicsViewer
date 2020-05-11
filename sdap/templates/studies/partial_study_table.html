@@ -2,30 +2,28 @@
 
 {% for study in studies %}
 <tr study_id="{{study.id}}" style="text-align:center">
-<td><a  style="color:blue;" href="{% url 'studies:study_view' study.id %}">{{study.article}}</a></td>
+<td><a class="btn btn-info btn-sm" href="{% url 'studies:study_view' study.id %}{% if data_type == 'partial' %}?show_datasets=1{% endif %}">{{study.article}}
+{% if study.data.count > 0 or study.jbrowse_data.count > 0 %} <br>
+{% if study.data.count > 0 %}<i class="fas fa-chart-bar"></i>{% endif %}
+{% if study.jbrowse_data.count > 0 %}<i class="fas fa-dna"></i>{% endif %}
+{% endif %}
+</a></td>
 <td>{{study.pmid}}
   <a data-toggle="modal" data-target="#modal-{{study.id}}" aria-label="More info">
     <i style="color:blue"class="fa fa-question-circle" aria-hidden="true"></i>
   </a>
 </td>
-<td>{{study.ome | join:",<br>"}}</td>
-<td>{{study.technology | join:",<br>"}}</td>
-<td>{{study.species | join:",<br>"}}</td>
-<td>{{study.experimental_design | join:",<br>"}}</td>
-<td>{{study.topics | join:",<br>"}}</td>
-<td>{{study.tissues | join:",<br>"}}</td>
-<td>{{study.sex | join:",<br>"}}</td>
-<td>{{study.dev_stage | join:",<br>"}}</td>
-<td>{{study.antibody | join:",<br>"}}</td>
-<td>{{study.mutant | join:",<br>"}}</td>
-<td>{{study.cell_sorted | join:",<br>"}}</td>
-<td>{{study.keywords | join:",<br>"}}</td>
-<td>
-{% if study.data.count %}
-    <a class="btn btn-info select_study" data-object="{{study.id}}" data-url="{% url 'studies:select_documents' %}">
-        <i class="fa fa-external-link-alt" aria-hidden="true"></i>
-    </a>
-{% endif %}
-</td>
+<td>{% truncate study.ome 4 study.id %}</td>
+<td>{% truncate study.technology 4 study.id %}</td>
+<td>{% truncate study.species 4 study.id %}</td>
+<td>{% truncate study.experimental_design 4 study.id %}</td>
+<td>{% truncate study.topics 4 study.id %}</td>
+<td>{% truncate study.tissues 4 study.id %}</td>
+<td>{% truncate study.sex 4 study.id %}</td>
+<td>{% truncate study.dev_stage 4 study.id %}</td>
+<td>{% truncate study.antibody 4 study.id %}</td>
+<td>{% truncate study.mutant 4 study.id %}</td>
+<td>{% truncate study.cell_sorted 4 study.id %}</td>
+<td>{% truncate study.keywords 4 study.id %}</td>
 </tr>
 {% endfor %}
