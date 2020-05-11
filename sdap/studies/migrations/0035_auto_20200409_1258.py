@@ -10,26 +10,31 @@ def add_species(apps, schema_editor):
 
     species_dict = {}
 
-    studies = ExpressionData.objects.all()
-    gene_lists = GeneList.objects.all()
-    for study in studies:
-        if not study.species in species_dict:
-            spec = Species.objects.get(species_id=study.species)
-            species_dict[study.species] = spec
-        else:
-            spec = species_dict[study.species]
-        study.species_link = spec
-        study.save(force=True)
+    datasets = ExpressionData.objects.values('species')
 
-    for gene_list in gene_lists:
-        if not study.species in species_dict:
-            spec = Species.objects.get(species_id=gene_list.species)
-            species_dict[study.species] = spec
-        else:
-            spec = species_dict[study.species]
-        gene_list.species_link = spec
-        gene_list.save()
+    print(datasets.count())
 
+    if datasets.count() > 0:
+        for data in datasets:
+            if not data.species in species_dict:
+                spec = Species.objects.get(species_id=data.species)
+                species_dict[data.species] = spec
+            else:
+                spec = species_dict[data.species]
+            data.species_link = spec
+            data.save(force=True)
+
+    gene_lists = GeneList.objects.values('species')
+
+    if gene_lists.count() > 0:
+        for gene_list in gene_lists:
+            if not gene_list.species in species_dict:
+                spec = Species.objects.get(species_id=gene_list.species)
+                species_dict[study.species] = spec
+            else:
+                spec = species_dict[study.species]
+            gene_list.species_link = spec
+            gene_list.save()
 
 class Migration(migrations.Migration):
 
