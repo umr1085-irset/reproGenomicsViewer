@@ -262,8 +262,23 @@ class ExpressionData(models.Model):
         ('3D', '3D'),
     )
 
+    # Obsolete, kept for migration
+    SPECIES_TYPE = (
+        ('9606','Homo sapiens'),
+        ('10090','Mus musculus'),
+        ('10116','Rattus norvegicus'),
+        ('9913','Bos taurus'),
+        ('9544','Macaca mulatta'),
+        ('9823','Sus scrofa'),
+        ('9031','Gallus gallus'),
+        ('7955','Danio rerio'),
+        ('9615','Canis lupus familiaris')
+    )
+
     name = models.CharField(max_length=200)
     technology = models.CharField(max_length=50, choices=TECHNOLOGY_TYPE, default="RNA-Seq")
+    # For migration
+    #species = models.CharField(max_length=50, choices=SPECIES_TYPE, default="9606")
     species = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='datasets')
     type = models.CharField(max_length=50, choices=FILE_TYPE, default="2D")
     gene_type = models.CharField(max_length=200,null=True, blank=True)
@@ -347,8 +362,23 @@ class Gene(models.Model):
 
 class GeneList(models.Model):
 
+    # Obsolete, kept for migration
+    SPECIES_TYPE = (
+        ('9606','Homo sapiens'),
+        ('10090','Mus musculus'),
+        ('10116','Rattus norvegicus'),
+        ('9913','Bos taurus'),
+        ('9544','Macaca mulatta'),
+        ('9823','Sus scrofa'),
+        ('9031','Gallus gallus'),
+        ('7955','Danio rerio'),
+        ('9615','Canis lupus familiaris')
+    )
+
     name = models.CharField(max_length=200)
     genes = models.ManyToManyField('Gene', blank=True, related_name="gene_lists")
+    # For migration
+    #species = models.CharField(max_length=50, choices=SPECIES_TYPE, default="9606")
     species = models.ForeignKey(Species, blank=True, null=True, on_delete=models.CASCADE, related_name='gene_lists')
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_created_by')

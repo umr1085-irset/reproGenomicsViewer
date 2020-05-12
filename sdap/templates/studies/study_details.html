@@ -10,9 +10,13 @@
     <div class="col-md-3 ">
       <div class="list-group ">
           <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.main}}">Overview</a>
-          <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.datasets}}">Dataset(s) ({{ study.data.count }})</a>
-          <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">Jbrowse dataset(s) ({{ study.jbrowse_data.count }})</a>
-        </div>
+          <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.datasets}}">
+            <i class="fas fa-external-link-alt"></i> Available dataset(s) <span class="badge badge-primary badge-pill">{ study.data.count }}</span>
+          </a>
+          <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">
+            <i class="fas fa-external-link-alt"></i> Available Jbrowse dataset(s) <span class="badge badge-primary badge-pill">{{ study.jbrowse_data.count }}</span>
+          </a>
+      </div>
     </div>
     <div class="col-md-9">
       <div class="tab-content card" style="text-align:center;">

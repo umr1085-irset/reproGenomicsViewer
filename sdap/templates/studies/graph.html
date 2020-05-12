@@ -240,7 +240,7 @@
                   <option value="scatter">Scatter plot</option>
                   <option value="violin">Violin plot</option>
                   <option value="density">Density plot</option>
-                  {% if document.has_jbrowse %}
+                  {% if document.study.jbrowse_data %}
                   <option value="jbrowse">Jbrowse iframe</option>
                   {% endif %}
                 </select>
