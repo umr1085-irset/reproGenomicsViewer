@@ -124,6 +124,8 @@ $(function () {
             dataType: 'json',
             success: function (data) {
 
+                current_container.getElement().html("");
+
                 if (selected_type == "jbrowse"){
                     var content = data.iframe
                     var myelem = current_container.getElement()[0];
@@ -132,6 +134,12 @@ $(function () {
                     current_container.getElement().eq(0).html(content);
                 } else {
                     var chart = data.chart;
+                    if (! chart.msg == "") {
+                        current_container.getElement().html(chart.msg);
+                        console.log(current_container.getElement())
+                        console.log(chart.msg)
+                        return;
+                    }
                     data = chart.data
                     var myelem = current_container.getElement()[0];
                     var clientWidth = myelem.offsetWidth;
@@ -354,6 +362,11 @@ var loadGraph = function () {
       success: function (data) {
           charts = data.data
           for(var i=0; i<charts.length; i++){
+            if (! charts[i].msg == ""){
+                $('#class_info_'+i).html(charts[i].msg);
+                continue
+            }
+
             var myNewChart = Chart.Bar('class_info_'+i, {
                 data: {
                     labels: charts[i].distribution_labels,

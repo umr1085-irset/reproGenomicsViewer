@@ -144,7 +144,7 @@ def get_graph_data_full(file, selected_class=None):
                         'title':'Scatter plot visualization',
                         'hovermode':'closest'
                       }
-    chart['msg'] = []
+    chart['msg'] = ""
     color = 0
     for cond in uniq_groups :
         cond_color = chart['colors'][color]
@@ -340,7 +340,7 @@ def get_density_graph_data_full(file, selected_class=None):
                         'title':'Cell density',
                         'hovermode':'closest'
                       }
-    chart['msg'] = []
+    chart['msg'] = ""
     
 
 
@@ -418,7 +418,7 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
                         'title':'Expression of ',
                         'hovermode':'closest'
                       }
-    chart['msg'] = []
+    chart['msg'] = ""
 
     color = 0
     for cond in uniq_groups :
@@ -555,7 +555,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
                         'title':'Dynamic expression of',
                         'hovermode':'closest'
                       }
-    chart['msg'] = []
+    chart['msg'] = ""
 
     gene_name = gene.symbol
     ensemblgene = gene.ensemble_id
