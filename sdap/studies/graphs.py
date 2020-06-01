@@ -491,14 +491,15 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
 
         for cond in uniq_groups :
             chart['distribution_labels'].append(cond)
-            val =""
+            val = [0]
             if len(val_gene) != 0 :
                 val = val_gene[np.where(groups == cond)[0]]
             elif len(val_gene_ensembl) != 0 :
                 val = val_gene_ensembl[np.where(groups == cond)[0]]
 
             chart['distribution_values'].append(np.mean(val))
-            val = val_gene[np.where(groups == cond)[0]]
+            # ?
+            #val = val_gene[np.where(groups == cond)[0]]
             val_x= x[np.where(groups == cond)[0]]
             val_y= y[np.where(groups == cond)[0]]
 
@@ -598,7 +599,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
             'hovermode': 'closest'
         }
     for cond in uniq_groups :
-        val = 0
+        val = [0]
         if len(val_gene) != 0 :
             val = val_gene[np.where(groups == cond)[0]]
         elif len(val_gene_ensembl) != 0 :
@@ -607,7 +608,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
         data_chart = {}
         data_chart['x'] = []
 
-        q3 = np.percentile(val.astype(np.float), 75) #Q3
+        q3 = np.percentile(val, 75) #Q3
 
         data_chart['x'].extend(val)
         data_chart['name'] = cond
