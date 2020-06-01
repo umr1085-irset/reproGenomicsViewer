@@ -451,8 +451,9 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
     pos = 0
     ListOfColorsGenes = ['rgba(239,4,4,1)','rgba(239, 122, 4,1)','rgba(239, 239, 4,1)','rgba(122, 239, 4,1)','rgba(4, 239, 239,1)','rgba(4, 122, 239,1)','rgba(122, 4, 239,1)','rgba(239, 4, 239,1)','rgba(239, 4, 122,1)','rgba(4, 239, 4,1)']
 
+
+    chart['layout']["title"] += ", ".join([gene.symbol for gene in genes])
     for gene in genes :
-        chart['layout']["title"] = chart['layout']["title"]+ gene.symbol+", " 
         ensemblgene = gene.ensemble_id
         genes = getValues(file, [gene.gene_id])
         ensembl_genes = getValues(file, [ensemblgene])
@@ -487,7 +488,12 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
         data_chart1['contours'] = {'showlines':False}
         data_chart1['histnorm'] = 'density'
         data_chart1['reversescale'] = False
-        data_chart1['hoverinfo'] = 'none'
+        data_chart1['hoverinfo'] = "None"
+        data_chart1['name'] = gene.symbol
+        data_chart1['legendgroup'] = gene.symbol
+        data_chart1['showlegend'] = True
+
+
 
         for cond in uniq_groups :
             chart['distribution_labels'].append(cond)
