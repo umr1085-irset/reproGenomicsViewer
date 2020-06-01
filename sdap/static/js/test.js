@@ -136,8 +136,6 @@ $(function () {
                     var chart = data.chart;
                     if (! chart.msg == "") {
                         current_container.getElement().html(chart.msg);
-                        console.log(current_container.getElement())
-                        console.log(chart.msg)
                         return;
                     }
                     data = chart.data
