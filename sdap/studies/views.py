@@ -455,7 +455,7 @@ def get_graph_data(request):
             res = get_density_graph_data_full(data, selected_class)
         if display_mode =="violin" :
             res = {'chart':[],'warning':[],'time':'',"error_msg":"Please select at least one gene"}
-        if display_mode == "jbrowse" and data.study.jbrowse_data:
+        if display_mode == "jbrowse" and data.study.jbrowse_data.exists():
             url = _generate_jbrowse_url(data.species.jbrowse_name, data.study.jbrowse_data.all()[0].jbrowse_id, request.GET)
             res = {"iframe": render_to_string('studies/partial_jbrowse_iframe.html', {'jbrowse_url':url}, request)}
 

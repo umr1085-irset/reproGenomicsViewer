@@ -124,6 +124,8 @@ $(function () {
             dataType: 'json',
             success: function (data) {
 
+                current_container.getElement().html("");
+
                 if (selected_type == "jbrowse"){
                     var content = data.iframe
                     var myelem = current_container.getElement()[0];
@@ -132,6 +134,10 @@ $(function () {
                     current_container.getElement().eq(0).html(content);
                 } else {
                     var chart = data.chart;
+                    if (! chart.msg == "") {
+                        current_container.getElement().html(chart.msg);
+                        return;
+                    }
                     data = chart.data
                     var myelem = current_container.getElement()[0];
                     var clientWidth = myelem.offsetWidth;

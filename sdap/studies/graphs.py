@@ -144,7 +144,7 @@ def get_graph_data_full(file, selected_class=None):
                         'title':'Scatter plot visualization',
                         'hovermode':'closest'
                       }
-    chart['msg'] = []
+    chart['msg'] = ""
     color = 0
     for cond in uniq_groups :
         cond_color = chart['colors'][color]
@@ -340,7 +340,7 @@ def get_density_graph_data_full(file, selected_class=None):
                         'title':'Cell density',
                         'hovermode':'closest'
                       }
-    chart['msg'] = []
+    chart['msg'] = ""
     
 
 
@@ -418,7 +418,7 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
                         'title':'Expression of ',
                         'hovermode':'closest'
                       }
-    chart['msg'] = []
+    chart['msg'] = ""
 
     color = 0
     for cond in uniq_groups :
@@ -451,8 +451,9 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
     pos = 0
     ListOfColorsGenes = ['rgba(239,4,4,1)','rgba(239, 122, 4,1)','rgba(239, 239, 4,1)','rgba(122, 239, 4,1)','rgba(4, 239, 239,1)','rgba(4, 122, 239,1)','rgba(122, 4, 239,1)','rgba(239, 4, 239,1)','rgba(239, 4, 122,1)','rgba(4, 239, 4,1)']
 
+
+    chart['layout']["title"] += ", ".join([gene.symbol for gene in genes])
     for gene in genes :
-        chart['layout']["title"] = chart['layout']["title"]+ gene.symbol+", " 
         ensemblgene = gene.ensemble_id
         genes = getValues(file, [gene.gene_id])
         ensembl_genes = getValues(file, [ensemblgene])
@@ -488,17 +489,23 @@ def get_density_graph_gene_data_full(file, genes, selected_class=None):
         data_chart1['histnorm'] = 'density'
         data_chart1['reversescale'] = False
         data_chart1['hoverinfo'] = 'none'
+        data_chart1['name'] = gene.symbol
+        data_chart1['legendgroup'] = gene.symbol
+        data_chart1['showlegend'] = True
+
+
 
         for cond in uniq_groups :
             chart['distribution_labels'].append(cond)
-            val =""
+            val = [0]
             if len(val_gene) != 0 :
                 val = val_gene[np.where(groups == cond)[0]]
             elif len(val_gene_ensembl) != 0 :
                 val = val_gene_ensembl[np.where(groups == cond)[0]]
 
             chart['distribution_values'].append(np.mean(val))
-            val = val_gene[np.where(groups == cond)[0]]
+            # ?
+            #val = val_gene[np.where(groups == cond)[0]]
             val_x= x[np.where(groups == cond)[0]]
             val_y= y[np.where(groups == cond)[0]]
 
@@ -554,7 +561,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
                         'title':'Dynamic expression of',
                         'hovermode':'closest'
                       }
-    chart['msg'] = []
+    chart['msg'] = ""
 
     gene_name = gene.symbol
     ensemblgene = gene.ensemble_id
@@ -598,7 +605,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
             'hovermode': 'closest'
         }
     for cond in uniq_groups :
-        val = 0
+        val = [0]
         if len(val_gene) != 0 :
             val = val_gene[np.where(groups == cond)[0]]
         elif len(val_gene_ensembl) != 0 :
@@ -607,7 +614,7 @@ def get_violin_graph_gene_data_full(file, gene, selected_class=None):
         data_chart = {}
         data_chart['x'] = []
 
-        q3 = np.percentile(val.astype(np.float), 75) #Q3
+        q3 = np.percentile(val, 75) #Q3
 
         data_chart['x'].extend(val)
         data_chart['name'] = cond
