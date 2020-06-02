@@ -360,11 +360,6 @@ var loadGraph = function () {
       success: function (data) {
           charts = data.data
           for(var i=0; i<charts.length; i++){
-            if (! charts[i].msg == ""){
-                $('#class_info_'+i).html(charts[i].msg);
-                continue
-            }
-
             var myNewChart = Chart.Bar('class_info_'+i, {
                 data: {
                     labels: charts[i].distribution_labels,
