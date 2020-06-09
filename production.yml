@@ -69,6 +69,6 @@ services:
     volumes:
       - /home/genouest/bioinfo/irset/rgv/RGV/jbrowse:/opt/jbrowse
       - /groups/irset/archives/web/RGV2:/jbrowse/data
-      - jbrowse.conf:/jbrowse/jbrowse.conf
+      - ./jbrowse.conf:/jbrowse/jbrowse.conf
     ports:
       - 6546:80
