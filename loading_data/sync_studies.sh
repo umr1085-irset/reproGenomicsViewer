@@ -12,6 +12,8 @@ SYNC_FILE="/groups/irset/archives/web/RGV2/auto_sync_studies/metadata.csv"
 
 if [ -f "$SYNC_FILE" ]; then
    echo "Metadata file found. Adding studies..."
-   docker-compose -f "$DIR""/../production.yml" exec -e DATABASE_URL=$DATABASE_URL -e CELERY_BROKER_URL=$CELERY_BROKER_URL django python manage.py sync_studies "/app/loading_data/sync/metadata.csv" "/mnt/"
-   rm "$ADD_FILE"
+   docker-compose -f "$DIR""/../production.yml" exec -e DATABASE_URL=$DATABASE_URL -e CELERY_BROKER_URL=$CELERY_BROKER_URL django python manage.py sync_studies \
+        "/rgv_data/auto_sync_studies/metadata.csv" \
+        "/rgv_data/"
+   rm "$SYNC_FILE"
 fi
