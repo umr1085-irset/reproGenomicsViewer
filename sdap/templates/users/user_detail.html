@@ -195,7 +195,7 @@
                           {% for gene_list in gene_lists %}
                           <tr style="text-align:center;">
                             <th>{{gene_list.name}}</th>
-                            <td>{{gene_list.get_species_display}}</td>
+                            <td>{{gene_list.species.name}}</td>
                             <td>
                             {% for gene in gene_list.genes.all %}
                                 {{gene.symbol}} ({{gene.gene_id}}){% if not forloop.last %}, {% endif %}

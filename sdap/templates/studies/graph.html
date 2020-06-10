@@ -80,7 +80,7 @@
                           </tr>
                           <tr>
                             <th scope="row">Species</th>
-                            <td>{{ document.get_species_display }}</td>
+                            <td>{{ document.species.name }}</td>
                         </tr>
                       </tbody>
                   </table>
@@ -154,7 +154,7 @@
                         </tr>
                         <tr>
                           <th scope="row">Species</th>
-                          <td>{{ document.get_species_display }}</td>
+                          <td>{{ document.species.name }}</td>
                       </tr>
                     </tbody>
                 </table>
@@ -201,7 +201,7 @@
 <div class="container-fluid">
     <h5>{{ document.name }} - {{study.article}}</h5>
     <hr>
-    <div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' document.species %}">
+    <div id="wrapper" data-url="{% url 'studies:graph_data' %}?document_id={{document.id}}" autocomplete-url="{% url 'studies:autocomplete_genes' document.species.species_id %}">
          <div class="row">
             <div class="col-11">
                 <div id="layoutContainer"></div>
@@ -240,9 +240,12 @@
                   <option value="scatter">Scatter plot</option>
                   <option value="violin">Violin plot</option>
                   <option value="density">Density plot</option>
+                  {% if document.study.jbrowse_data.exists %}
+                  <option value="jbrowse">Jbrowse iframe</option>
+                  {% endif %}
                 </select>
               </div>
-              <div class="col-md-3 mb-5">
+              <div class="col-md-3 mb-5 class_selector">
                 <h3>Class selection</h3>
                 <select class="browser-default custom-select visu-class">
                   {% for class in classes %}
@@ -266,13 +269,46 @@
                   <img src="{% static 'images/thumbnails/violin_thumb.png' %}" class="img-thumbnail" alt="...">
                   <p> Violin plot are best used for for transcriptomic data. This plot type displays the expression intensity of the selected gene (only one) through the selected dataset.</p>
                 </div>
+                <div class="jbrowse_info" style="display:none;">
+                  <p> Display the jbrowse data for this species. The track related to the study will be displayed</p>
+                  <p> You can display additional tracks, such as the reference sequence, or annotation tracks, if they are available for this organism.</p>
+                </div>
               </div>
             </div>  
           </form>
+         {% if document.species.jbrowse_data %}
+         <div class="jbrowse_selector" style="display:None;">
+            <hr>
+            <h3> Select additional tracks to show</h3>
+            <hr>
+            <form class="jbrowse_track_form">
+                {% if document.species.jbrowse_data.sequence %}
+                <div class="form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" name="tracks" value="{{document.species.jbrowse_data.sequence.jbrowse_id}}"> {{document.species.jbrowse_data.sequence.name}}
+                </label>
+                </div>
+                <br>
+                {% endif %}
+                {% for track in document.species.jbrowse_data.annotations %} 
+                <div class="form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" name="tracks" value="{{track.jbrowse_id}}"> {{track.name}}
+                </label>
+                </div>
+                <br>
+                {% endfor %}
+                {% if not document.species.jbrowse_data.sequence and not document.species.jbrowse_data.annotations %}
+                    <p>No other tracks available for the organism associated with this dataset</p>
+                {% endif %}
+            </form>
+         </div>
+         {% endif %}
+         <div class="gene_selector">
          <hr>
          <div class="row my-3 gene_select">
            <div class="col-md-6 mb-5">
-             <h2>Genes selection</h2>
+             <h3>Genes selection</h3>
              <hr>
              <form>
                <div class="md-form md-bg">
@@ -320,6 +356,7 @@
              <form class="md-form md-bg gene-form"><table class='table align-middle gene-table'><tbody></tbody></table></form>
              <button class="btn btn-info btn-sm clear_genes" style="display:none;">Uncheck all</button>
            </div>
+         </div>
          </div>
       </div>
       <div class="modal-footer">

@@ -9,13 +9,18 @@
   <div class="row">
     <div class="col-md-3 ">
       <div class="list-group ">
-          <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
-          <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action">Documents(s) ({{ study.data.count }})</a>
-        </div>
+          <a href="#tab1" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.main}}">Overview</a>
+          <a href="#tab2" data-toggle="tab" class="list-group-item list-group-item-action {{is_active.datasets}}">
+            <i class="fas fa-external-link-alt"></i> Available dataset(s) <span class="badge badge-primary badge-pill">{{ study.data.count }}</span>
+          </a>
+          <a href="#tab3" data-toggle="tab" class="list-group-item list-group-item-action">
+            <i class="fas fa-external-link-alt"></i> Available Jbrowse dataset(s) <span class="badge badge-primary badge-pill">{{ study.jbrowse_data.count }}</span>
+          </a>
+      </div>
     </div>
     <div class="col-md-9">
       <div class="tab-content card" style="text-align:center;">
-        <div class="tab-pane active text-style card-body" id="tab1">
+        <div class="tab-pane text-style card-body {{is_active.main}}" id="tab1">
           {% print_val study.pmid "Pubmed ID" False %}
           {% print_val study.title "Article Name" False %}
           {% print_val study.abstract "Abstract" False  %}
@@ -28,7 +33,6 @@
           {% print_val study.topics "Topics" %}
           {% print_val study.tissues "Tissues" %}
           {% print_val study.sex "Sex" %}
-          {% print_val study. "Pubmed ID" %}
           {% print_val study.dev_stage "Developmental stage" %}
           {% print_val study.age "Age" %}
           {% print_val study.antibody "Antibody" %}
@@ -44,7 +48,7 @@
           {% endif %}
           <br>
         </div>
-        <div class="tab-pane text-style card-body" id="tab2">
+        <div class="tab-pane text-style card-body {{is_active.datasets}}" id="tab2">
           <h3>Document(s) {% if has_edit_perm %}<button data-url="{% url 'studies:document_create' study.id %}" class="btn btn-info js-get-form float-right"><i class="fas fa-plus"></i></button>{% endif %}</h3>
           {% if study.data.exists %}
           <div class="table-responsive-xl">
@@ -52,7 +56,7 @@
                   <thead>
                       <tr style="text-align:center;">
                           <th scope="col">Name</th>
-                          <th scope="col">Specie</th>
+                          <th scope="col">Species</th>
                           <th scope="col">Technology</th>
                           <th scope="col">Actions</th>                          
                       </tr>
@@ -61,9 +65,10 @@
                   {% for data in study.data.all %}
                     <tr style="text-align:center;">
                         <td>{{data.name}}</td>
-                        <td>{{data.get_species_display}}</td>
+                        <td>{{data.species.name }}</td>
                         <td>{{data.get_technology_display}}</td>
                         <td>
+                            <a type="button" class="btn btn-default btn-sm" href="{% url 'studies:graph' %}?study_id={{study.id}}&document_id={{data.id}}"> <i class="fas fa-external-link-alt"></i> View </a>
                             <a type="button" class="btn btn-default btn-sm" href="{% url 'studies:document_download' data.id %}"> <i class="fas fa-download"></i> Download </a>
                             {% if has_edit_perm %}
                             <button type="button" data-url="{% url 'studies:document_delete' data.id %}" class="btn btn-danger btn-sm js-get-form"> <i class="fas fa-trash"></i> Delete</button>
@@ -77,7 +82,34 @@
           </div>
           {% else %}
           <br>
-          <p>No files are associated with this study</p>
+          <p>No datasets are associated with this study</p>
+          {% endif %}
+        </div>
+        <div class="tab-pane text-style card-body" id="tab3">
+          <h3>Jbrowse datasets(s)</h3>
+          {% if study.jbrowse_data.exists %}
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Species</th>
+                          <th scope="col">Jbrowse</th>                          
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for data in study.jbrowse_data.all %}
+                    <tr style="text-align:center;">
+                        <td>{{data.species.name }}</td>
+                        <td>{% get_jbrowse_link data %}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+          {% else %}
+          <br>
+          <p>No jbrowse datasets are associated with this study</p>
           {% endif %}
         </div>
     </div>

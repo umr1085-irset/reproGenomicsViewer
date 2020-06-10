@@ -12,7 +12,10 @@ myLayout = new GoldenLayout({
             componentName: 'testComponent',
             componentState: { text: '<img class="img-fluid" alt="" src="'+url_img_drag+'">' , modal_id: current_container_id }
         }]
-    }]
+    }],
+    settings:{
+        showPopoutIcon: false
+    }
 }, $('#layoutContainer'));
 
 myLayout.registerComponent( 'testComponent', function( container, state ){
@@ -56,6 +59,9 @@ myLayout.on('componentCreated',function(component) {
                 width: component.container.getElement()[0].offsetWidth,
                 height: component.container.getElement()[0].offsetHeight
             })
+        } else if (component.container.getElement().find("iframe").length > 0) {
+            component.container.getElement().find("iframe").attr("height", component.container.getElement()[0].offsetHeight);
+            component.container.getElement().find("iframe").attr("width", component.container.getElement()[0].offsetWidth);
         }
     });
 });
@@ -99,23 +105,47 @@ $(function () {
         var url = $("#wrapper").attr("data-url");
         var current_form = $("#modal-" + current_container.getState().modal_id).find(".visu-form");
         var gene_form = $("#modal-" + current_container.getState().modal_id).find(".gene-form");
+        var tracks_form = $("#modal-" + current_container.getState().modal_id).find(".jbrowse_track_form");
         var selected_type = current_form.find(".visu-type").val();
         var display = current_form.find(".visu-type option:selected").text()
         var selected_class = current_form.find(".visu-class").val();
         var gene_data = gene_form.serialize();
+        if (selected_type == "jbrowse"){
+            url = url + "&mode="+ selected_type
+            if (tracks_form.length > 0){
+                url = url + "&" + tracks_form.serialize();
+            }
+        } else {
+            url = url + "&mode="+ selected_type + "&selected_class=" + selected_class + "&" + gene_data
+        }
         $.ajax({
-            url: url + "&mode="+ selected_type + "&selected_class=" + selected_class + "&" + gene_data,
+            url: url,
             type: 'get',
             dataType: 'json',
             success: function (data) {
-                var chart = data.chart;
-                data = chart.data
-                var myelem = current_container.getElement()[0];
-                var clientWidth = myelem.offsetWidth;
-                chart.layout.width = myelem.offsetWidth;
-                chart.layout.height = myelem.offsetHeight;
-                current_container.setTitle(display + " " + selected_class);
-                Plotly.newPlot(myelem, chart.data, chart.layout, chart.config);
+
+                current_container.getElement().html("");
+
+                if (selected_type == "jbrowse"){
+                    var content = data.iframe
+                    var myelem = current_container.getElement()[0];
+                    content = content.replace("iframe_width", myelem.offsetWidth)
+                    content = content.replace("iframe_height",myelem.offsetHeight)
+                    current_container.getElement().eq(0).html(content);
+                } else {
+                    var chart = data.chart;
+                    if (! chart.msg == "") {
+                        current_container.getElement().html(chart.msg);
+                        return;
+                    }
+                    data = chart.data
+                    var myelem = current_container.getElement()[0];
+                    var clientWidth = myelem.offsetWidth;
+                    chart.layout.width = myelem.offsetWidth;
+                    chart.layout.height = myelem.offsetHeight;
+                    current_container.setTitle(display + " " + selected_class);
+                    Plotly.newPlot(myelem, chart.data, chart.layout, chart.config);
+                }
             }
         });
     }
@@ -184,8 +214,26 @@ $(function () {
         $(current_modal + ' input:checkbox').prop('checked', false);
         if (selected_type == "violin"){
             $(current_modal + " .test").attr("disabled", true);
+            $(current_modal + " .gene_selector").show();
+            $(current_modal + " .class_selector").show();
+            if ($(current_modal + " .jbrowse_selector").length > 0){
+                $(current_modal + " .jbrowse_selector").hide()
+            }
+        } else if (selected_type == "jbrowse"){
+            $(current_modal + " .test").attr("disabled", false);
+            $(current_modal + " .gene_selector").hide();
+            $(current_modal + " .class_selector").hide();
+            if ($(current_modal + " .jbrowse_selector").length > 0){
+                $(current_modal + " .jbrowse_selector").show()
+            }
+
         } else {
             $(current_modal + " .test").attr("disabled", false);
+            $(current_modal + " .gene_selector").show();
+            $(current_modal + " .class_selector").show();
+            if ($(current_modal + " .jbrowse_selector").length > 0){
+                $(current_modal + " .jbrowse_selector").hide()
+            }
         }
     }),
 
@@ -312,7 +360,6 @@ var loadGraph = function () {
       success: function (data) {
           charts = data.data
           for(var i=0; i<charts.length; i++){
-            console.log(charts[i])
             var myNewChart = Chart.Bar('class_info_'+i, {
                 data: {
                     labels: charts[i].distribution_labels,

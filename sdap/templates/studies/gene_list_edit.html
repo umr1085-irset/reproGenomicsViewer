@@ -10,14 +10,8 @@
 {% endblock %}
 
 {% block javascript %}
-    <script>
-    $(document).ready(function() {
-            $(':input[name$=species]').on('change', function() {
-                var prefix = $(this).getFormPrefix();
-                
-                $(':input[name=' + prefix + 'genes]').val(null).trigger('change');
-            });
-    });
-    </script>
+    {{ block.super }}
+    {{ form.media }}
+    <script src="{% static 'js/gene_list.js' %}"></script>
 {% endblock %}
 
