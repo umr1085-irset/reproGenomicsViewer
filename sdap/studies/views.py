@@ -601,7 +601,7 @@ def get_genes_values_table(request, document_id):
     document = get_object_or_404(ExpressionData, id=document_id)
     gene_list = request.POST.get('genes').replace('\n', ',').replace('\t', ',').split(',')
     selected_class= request.POST.get('class')
-    correct_gene_dict = _process_gene_list(gene_list, document.species, request.POST.get('query'), document.gene_type)
+    correct_gene_dict = _process_gene_list(gene_list, document.species.species_id, request.POST.get('query'), document.gene_type)
     data = {}
     if correct_gene_dict:
         results = getGenesValues(document, selected_class, correct_gene_dict)
