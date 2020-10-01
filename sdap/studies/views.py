@@ -440,6 +440,8 @@ def get_graph_data(request):
     if genelist :
         exp_list = []
         for g_ in genelist :
+            if not g_:
+                continue
             gene = get_object_or_404(Gene, id=g_)
             exp_list.append(gene)
         if display_mode =="scatter" :
