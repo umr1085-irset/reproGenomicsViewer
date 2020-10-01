@@ -440,7 +440,9 @@ def get_graph_data(request):
     if genelist :
         exp_list = []
         for g_ in genelist :
-            if not g_:
+            try:
+                g_ = int(g_)
+            except ValueError:
                 continue
             gene = get_object_or_404(Gene, id=g_)
             exp_list.append(gene)
