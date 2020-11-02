@@ -4,6 +4,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 . "$DIR""/../.envs/.production/.django_prod"
 . "$DIR""/../.envs/.production/.postgres_prod"
+. "$DIR""/../.env"
+
+export COMPOSE_PROJECT_NAME
 
 CELERY_BROKER_URL="${REDIS_URL}"
 DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
