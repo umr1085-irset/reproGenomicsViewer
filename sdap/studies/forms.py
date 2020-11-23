@@ -155,7 +155,7 @@ class ExpressionDataForm(forms.ModelForm):
         path = csv_file.temporary_file_path()
         try:
             data = pd.read_csv(path, sep='\t', header=None, nrows=20)
-        except pandas.errors.ParserError as e:
+        except pd.errors.ParserError as e:
             raise forms.ValidationError("File is not a proper TSV file.")
 
         if not len(data.columns) > 1:
