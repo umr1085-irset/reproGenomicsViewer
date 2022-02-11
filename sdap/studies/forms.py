@@ -155,7 +155,7 @@ class ExpressionDataForm(forms.ModelForm):
         path = csv_file.temporary_file_path()
         try:
             data = pd.read_csv(path, sep='\t', header=None, nrows=20)
-        except pandas.errors.ParserError as e:
+        except pd.errors.ParserError as e:
             raise forms.ValidationError("File is not a proper TSV file.")
 
         if not len(data.columns) > 1:
@@ -179,13 +179,15 @@ class ExpressionStudyFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
 
+        show_all = kwargs.pop('show_all', False)
+        initial_values = kwargs.pop('initial_values', {})
         studies = kwargs.pop('studies')
         super(ExpressionStudyFilterForm, self).__init__(*args, **kwargs)
 
         columns = {
             "ome": set(),
             "technology": set(),
-            "species": {},
+            "species": set(),
             "experimental_design": set(),
             "topics": set(),
             "tissues": set(),
@@ -198,50 +200,54 @@ class ExpressionStudyFilterForm(forms.Form):
         # Get all values for columns
         for study in studies:
             for key, value in columns.items():
-                if key == "technology":
-                    value |= set([getattr(data, key, []) for data in study.data.all()])
-                # Hacky hacky : we need to display the display value, and send the real value
-                elif key == "species":
-                    for data in study.data.all():
-                        value[data.species] = data.get_species_display()
-                else:
-                    value |= set(getattr(study, key, []))
+                value |= set(getattr(study, key, []))
 
         for key, value in columns.items():
             choices = ((None, "All"),)
-            if key == "species":
-                for id, name in value.items():
-                    choices = choices + ((id, name),)
-            else:
-                for content in value:
-                    choices = choices + ((content,content),)
+            for content in value:
+                choices = choices + ((content,content),)
             choices = tuple(sorted(choices, key=itemgetter(1)))
             self.fields[key] = forms.ChoiceField(choices=choices, required=False, widget=forms.Select(attrs={'class':'browser-default custom-select'}))
 
         # We add it later for proper ordering
         self.fields['keywords'] = forms.CharField(max_length=200, required=False, label="")
 
+        for key, value in initial_values.items():
+            if key in self.fields:
+                self.fields[key].initial = value
 
         self.helper = FormHelper(self)
         self.helper.form_method = 'GET'
         self.helper.form_class = 'form-inline'
         self.helper.field_template = 'bootstrap3/layout/inline_field.html'
 
-class GeneFilterForm(forms.Form):
 
-    gene = forms.ModelChoiceField(
-        queryset=Gene.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/studies/gene-autocomplete', attrs={'data-minimum-input-length': 2})
-    )
+class MyModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, result):
+        return "{} ({})".format(result.symbol, result.id)
+
+
+class GeneListCreateForm(forms.ModelForm):
+
+    species = forms.ModelChoiceField(
+                queryset=Species.objects.all().order_by('name'),
+                empty_label="Select a species",
+                required=True,
+            )
+
+    genes = MyModelMultipleChoiceField(
+                queryset=Gene.objects.all(),
+                widget=autocomplete.ModelSelect2Multiple(url='/studies/gene-autocomplete', forward=['species'], attrs={'data-minimum-input-length': 3}),
+                required=True,
+            )
+
+    class Meta:
+        model = GeneList
+        fields = ["name", "species", "genes"]
 
     def __init__(self, *args, **kwargs):
-
-        super(GeneFilterForm, self).__init__(*args, **kwargs)
+        super(GeneListCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_method = 'GET'
-        self.helper.form_class = 'form-inline'
-        self.helper.field_template = 'bootstrap3/layout/inline_field.html'
-        self.helper.layout = Layout(
-            'gene',
-            StrictButton('Add', css_class='btn-default'),
-        )
+        self.helper.form_method = 'POST'
+        self.helper.add_input(Submit('save', 'Save'))
+        self.helper.include_media = False

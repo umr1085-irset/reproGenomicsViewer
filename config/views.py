@@ -14,9 +14,14 @@ from django.template.loader import render_to_string
 from sdap.files.models import File
 from sdap.jobs.models import Job
 from sdap.tools.models import Tool
-from sdap.studies.models import ExpressionStudy
+from sdap.studies.models import ExpressionStudy, ExpressionData, GeneList
 from sdap.studies.views import paginate, check_view_permissions
 from sdap.studies.forms import ExpressionStudyFilterForm
+
+from sdap.studies.graphs import getClasses
+
+import requests, json
+from xml.etree import ElementTree as ET
 
 
 def HomeView(request):
@@ -39,11 +44,10 @@ def index(request):
             "mutant",
             "cell_sorted",
             "keywords",
-            "Select"
     ]
-    all_studies =[study for study in  ExpressionStudy.objects.all().order_by('article') if check_view_permissions(request.user, study)]
+    all_studies =[study for study in  ExpressionStudy.objects.all().order_by('-pmid') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)
-    form = ExpressionStudyFilterForm(studies=all_studies)
+    form = ExpressionStudyFilterForm(studies=all_studies, show_all=True)
     table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
@@ -108,3 +112,5 @@ def genome_browser(request):
 
     return render(request, 'pages/genome_browser.html', {'species': data} )
 
+def citing(request):
+    return render(request, 'pages/citing.html')

@@ -5,7 +5,7 @@ from datetime import timedelta
 import sys
 
 class Command(BaseCommand):
-    help = 'Was a signature modified in the last x days?'
+    help = 'Was a study modified in the last x days?'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -16,7 +16,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if not ExpressionStudy.objects.filter(updated_at__gte = now()-timedelta(days=options['days'])).exists() or ExpressionStudy.objects.filter(created_at__gte = now()-timedelta(days=options['days'])):
+        if not ExpressionStudy.objects.filter(updated_at__gte = now()-timedelta(days=options['days'])).exists() or ExpressionData.objects.filter(created_at__gte = now()-timedelta(days=options['days'])):
             print('False')
             sys.exit(1)
         print('True')

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <!-- Jumbotron -->
+        <div class="card card-image" style="">
+            <div class="text-center py-2 px-2">
+                <div class="py-2">
+            
+                    <!-- Content -->
+                    <h5 class="h5 red-text"><i class="fas fa-book"></i> How to cite</h5>
+                    <h2 class="card-title h2 my-4 py-2">The ReproGenomics Viewer Citation Guidelines</h2>
+                    <p class="mb-4 pb-2 px-md-5 mx-md-5">The ReproGenomics Viewer database contains a wealth of processed sequencing datasets published 
+                        in the field of reproductive biology including genetic, genomic, transcriptomic, cistromic and epigenomic data. 
+                        In addition its web interface provides data access via several visualization tools. 
+                        As is common practice in scientific research, cite the resources you are using. 
+                        The team behind this resource has invested considerable time, resources, and effort into collecting, curating, 
+                        processing, developing, and maintaining the ReproGenomics Viewer resource you are using. 
+                        They deserve credit for their work.
+                    </p>
+                    <h3>If you use data or services from The ReproGenomics Viewer, please cite both publications:<br></h3>
+                    <ul style="list-style-type: none;">
+                        <li>
+                            <b>Darde TA <i>et al.,</i> 2019, Bioinformatics, </b><a target="_blank" href="https://www.ncbi.nlm.nih.gov/pubmed/30668675">The ReproGenomics Viewer: a multi-omics and cross-species resource compatible with single-cell studies for the reproductive science community.</a>
+                        </li>
+                        <li>
+                            <b>Darde TA <i>et al.,</i> 2015, Nucleic Acids Res, </b><a target="_blank" href="https://www.ncbi.nlm.nih.gov/pubmed/25883147">The ReproGenomics Viewer: an integrative cross-species toolbox for the reproductive science community.</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Jumbotron -->
+
+        <div class="row my-5">
+            <div class="col-md-12 mb-12">
+                <h3 style="text-align:center;">The Reprogenomics Viewer has been cited by:<br></h3>
+                <ul style="font-weight: 400;">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

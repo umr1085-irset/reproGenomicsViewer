@@ -34,9 +34,9 @@ from django.views.generic import DetailView, ListView, RedirectView, UpdateView,
 
 import uuid
 import shutil
-from .models import ExpressionStudy, ExpressionData, Gene, Database
+from .models import ExpressionStudy, ExpressionData, Gene, Database, GeneList
 from .forms import *
-from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, getValuesExpression, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full, getGenesValues
+from .graphs import getClasses, get_graph_data_full, get_graph_data_genes, getValues, get_density_graph_data_full, get_density_graph_gene_data_full, get_violin_graph_gene_data_full, getGenesValues, getNbSampleByClass
 
 def add_document(request, stdid):
 
@@ -52,6 +52,7 @@ def add_document(request, stdid):
     if request.method == 'POST':
         form = ExpressionDataForm(request.POST, request.FILES)
         if form.is_valid():
+            raise Exception(form)
             object = form.save(commit=False)
             object.created_by = request.user
             object.study = study
@@ -112,13 +113,108 @@ def delete_document(request, documentid):
 
 def ExpressionStudyDetailView(request, stdid):
     study = get_object_or_404(ExpressionStudy, pk=stdid)
-    if not check_view_permissions(request.user, study, True):
+    if request.GET.get("show_datasets"):
+        is_active= {"main": "", "datasets": "active"}
+    else:
+        is_active= {"main": "active", "datasets": ""}
+    if not check_view_permissions(request.user, study, False):
         return redirect('/unauthorized')
     context = {'study': study}
     if check_edit_permissions(request.user, study) and not study.status == "PUBLIC":
         context['has_edit_perm'] = True
+    context['is_active'] = is_active
 
     return render(request, 'studies/study_details.html', context)
+
+
+def get_gene_list(request):
+
+    if not request.GET.get('id'):
+        return JsonResponse({"data": []})
+
+    gene_list = get_object_or_404(GeneList, id=request.GET.get('id'))
+
+    if not gene_list.created_by == request.user:
+        return JsonResponse({"data": []})
+
+    gene_list_format = []
+
+    for gene in gene_list.genes.all():
+        gene_list_format.append({
+            'id': gene.id,
+            'display': "{} ({})".format(gene.symbol, gene.gene_id)
+        })
+    return JsonResponse({"data": gene_list_format})
+
+def create_gene_list(request):
+
+    if not request.user.is_authenticated:
+        return redirect('/unauthorized')
+
+    data = {}
+    if request.method == 'POST':
+        form = GeneListCreateForm(request.POST)
+        if form.is_valid():
+            object = form.save()
+            object.created_by = request.user
+            # No idea why it doesn't save..
+            object.genes.add(*[gene.id for gene in form.cleaned_data['genes']])
+            object.save()
+            return redirect(reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1")
+        else:
+            data['form_is_valid'] = False
+    else:
+        form = GeneListCreateForm()
+
+    context = {'form': form}
+
+    return render(request, 'studies/gene_list_create.html', context)
+
+def edit_gene_list(request, genelistid):
+
+    if not request.user.is_authenticated:
+        return redirect('/unauthorized')
+
+    gene_list = get_object_or_404(GeneList, id=genelistid)
+
+    if not gene_list.created_by == request.user:
+        return redirect('/unauthorized')
+
+    data = {}
+    if request.method == 'POST':
+        form = GeneListCreateForm(request.POST, instance=gene_list, initial={'name': gene_list.name, 'species':gene_list.species, 'genes': gene_list.genes.all()})
+        if form.is_valid():
+            object = form.save()
+            object.created_by = request.user
+            # No idea why it doesn't save..
+            # Inefficient.. should only remove not needed maybe?
+            object.genes.clear()
+            object.genes.add(*[gene.id for gene in form.cleaned_data['genes']])
+            object.save()
+            return redirect(reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1")
+        else:
+            data['form_is_valid'] = False
+    else:
+        form = GeneListCreateForm(instance=gene_list, initial={'name': gene_list.name, 'species':gene_list.species, 'genes': gene_list.genes.all()})
+
+    context = {'form': form}
+
+    return render(request, 'studies/gene_list_edit.html', context)
+
+def delete_gene_list(request, genelistid):
+
+    if not request.user.is_authenticated:
+        return redirect('/unauthorized')
+
+    gene_list = get_object_or_404(GeneList, id=genelistid)
+
+    if not gene_list.created_by == request.user:
+        return redirect('/unauthorized')
+
+    gene_list.delete()
+
+    return redirect(reverse("users:detail", kwargs={"username": request.user.username}) + "?gene_list=1")
+
 
 class CreateExpressionStudyView(LoginRequiredMixin, CreateView):
     model = ExpressionStudy
@@ -243,13 +339,12 @@ def index(request):
             "mutant",
             "cell_sorted",
             "keywords",
-            "Select"
     ]
 
-    all_studies = [study for study in ExpressionStudy.objects.exclude(data=None).order_by('article') if check_view_permissions(request.user, study)]
+    all_studies = [study for study in ExpressionStudy.objects.exclude(data=None).order_by('-pmid') if check_view_permissions(request.user, study)]
     studies = paginate(all_studies)
     form = ExpressionStudyFilterForm(studies=all_studies)
-    table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    table = render_to_string('studies/partial_study_table.html', {'studies': studies, 'data_type': 'partial'}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     context = {'form': form, 'columns': columns, 'table': table, 'pagination': pagination, 'modal': modal, 'data_type':'partial'}
@@ -273,6 +368,33 @@ def document_select(request):
 
 def show_graph(request):
 
+    if not "document_id" in request.GET or not "study_id" in request.GET:
+        return redirect(reverse("studies:index"))
+
+    document_id = request.GET["document_id"]
+    study_id = request.GET["study_id"]
+    # Just in case
+    if not document_id.isdigit() or not study_id.isdigit():
+        return redirect(reverse("studies:index"))
+
+    ##########################
+    # File Statistique only for RGV files
+    ##########################
+    data = get_object_or_404(ExpressionData, id=document_id)
+    study = get_object_or_404(ExpressionStudy, id=study_id)
+
+    classes = getClasses(data)
+    context = {'study': study, 'document': data, 'classes': classes}
+
+    if request.user.is_authenticated:
+        context['gene_lists'] = GeneList.objects.filter(created_by=request.user, species=data.species)
+    else:
+        context['gene_lists'] = []
+
+    return render(request, 'studies/graph.html', context)
+
+def get_class_info(request):
+
     if not "document_id" in request.GET and not "study_id" in request.GET:
         return redirect(reverse("studies:index"))
 
@@ -288,14 +410,11 @@ def show_graph(request):
     ##########################
     data = get_object_or_404(ExpressionData, id=document_id)
 
-    data_stat = {}
+    data_stat = getNbSampleByClass(data)
+
+    return JsonResponse({'data':data_stat})
 
 
-    study = get_object_or_404(ExpressionStudy, id=study_id)
-    form = GeneFilterForm()
-    classes = getClasses(data)
-    context = {'study': study, 'document': data, 'classes': classes, 'form': form}
-    return render(request, 'studies/graph.html', context)
 
 def get_graph_data(request):
 
@@ -314,33 +433,37 @@ def get_graph_data(request):
         return redirect(reverse("studies:index"))
 
     data = get_object_or_404(ExpressionData, id=document_id)
-
+    genelist = request.GET.getlist('gene_id', [])
 
     selected_class = request.GET.get('selected_class', None)
-
-    if "gene_id" in request.GET:
-
+    res =  {}
+    if genelist :
         exp_list = []
-        if "|" in request.GET['gene_id']:
-            list_gene = request.GET['gene_id'].split("|")
-            for g_ in list_gene :
-                gene = get_object_or_404(Gene, id=g_)
-                exp_list.append(gene)
-        else :
-            gene = get_object_or_404(Gene, id=request.GET['gene_id'])
+        for g_ in genelist :
+            try:
+                g_ = int(g_)
+            except ValueError:
+                continue
+            gene = get_object_or_404(Gene, id=g_)
             exp_list.append(gene)
         if display_mode =="scatter" :
-            data = get_graph_data_genes(data,exp_list, selected_class)
+            res = get_graph_data_genes(data,exp_list, selected_class)
         if display_mode =="density" :
-            data = get_density_graph_gene_data_full(data,exp_list, selected_class)
+            res = get_density_graph_gene_data_full(data,exp_list, selected_class)
         if display_mode =="violin" :
-            data = get_violin_graph_gene_data_full(data,exp_list, selected_class)
+            res = get_violin_graph_gene_data_full(data,exp_list, selected_class)
     else:
         if display_mode =="scatter" :
-            data = get_graph_data_full(data, selected_class)
+            res = get_graph_data_full(data, selected_class)
         if display_mode =="density" :
-            data = get_density_graph_data_full(data, selected_class)
-    return JsonResponse(data)
+            res = get_density_graph_data_full(data, selected_class)
+        if display_mode =="violin" :
+            res = {'chart':[],'warning':[],'time':'',"error_msg":"Please select at least one gene"}
+        if display_mode == "jbrowse" and data.study.jbrowse_data.exists():
+            url = _generate_jbrowse_url(data.species.jbrowse_name, data.study.jbrowse_data.all()[0].jbrowse_id, request.GET)
+            res = {"iframe": render_to_string('studies/partial_jbrowse_iframe.html', {'jbrowse_url':url}, request)}
+
+    return JsonResponse(res)
 
 def get_group_info(request):
 
@@ -357,8 +480,6 @@ def get_group_info(request):
 
     table = render_to_string('studies/partial_group_info.html', {'genes_list': expression_values_group}, request)
     data = {'list' : expression_values_group, 'group':group}
-
-
 
     return JsonResponse(data)
 
@@ -381,20 +502,27 @@ def render_table(request):
             elif key == "pmid":
                 kwargs[key + "__istartswith"] = value
             elif key == "technology" or key == "species":
-                kwargs["data__" + key] = value
+#                kwargs["data__" + key] = value
+                 kwargs[key + "__contains"] = [value]
             elif key == "page" or key == "type" or key == "pagination":
                 continue
             else:
                 kwargs[key + "__contains"] = [value]
-
-    studies = paginate([study for study in studies.filter(**kwargs).distinct().order_by('article') if check_view_permissions(request.user, study)], request.GET.get('page'), pagination)
+    all_studies = [study for study in studies.filter(**kwargs).distinct().order_by('-pmid') if check_view_permissions(request.user, study)]
+    studies = paginate(all_studies, request.GET.get('page'), pagination)
     # Filter here
-    table = render_to_string('studies/partial_study_table.html', {'studies': studies}, request)
+    if type == "partial":
+        form_data = ExpressionStudyFilterForm(studies=all_studies, initial_values=request.GET)
+    else:
+        form_data = ExpressionStudyFilterForm(studies=all_studies, initial_values=request.GET, show_all=True)
+    form = render_to_string('studies/partial_study_form.html', {'form': form_data}, request)
+    table = render_to_string('studies/partial_study_table.html', {'studies': studies, "data_type": type}, request)
     modal = render_to_string('studies/partial_study_modal.html', {'studies': studies}, request)
     pagination = render_to_string('studies/partial_study_pagination.html', {'table': studies}, request)
     data['table'] = table
     data['pagination'] = pagination
     data['modal'] = modal
+    data['form'] = form
     return JsonResponse(data)
 
 def autocomplete_genes(request,taxonid):
@@ -406,7 +534,7 @@ def autocomplete_genes(request,taxonid):
         qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query) & Q(tax_id__exact=int(taxonid)))
         results = []
         for gene in qs :
-            results.append({'label' : gene.symbol, 'value':gene.symbol+" ("+str(gene.id)+")"})
+            results.append({'label' : gene.symbol+" ("+str(gene.gene_id)+")", 'value': gene.id})
         data = json.dumps(results[:10])
     else:
         data="fail"
@@ -415,8 +543,12 @@ def autocomplete_genes(request,taxonid):
 
 def paginate(values, query=None, count=10, is_ES=False):
 
+    total = len(values)
+    if total == 0:
+        total = 1
+
     if count == "all":
-        paginator = Paginator(values, len(values))
+        paginator = Paginator(values, total)
     else:
         paginator = Paginator(values, count)
 
@@ -473,7 +605,7 @@ def get_genes_values_table(request, document_id):
     document = get_object_or_404(ExpressionData, id=document_id)
     gene_list = request.POST.get('genes').replace('\n', ',').replace('\t', ',').split(',')
     selected_class= request.POST.get('class')
-    correct_gene_dict = _process_gene_list(gene_list, document.species, request.POST.get('query'), document.gene_type)
+    correct_gene_dict = _process_gene_list(gene_list, document.species.species_id, request.POST.get('query'), document.gene_type)
     data = {}
     if correct_gene_dict:
         results = getGenesValues(document, selected_class, correct_gene_dict)
@@ -536,3 +668,27 @@ def _process_gene(gene_id, species_id, query_type, target_gene_type):
                         correct_gene_id = correct_gene.ensemble_id
 
     return correct_gene_id
+
+class GeneAutocomplete(autocomplete.Select2QuerySetView):
+
+    def get_queryset(self):
+        query = self.q
+        species = self.forwarded.get('species', '9606')
+        qs = Gene.objects.filter(tax_id=species)
+        if query:
+            qs = qs.filter(Q(symbol__icontains=query) | Q(synonyms__icontains=query)| Q(gene_id__icontains=query))
+        return qs
+
+    def get_result_value(self, result):
+        return "{} ({})".format(result.symbol, result.gene_id)
+
+def _generate_jbrowse_url(species_id, tracks, request_get):
+
+    add_tracks = request_get.getlist("tracks", [])
+
+    base_rgv_url = "https://jbrowse-rgv.genouest.org/?data=data/sample_data/json/"
+
+    if add_tracks:
+        tracks = tracks + "," + ",".join(add_tracks)
+
+    return base_rgv_url + "{}&tracks={}&tracklist=0&overview=0&menu=1".format(species_id, tracks)

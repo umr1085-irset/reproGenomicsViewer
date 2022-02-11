@@ -33,11 +33,25 @@ class GeneAdmin(admin.ModelAdmin):
         ),
     ]
     list_display = ['symbol', 'gene_id']
+    search_fields = ['symbol']
+
+class GeneListAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None,               {'fields': ['name','created_by','species','genes'
+                                        ]
+                             }
+        ),
+    
+    ]
+    autocomplete_fields = ['genes']
+
+
 
 
 
 admin.site.register(ExpressionStudy, ExpressionStudyAdmin)
 admin.site.register(ExpressionData, ExpressionDataAdmin)
+admin.site.register(GeneList, GeneListAdmin)
 admin.site.register(Gene, GeneAdmin)
 admin.site.register(Database)
 

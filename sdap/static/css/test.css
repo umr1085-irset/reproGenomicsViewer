@@ -1,0 +1,89 @@
+#wrapper{
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+#layoutContainer{
+  height:80vh;
+}
+
+#layoutContainer p{
+  text-align: center;
+}
+
+#menuContainer li{
+  cursor: move;
+  border-bottom: 1px solid #000;
+  border-top: 1px solid #333;
+  cursor: pointer;
+  padding: 10px 5px;
+  color: #BBB;
+  background: #1a1a1a;
+  font: 12px Arial, sans-serif;
+}
+
+#menuContainer li:hover{
+  background: #111;
+  color: #CCC;
+}
+
+#ajax-loader{
+    visibility: hidden;
+}
+
+
+#mapDrawerActivateButtonContainer{
+    position: fixed;
+    padding: 2em;
+    top: 150px;
+    right: -10px;
+    overflow-y: scroll;
+    z-index: 99;
+}
+
+#mapDrawerActivateButtonContainer2{
+    position: fixed;
+    padding: 2em;
+    top: 240px;
+    right: -30px;
+    overflow-y: scroll;
+    z-index: 99;
+}
+
+#mapDrawerActivateButtonContainer3{
+    position: fixed;
+    padding: 2em;
+    top: 300px;
+    right: -68px;
+    overflow-y: scroll;
+    z-index: 99;
+}
+
+.ui-autocomplete {
+    position: absolute;
+    z-index: 1000;
+    cursor: default;
+    padding: 0;
+    margin-top: 2px;
+    list-style: none;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+.ui-autocomplete > li {
+    padding: 3px 20px;
+}
+.ui-autocomplete > li.ui-state-focus {
+    background-color: #DDD;
+}
+.ui-helper-hidden-accessible {
+    display: none;
+}
+

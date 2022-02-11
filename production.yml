@@ -15,9 +15,10 @@ services:
       - redis
     volumes:
       - .:/app
+      - /groups/irset/archives/web/RGV2:/rgv_data:ro
     env_file:
-      - ./.envs/.production/.django
-      - ./.envs/.production/.postgres
+      - ./.envs/.production/.django_prod
+      - ./.envs/.production/.postgres_prod
     command: /start
 
   postgres:
@@ -29,7 +30,7 @@ services:
       - production_postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
     env_file:
-      - ./.envs/.production/.postgres
+      - ./.envs/.production/.postgres_prod
 
   nginx:
     build:
@@ -43,7 +44,7 @@ services:
       - django
       - flower
     ports:
-      - "80:80"
+      - "6545:80"
 
   redis:
     image: redis:5.0
@@ -68,5 +69,6 @@ services:
     volumes:
       - /home/genouest/bioinfo/irset/rgv/RGV/jbrowse:/opt/jbrowse
       - /groups/irset/archives/web/RGV2:/jbrowse/data
+      - ./jbrowse.conf:/jbrowse/jbrowse.conf
     ports:
       - 6546:80

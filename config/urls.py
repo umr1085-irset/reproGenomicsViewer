@@ -33,7 +33,7 @@ urlpatterns = [
         "download/", TemplateView.as_view(template_name="pages/download.html"), name="download"
     ),
     path(
-        "citing/", TemplateView.as_view(template_name="pages/citing.html"), name="citing"
+        "citing/", views.citing, name="citing"
     ),
     path(
         "help/", TemplateView.as_view(template_name="pages/help.html"), name="help"
