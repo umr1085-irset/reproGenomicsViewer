@@ -24,3 +24,5 @@ coreapi==2.3.3  # https://github.com/core-api/python-client
 django-autocomplete-light==3.3.0
 django-guardian==2.0.0
 django-better-admin-arrayfield==1.0.4
+importlib-metadata==4.13.0
+tzdata
